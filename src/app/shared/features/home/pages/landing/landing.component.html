@@ -1,8 +1,35 @@
 <!-- Landing Page -->
 <div class="min-h-screen bg-white">
 
+  <!-- Navigation Bar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 px-20 py-2">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <span class="text-white font-bold text-sm">S</span>
+          </div>
+          <span class="text-xl font-extrabold text-gray-900">SIMS</span>
+          <span class="hidden sm:inline text-xs text-gray-500 font-medium ml-1">v2.0</span>
+        </div>
+
+        <!-- Login Button -->
+        <div class="flex items-center gap-3">
+          <a routerLink="/auth/login"
+             class="inline-flex items-center px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+            </svg>
+            Login
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
   <!-- Hero Section -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 min-h-screen flex items-center px-20">
+  <section class="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 min-h-screen flex items-center px-20 pt-16">
     <!-- Background decoration -->
     <div class="absolute inset-0 opacity-5">
       <div class="absolute top-0 right-0 w-96 h-96 bg-indigo-500 rounded-full blur-3xl"></div>
@@ -24,7 +51,7 @@
 
           <p class="text-lg sm:text-xl text-gray-600 mb-8 max-w-lg leading-relaxed">
             SIMS is a complete solution for managing products, inventory, sales,
-            purchases, and more — all in one powerful system designed for efficiency.
+            purchases, and more. All in one powerful system designed for efficiency.
           </p>
 
           <div class="flex flex-wrap gap-4 mb-12">
@@ -43,10 +70,16 @@
 
           <!-- Stats -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
-            <div *ngFor="let stat of stats">
-              <div class="text-2xl sm:text-3xl font-extrabold text-gray-900">{{ stat.value }}</div>
-              <div class="text-sm text-gray-600 mt-1">{{ stat.label }}</div>
-            </div>
+            @for (stat of stats; track stat.label) {
+              <div>
+                <div class="text-2xl sm:text-3xl font-extrabold text-gray-900">
+                  {{ stat.value }}
+                </div>
+                <div class="text-sm text-gray-600 mt-1">
+                  {{ stat.label }}
+                </div>
+              </div>
+            }
           </div>
         </div>
 
@@ -119,26 +152,46 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-        <div *ngFor="let feature of features"
-             class="group bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 hover:border-indigo-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-          <div class="text-4xl mb-4">{{ feature.icon }}</div>
-          <h3 class="text-xl font-bold text-gray-900 mb-3">{{ feature.title }}</h3>
-          <p class="text-gray-600 text-sm leading-relaxed mb-4">{{ feature.description }}</p>
-          <ul class="space-y-2">
-            <li *ngFor="let item of feature.items" class="flex items-center text-sm text-gray-600">
-              <svg class="w-4 h-4 text-indigo-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-              </svg>
-              {{ item }}
-            </li>
-          </ul>
-        </div>
+        @for (feature of features; track feature.title) {
+          <div class="group bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 hover:border-indigo-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+
+            <div class="text-4xl mb-4">{{ feature.icon }}</div>
+
+            <h3 class="text-xl font-bold text-gray-900 mb-3">
+              {{ feature.title }}
+            </h3>
+
+            <p class="text-gray-600 text-sm leading-relaxed mb-4">
+              {{ feature.description }}
+            </p>
+
+            <ul class="space-y-2">
+              @for (item of feature.items; track item) {
+                <li class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 text-indigo-600 mr-2 flex-shrink-0"
+                       fill="none"
+                       stroke="currentColor"
+                       viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7" />
+                  </svg>
+
+                  {{ item }}
+                </li>
+              }
+            </ul>
+
+          </div>
+        }
       </div>
     </div>
   </section>
 
   <!-- Benefits Section -->
-  <section class="py-15 sm:py-10 bg-gray-50 px-20">
+  <section id="benefits" class="py-15 sm:py-10 bg-gray-50 px-20">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
         <span class="inline-block px-4 py-2 bg-indigo-100 text-indigo-700 font-semibold text-sm rounded-full mb-4">
@@ -153,12 +206,21 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-        <div *ngFor="let benefit of benefits"
-             class="bg-white rounded-2xl p-6 sm:p-8 text-center border border-gray-100 hover:border-indigo-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-          <div class="text-5xl mb-4">{{ benefit.icon }}</div>
-          <h4 class="text-lg font-bold text-gray-900 mb-2">{{ benefit.title }}</h4>
-          <p class="text-gray-600 text-sm leading-relaxed">{{ benefit.description }}</p>
-        </div>
+        @for (benefit of benefits; track benefit.title) {
+          <div class="bg-white rounded-2xl p-6 sm:p-8 text-center border border-gray-100 hover:border-indigo-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+
+            <div class="text-5xl mb-4">{{ benefit.icon }}</div>
+
+            <h4 class="text-lg font-bold text-gray-900 mb-2">
+              {{ benefit.title }}
+            </h4>
+
+            <p class="text-gray-600 text-sm leading-relaxed">
+              {{ benefit.description }}
+            </p>
+
+          </div>
+        }
       </div>
     </div>
   </section>
@@ -176,10 +238,12 @@
         </p>
 
         <div class="flex flex-wrap justify-center gap-3 mb-8">
-          <span *ngFor="let feature of ctaFeatures"
-                class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
-            ✓ {{ feature }}
-          </span>
+          @for (feature of ctaFeatures; track feature) {
+            <span
+              class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+              ✓ {{ feature }}
+            </span>
+          }
         </div>
 
         <a routerLink="/auth/login"
