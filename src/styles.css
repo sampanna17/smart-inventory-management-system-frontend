@@ -15,3 +15,24 @@
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+@theme {
+  --color-primary: #ad543c;
+  --color-primary-dark: #8f4531;
+
+  --color-sidebar: #221d1a;
+
+  --color-heading: #221d1a;
+  --color-text: #584d44;
+  --color-muted: #6e655c;
+
+  --color-background: #fafafa;
+  --color-surface: #ffffff;
+
+  --color-border: #e5e7eb;
+
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+}
