@@ -2,12 +2,13 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
+import { GoToTopComponent } from '../../../../components/go-to-top/go-to-top.component';
 
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterModule, NgOptimizedImage],
+  imports: [CommonModule, RouterModule, NgOptimizedImage, GoToTopComponent],
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss'],
 })
