@@ -3,14 +3,26 @@
     type="button"
     (click)="scrollToTop()"
     aria-label="Go to top"
-    class="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-blue-700"
+    class="fixed bottom-6 right-6 z-50 flex h-16 w-16 flex-col items-center justify-center duration-300 hover:-translate-y-1"
   >
+    <div class="relative flex h-10 w-8 items-center justify-center  ">
+      <ng-icon
+        name="heroChevronUpSolid"
+        class="scroll-arrow arrow-1 absolute h-8 w-8">
+      </ng-icon>
+
+      <ng-icon
+        name="heroChevronUpSolid"
+        class="scroll-arrow arrow-2 absolute h-6 w-6">
+      </ng-icon>
+    </div>
+
     <img
-      ngSrc="./assets/icons/goToTop.png"
+      ngSrc="assets/icons/goToTop.png"
       width="532"
       height="532"
       alt="Go to top"
-      class="h-6 w-6 object-contain"
+      class="mt-0.5 h-7 w-7 object-contain"
     />
   </button>
 }
