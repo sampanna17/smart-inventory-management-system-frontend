@@ -16,13 +16,16 @@ export const routes: Routes = [
         path: 'login',
         loadComponent: () =>
           import('./shared/features/auth/pages/login/login.component').then(
-            (m) => m.LoginComponent
+            (m) => m.LoginComponent,
           ),
       },
     ],
   },
   {
     path: '**',
-    redirectTo: '',
+    loadComponent: () =>
+      import("./shared/features/not-found/ page-not-found/page-not-found.component").then(
+        (m) => m.PageNotFoundComponent,
+      ),
   },
 ];
