@@ -3,50 +3,17 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./shared/features/home/pages/landing/landing.component').then(
-        (m) => m.LandingComponent,
-      ),
+    loadChildren: () => import('./shared/features/home/home.routes').then((m) => m.HOME_ROUTES),
   },
-  // Authentication
+
   {
     path: 'auth',
-    children: [
-      {
-        path: 'login',
-        loadComponent: () =>
-          import('./shared/features/auth/pages/login/login.component').then(
-            (m) => m.LoginComponent,
-          ),
-      },
-      {
-        path: 'create-admin',
-        loadComponent: () =>
-          import('./shared/features/auth/pages/create-admin/create-admin.component').then(
-            (m) => m.CreateAdminComponent,
-          ),
-      },
-      {
-        path: 'forgot-password',
-        loadComponent: () =>
-          import('./shared/features/auth/pages/forgot-password/forgot-password.component').then(
-            (m) => m.ForgotPasswordComponent,
-          ),
-      },
-      {
-        path: 'reset-password',
-        loadComponent: () =>
-          import('./shared/features/auth/pages/reset-password/reset-password.component').then(
-            (m) => m.ResetPasswordComponent,
-          ),
-      },
-    ],
+    loadChildren: () => import('./shared/features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
+
   {
     path: '**',
-    loadComponent: () =>
-      import("./shared/features/not-found/ page-not-found/page-not-found.component").then(
-        (m) => m.PageNotFoundComponent,
-      ),
+    loadChildren: () =>
+      import('./shared/features/not-found/not-found.routes').then((m) => m.NOT_FOUND_ROUTES),
   },
 ];
