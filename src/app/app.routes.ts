@@ -26,6 +26,20 @@ export const routes: Routes = [
             (m) => m.CreateAdminComponent,
           ),
       },
+      {
+        path: 'forgot-password',
+        loadComponent: () =>
+          import('./shared/features/auth/pages/forgot-password/forgot-password.component').then(
+            (m) => m.ForgotPasswordComponent,
+          ),
+      },
+      {
+        path: 'reset-password',
+        loadComponent: () =>
+          import('./shared/features/auth/pages/reset-password/reset-password.component').then(
+            (m) => m.ResetPasswordComponent,
+          ),
+      },
     ],
   },
   {

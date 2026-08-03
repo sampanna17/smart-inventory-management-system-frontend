@@ -9,11 +9,12 @@ import { of } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroEye, heroEyeSlash } from '@ng-icons/heroicons/outline';
+import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 
 @Component({
   selector: 'app-create-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NgOptimizedImage, NgIconComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, NgOptimizedImage, NgIconComponent, AuthLayoutComponent],
   viewProviders: [provideIcons({ heroEye, heroEyeSlash })],
   templateUrl: './create-admin.component.html',
   styleUrls: [],
@@ -32,14 +33,13 @@ export class CreateAdminComponent {
   }
 
   adminForm = this.fb.nonNullable.group({
-    name: ['', [Validators.required]],
+    fullName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    role: ['admin'] // Setting default role to admin for the signup payload
+    password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
-  get name() {
-    return this.adminForm.controls.name;
+  get fullName() {
+    return this.adminForm.controls.fullName;
   }
 
   get email() {
@@ -65,17 +65,13 @@ export class CreateAdminComponent {
       .pipe(
         catchError(error => {
           console.error('Signup Error:', error);
-          
+
           let errorMsg = 'Failed to create admin. Please try again.';
-          
+
           if (error.status === 0) {
             errorMsg = 'Network error. Is the backend running? (Check CORS too)';
-          } else if (typeof error.error === 'string') {
-            errorMsg = error.error;
           } else if (error.error?.message) {
             errorMsg = error.error.message;
-          } else if (error.error?.detail) {
-            errorMsg = error.error.detail;
           } else if (error.message) {
             errorMsg = error.message;
           }
@@ -90,7 +86,7 @@ export class CreateAdminComponent {
           this.toastr.success('Admin created successfully! Redirecting...', 'Success');
           this.isLoading.set(false);
           this.adminForm.reset();
-          
+
           setTimeout(() => {
             void this.router.navigate(['/auth/login']);
           }, 2000);
