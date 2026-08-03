@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { heroEye, heroEyeSlash } from '@ng-icons/heroicons/outline';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NgOptimizedImage],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, NgOptimizedImage, NgIconComponent],
+  viewProviders: [provideIcons({ heroEye, heroEyeSlash })],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
