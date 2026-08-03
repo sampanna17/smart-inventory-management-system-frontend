@@ -19,6 +19,13 @@ export const routes: Routes = [
             (m) => m.LoginComponent,
           ),
       },
+      {
+        path: 'create-admin',
+        loadComponent: () =>
+          import('./shared/features/auth/pages/create-admin/create-admin.component').then(
+            (m) => m.CreateAdminComponent,
+          ),
+      },
     ],
   },
   {

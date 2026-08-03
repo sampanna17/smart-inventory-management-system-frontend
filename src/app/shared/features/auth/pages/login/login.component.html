@@ -76,12 +76,21 @@
 
           </div>
 
-          <input
-            type="password"
-            placeholder="Enter your password"
-            formControlName="password"
-            class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:ring-4 focus:ring-blue-100"
-          />
+          <div class="relative">
+            <input
+              [type]="hidePassword() ? 'password' : 'text'"
+              placeholder="Enter your password"
+              formControlName="password"
+              class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:ring-4 focus:ring-blue-100 pr-12"
+            />
+            <button 
+              type="button" 
+              (click)="togglePassword()" 
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none flex items-center justify-center"
+            >
+              <ng-icon [name]="hidePassword() ? 'heroEye' : 'heroEyeSlash'" class="text-xl"></ng-icon>
+            </button>
+          </div>
         </div>
 
         <!-- Remember -->
