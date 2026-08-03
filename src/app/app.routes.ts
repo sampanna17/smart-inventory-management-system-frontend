@@ -10,6 +10,11 @@ export const routes: Routes = [
     path: 'auth',
     loadChildren: () => import('./shared/features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
+  
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./shared/features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
+  },
 
   {
     path: '**',
