@@ -6,6 +6,7 @@ import { NgOptimizedImage } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroEye, heroEyeSlash } from '@ng-icons/heroicons/outline';
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -18,9 +19,11 @@ import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.co
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   isLoading = signal(false);
   hidePassword = signal(true);
+  errorMessage = signal<string | null>(null);
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -41,7 +44,27 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    void this.router.navigate(['/']);
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+    
+    const { email, password } = this.loginForm.getRawValue();
+
+    this.authService.login({ email, password }).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        void this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        console.error('Login error', err);
+        this.errorMessage.set('Invalid email or password. Please try again.');
+      }
+    });
   }
 
   loginWithGoogle(): void {
