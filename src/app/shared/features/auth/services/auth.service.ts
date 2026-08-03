@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8000/api/auth';
+  private apiUrl = 'http://localhost:5000/api/auth';
 
   createAdmin(userData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/signup`, userData);
