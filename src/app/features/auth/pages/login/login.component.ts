@@ -6,7 +6,7 @@ import { NgOptimizedImage } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroEye, heroEyeSlash } from '@ng-icons/heroicons/outline';
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -51,7 +51,7 @@ export class LoginComponent {
 
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    
+
     const { email, password } = this.loginForm.getRawValue();
 
     this.authService.login({ email, password }).subscribe({
@@ -62,7 +62,17 @@ export class LoginComponent {
       error: (err) => {
         this.isLoading.set(false);
         console.error('Login error', err);
-        this.errorMessage.set('Invalid email or password. Please try again.');
+
+        let msg = 'Invalid email or password. Please try again.';
+        if (err.error && err.error.message) {
+          msg = err.error.message;
+          // If the backend returns detailed errors in a list, you can append them
+          if (err.error.errors && err.error.errors.length > 0) {
+            msg += ': ' + err.error.errors.join(', ');
+          }
+        }
+
+        this.errorMessage.set(msg);
       }
     });
   }

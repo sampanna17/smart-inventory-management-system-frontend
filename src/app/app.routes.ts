@@ -3,22 +3,22 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadChildren: () => import('./shared/features/home/home.routes').then((m) => m.HOME_ROUTES),
+    loadChildren: () => import('./features/home/home.routes').then((m) => m.HOME_ROUTES),
   },
 
   {
     path: 'auth',
-    loadChildren: () => import('./shared/features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+    loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   
   {
     path: 'dashboard',
-    loadChildren: () => import('./shared/features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
+    loadChildren: () => import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
 
   {
     path: '**',
     loadChildren: () =>
-      import('./shared/features/not-found/not-found.routes').then((m) => m.NOT_FOUND_ROUTES),
+      import('./features/not-found/not-found.routes').then((m) => m.NOT_FOUND_ROUTES),
   },
 ];
