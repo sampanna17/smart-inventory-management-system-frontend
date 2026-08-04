@@ -3,6 +3,12 @@
   illustrationTitle="Welcome Back"
   illustrationDesc="Sign in to continue managing your inventory."
 >
+  <!-- Back to Home -->
+  <a routerLink="/" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-8 group">
+    <ng-icon name="heroArrowLeft" class="text-lg transition-transform group-hover:-translate-x-1"></ng-icon>
+    <span>Back to Home</span>
+  </a>
+
   <!-- Logo -->
   <div class="mb-6">
     <div class="flex items-center gap-3 mb-4">
@@ -26,9 +32,11 @@
 
   <form class="space-y-5" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <!-- Error Message -->
-    <div *ngIf="errorMessage()" class="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
-      {{ errorMessage() }}
-    </div>
+    @if (errorMessage()) {
+      <div class="mb-4 rounded-lg bg-red-100 p-3 text-sm text-red-700">
+        {{ errorMessage() }}
+      </div>
+    }
 
     <!-- Email -->
     <div>
@@ -91,8 +99,15 @@
       [disabled]="isLoading() || loginForm.invalid"
       class="w-full rounded-xl bg-text py-3 font-semibold text-white transition hover:bg-primary-dark disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
     >
-      <span *ngIf="isLoading()" class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-      {{ isLoading() ? 'Signing In...' : 'Sign In' }}
+      @if (isLoading()) {
+        <span
+          class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+        ></span>
+
+        <span>Signing In...</span>
+      } @else {
+        <span>Sign In</span>
+      }
     </button>
   </form>
 
@@ -124,9 +139,10 @@
   </div>
 
   <!-- Google Button Overlay -->
- <div
-  id="google-btn-container"
-  class="absolute inset-0 flex h-full w-full items-center justify-center opacity-0"
-></div>
+  <div
+    id="google-btn-container"
+    class="absolute inset-0 h-full w-full"
+    style="opacity: 0.01;"
+  ></div>
 </div>
 </app-auth-layout>

@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroEye, heroEyeSlash } from '@ng-icons/heroicons/outline';
+import { heroEye, heroEyeSlash, heroArrowLeft } from '@ng-icons/heroicons/outline';
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { environment } from '../../../../../environments/environment';
@@ -15,7 +15,7 @@ declare var google: any;
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, NgOptimizedImage, NgIconComponent, AuthLayoutComponent],
-  viewProviders: [provideIcons({ heroEye, heroEyeSlash })],
+  viewProviders: [provideIcons({ heroEye, heroEyeSlash, heroArrowLeft })],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
@@ -76,7 +76,6 @@ export class LoginComponent implements AfterViewInit {
             msg += ': ' + err.error.errors.join(', ');
           }
         }
-
         this.errorMessage.set(msg);
       }
     });
