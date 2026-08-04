@@ -115,7 +115,7 @@ export class LoginComponent implements AfterViewInit {
     if (container) {
       google.accounts.id.renderButton(
         container,
-        { theme: 'outline', size: 'large', shape: 'rectangular', text: 'continue_with', width: '100%' }
+        { theme: 'outline', size: 'medium', shape: 'rectangular', text: 'signin_with' }
       );
     }
   }
