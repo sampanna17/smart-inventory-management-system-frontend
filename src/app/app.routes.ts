@@ -13,6 +13,7 @@ export const routes: Routes = [
   
   {
     path: 'dashboard',
+    loadComponent: () => import('./core/layout/main-layout/main-layout.component').then((m) => m.MainLayoutComponent),
     loadChildren: () => import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
 
