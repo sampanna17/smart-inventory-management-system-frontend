@@ -39,26 +39,34 @@ export class AuthService {
 
   login(credentials: { email: string; password: string }): Observable<ApiResponse<User>> {
     return this.http.post<ApiResponse<User>>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => {
-        if (response.success && response.data) {
-          const user: User = {
-            userId: response.data.userId,
-            fullName: response.data.fullName,
-            email: response.data.email,
-            role: response.data.role,
-            token: response.data.token
-          };
-          this.currentUser.set(user);
-
-          if (isPlatformBrowser(this.platformId)) {
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            if (user.token) {
-              localStorage.setItem('token', user.token);
-            }
-          }
-        }
-      })
+      tap(response => this.handleAuthResponse(response))
     );
+  }
+
+  loginWithGoogle(idToken: string): Observable<ApiResponse<User>> {
+    return this.http.post<ApiResponse<User>>(`${this.apiUrl}/login/google`, { idToken }).pipe(
+      tap(response => this.handleAuthResponse(response))
+    );
+  }
+
+  private handleAuthResponse(response: ApiResponse<User>): void {
+    if (response.success && response.data) {
+      const user: User = {
+        userId: response.data.userId,
+        fullName: response.data.fullName,
+        email: response.data.email,
+        role: response.data.role,
+        token: response.data.token
+      };
+      this.currentUser.set(user);
+
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        if (user.token) {
+          localStorage.setItem('token', user.token);
+        }
+      }
+    }
   }
 
   logout(): void {
