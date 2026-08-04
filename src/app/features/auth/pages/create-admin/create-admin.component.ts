@@ -8,14 +8,14 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroEye, heroEyeSlash } from '@ng-icons/heroicons/outline';
+import { heroEye, heroEyeSlash, heroArrowLeft } from '@ng-icons/heroicons/outline';
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 
 @Component({
   selector: 'app-create-admin',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, NgOptimizedImage, NgIconComponent, AuthLayoutComponent],
-  viewProviders: [provideIcons({ heroEye, heroEyeSlash })],
+  viewProviders: [provideIcons({ heroEye, heroEyeSlash, heroArrowLeft })],
   templateUrl: './create-admin.component.html',
   styleUrls: [],
 })

@@ -3,11 +3,20 @@
   illustrationTitle="Welcome Back"
   illustrationDesc="Sign in to continue managing your inventory."
 >
-  <!-- Back to Home -->
-  <a routerLink="/" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-8 group">
-    <ng-icon name="heroArrowLeft" class="text-lg transition-transform group-hover:-translate-x-1"></ng-icon>
-    <span>Back to Home</span>
-  </a>
+  <!-- Top Navigation -->
+  <div class="flex items-center justify-between mb-8">
+    <!-- Back to Home -->
+    <a routerLink="/" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors group">
+      <ng-icon name="heroArrowLeft" class="text-lg transition-transform group-hover:-translate-x-1"></ng-icon>
+      <span>Back to Home</span>
+    </a>
+
+    <!-- Create Admin -->
+    <a routerLink="/auth/create-admin" class="inline-flex items-center gap-2 text-sm text-primary hover:text-primary-dark transition-colors font-medium">
+      <span>Create Admin</span>
+      <ng-icon name="heroUserPlus" class="text-lg"></ng-icon>
+    </a>
+  </div>
 
   <!-- Logo -->
   <div class="mb-6">
