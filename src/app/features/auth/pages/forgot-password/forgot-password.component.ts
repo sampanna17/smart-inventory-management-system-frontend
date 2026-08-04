@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -17,8 +18,10 @@ export class ForgotPasswordComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private toastr = inject(ToastrService);
+  private authService = inject(AuthService);
 
   isLoading = signal(false);
+  errorMessage = signal<string | null>(null);
 
   forgotForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -35,12 +38,29 @@ export class ForgotPasswordComponent {
     }
 
     this.isLoading.set(true);
+    this.errorMessage.set(null);
 
-    // TODO: Connect to backend authService.forgotPassword(email)
-    setTimeout(() => {
-      this.isLoading.set(false);
-      this.toastr.success('If the email exists, a reset link has been sent.', 'Success');
-      void this.router.navigate(['/auth/login']);
-    }, 1500);
+    const emailValue = this.email.value;
+
+    this.authService.forgotPassword(emailValue).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.toastr.success(
+          'Password reset link sent successfully. Please check your email.',
+          'Success',
+        );
+        void this.router.navigate(['/auth/login']);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        console.error('Forgot password error', err);
+
+        let msg = 'Failed to send reset link. Please try again.';
+        if (err.error && err.error.message) {
+          msg = err.error.message;
+        }
+        this.errorMessage.set(msg);
+      }
+    });
   }
 }

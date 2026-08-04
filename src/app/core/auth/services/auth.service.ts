@@ -69,6 +69,14 @@ export class AuthService {
     }
   }
 
+  forgotPassword(email: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/reset-password`, { token, newPassword });
+  }
+
   logout(): void {
     this.currentUser.set(null);
     if (isPlatformBrowser(this.platformId)) {
