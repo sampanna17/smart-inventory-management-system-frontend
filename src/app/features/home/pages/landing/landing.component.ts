@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
-import { GoToTopComponent } from '../../../../components/go-to-top/go-to-top.component';
+import { GoToTopComponent } from '../../../../shared/components/go-to-top/go-to-top.component';
 
 
 @Component({

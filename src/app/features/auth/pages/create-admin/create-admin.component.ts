@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -81,8 +81,8 @@ export class CreateAdminComponent {
           return of(null);
         })
       )
-      .subscribe(response => {
-        if (response) {
+      .subscribe((response: any) => {
+        if (response?.success) {
           this.toastr.success('Admin created successfully! Redirecting...', 'Success');
           this.isLoading.set(false);
           this.adminForm.reset();
