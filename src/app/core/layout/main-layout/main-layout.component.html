@@ -1,0 +1,24 @@
+<div class="flex h-screen bg-background overflow-hidden">
+  
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isCollapsed]="isSidebarCollapsed()"
+    [isMobileOpen]="isMobileSidebarOpen()"
+    (closeMobileSidebar)="closeMobileSidebar()"
+  ></app-sidebar>
+
+  <!-- Main Content Wrapper -->
+  <div class="flex flex-1 flex-col overflow-hidden transition-all duration-300">
+    
+    <!-- Navbar -->
+    <app-navbar 
+      (toggleSidebar)="toggleSidebar()"
+    ></app-navbar>
+
+    <!-- Page Content Area -->
+    <main class="flex-1 overflow-y-auto bg-background p-4 sm:p-6 lg:p-8 custom-scrollbar">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+</div>
