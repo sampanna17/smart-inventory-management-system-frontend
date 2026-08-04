@@ -89,18 +89,13 @@ export class LoginComponent implements AfterViewInit {
   }
 
   private renderGoogleButton(): void {
-    if (typeof google !== 'undefined') {
-      this.initializeGoogle();
-    } else {
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
+    // Robustly wait for the Google library to load to prevent race conditions on reload
+    const checkGoogle = setInterval(() => {
+      if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+        clearInterval(checkGoogle);
         this.initializeGoogle();
-      };
-      document.body.appendChild(script);
-    }
+      }
+    }, 50); // Check every 50ms
   }
 
   private initializeGoogle(): void {
@@ -110,12 +105,12 @@ export class LoginComponent implements AfterViewInit {
         this.ngZone.run(() => this.handleGoogleLogin(response));
       }
     });
-    
+
     const container = document.getElementById('google-btn-container');
     if (container) {
       google.accounts.id.renderButton(
         container,
-        { theme: 'outline', size: 'medium', shape: 'rectangular', text: 'signin_with' }
+        { theme: 'outline', size: 'large', type: 'standard', shape: 'rectangular', text: 'signin_with', width: '600' }
       );
     }
   }
