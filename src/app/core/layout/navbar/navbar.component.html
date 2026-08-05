@@ -46,13 +46,12 @@
 
       <!-- Profile dropdown -->
       <div class="relative">
-        <button type="button" class="-m-1.5 flex items-center p-1.5 gap-x-3 text-sm font-semibold leading-6 text-heading hover:bg-background rounded-full transition-colors pr-3">
-          <span class="sr-only">Open user menu</span>
-          <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-            U
+        <button type="button" class="-m-1.5 flex items-center p-1.5 gap-x-1 text-sm font-semibold leading-6 text-heading hover:bg-background rounded-full transition-colors pr-3">
+          <div class="flex items-center justify-center h-8 w-8 ">
+            <ng-icon name="heroUser" class="text-xl text-primary"></ng-icon>
           </div>
           <span class="hidden lg:flex lg:items-center">
-            <span class="text-sm font-medium leading-6 text-heading" aria-hidden="true">User</span>
+            <span class="text-sm font-medium leading-6 text-heading" aria-hidden="true">{{ currentUser()?.fullName || 'User' }}</span>
             <ng-icon name="heroChevronDown" class="ml-2 h-5 w-5 text-muted"></ng-icon>
           </span>
         </button>
