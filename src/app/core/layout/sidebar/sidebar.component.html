@@ -36,7 +36,7 @@
   <!-- Main Navigation -->
   <div class="flex-1 overflow-y-auto py-4 custom-scrollbar">
     <nav class="space-y-1 px-3">
-      @for (item of menuItems; track item.route) {
+      @for (item of filteredMenuItems(); track item.route) {
         <a
           [routerLink]="item.route"
           routerLinkActive="bg-primary text-white font-medium"
