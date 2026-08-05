@@ -6,6 +6,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { User } from '../../models/user.model';
 import { ApiResponse } from '../../models/api-response.model';
 import { environment } from '../../../../environments/environment';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,19 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+  private toastr = inject(ToastrService);
   private apiUrl = `${environment.apiUrl}/auth`;
+  private expirationTimer: any;
+
+  constructor() {
+    const user = this.currentUser();
+    if (user && user.token) {
+      const decoded = this.decodeToken(user.token);
+      if (decoded && decoded.exp) {
+        this.autoLogout(decoded.exp * 1000);
+      }
+    }
+  }
 
   // Use a signal to store the current user state
   currentUser = signal<User | null>(this.loadUserFromStorage());
@@ -60,6 +73,11 @@ export class AuthService {
       };
       this.currentUser.set(user);
 
+      const decoded = this.decodeToken(user.token);
+      if (decoded && decoded.exp) {
+        this.autoLogout(decoded.exp * 1000);
+      }
+
       if (isPlatformBrowser(this.platformId)) {
         localStorage.setItem('currentUser', JSON.stringify(user));
         if (user.token) {
@@ -77,12 +95,75 @@ export class AuthService {
     return this.http.post<ApiResponse<void>>(`${this.apiUrl}/reset-password`, { token, newPassword });
   }
 
-  logout(): void {
+  private decodeToken(token: string | undefined): any {
+    if (!token) return null;
+    try {
+      const payload = token.split('.')[1];
+      // atob is available in browsers and Node.js >= 16
+      const decoded = atob(payload);
+      return JSON.parse(decoded);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  isAuthenticated(): boolean {
+    const user = this.currentUser();
+    if (!user || !user.token) {
+      return false;
+    }
+
+    const decoded = this.decodeToken(user.token);
+    if (!decoded || !decoded.exp) {
+      return false;
+    }
+
+    const expirationDate = decoded.exp * 1000;
+    const now = new Date().getTime();
+
+    if (now > expirationDate) {
+      // Token is expired, trigger logout
+      this.logout(true);
+      return false;
+    }
+
+    return true;
+  }
+
+  private autoLogout(expirationDate: number) {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    this.clearAuthTimer();
+    const expiresIn = expirationDate - new Date().getTime();
+    
+    if (expiresIn > 0) {
+      this.expirationTimer = setTimeout(() => {
+        this.logout(true);
+      }, expiresIn);
+    } else {
+      this.logout(true);
+    }
+  }
+
+  private clearAuthTimer() {
+    if (this.expirationTimer) {
+      clearTimeout(this.expirationTimer);
+      this.expirationTimer = null;
+    }
+  }
+
+  logout(sessionExpired = false): void {
+    this.clearAuthTimer();
     this.currentUser.set(null);
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('currentUser');
       localStorage.removeItem('token');
     }
+    
+    if (sessionExpired) {
+      this.toastr.error('Session expired. Please log in again.');
+    }
+    
     void this.router.navigate(['/auth/login']);
   }
 }

@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
+
+import { AuthService } from '../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-page-not-found',
@@ -10,4 +12,8 @@ import { NgOptimizedImage } from '@angular/common';
   styleUrl: './page-not-found.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageNotFoundComponent {}
+export class PageNotFoundComponent {
+  private authService = inject(AuthService);
+  
+  isLoggedIn = computed(() => this.authService.isAuthenticated());
+}
