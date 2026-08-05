@@ -1,4 +1,5 @@
-<div class="flex h-screen bg-background overflow-hidden">
+@if (isBrowser) {
+  <div class="flex h-screen bg-background overflow-hidden">
   
   <!-- Sidebar -->
   <app-sidebar 
@@ -21,4 +22,9 @@
     </main>
 
   </div>
-</div>
+  </div>
+} @else {
+  <div class="flex h-screen w-full items-center justify-center bg-background">
+    <div class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+  </div>
+}

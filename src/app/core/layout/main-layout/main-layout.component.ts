@@ -1,5 +1,5 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { NavbarComponent } from '../navbar/navbar.component';
@@ -14,6 +14,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 export class MainLayoutComponent {
   isSidebarCollapsed = signal(false);
   isMobileSidebarOpen = signal(false);
+  isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   toggleSidebar(): void {
     if (window.innerWidth >= 1024) {
