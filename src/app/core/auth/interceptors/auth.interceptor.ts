@@ -13,17 +13,23 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (token) {
     authReq = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
   }
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+      const tokenExpired =
+        error.status === 401 &&
+        token &&
+        error.error?.errors?.includes('Token is invalid or expired');
+
+      if (tokenExpired) {
         authService.logout(true);
       }
+
       return throwError(() => error);
-    })
+    }),
   );
 };
