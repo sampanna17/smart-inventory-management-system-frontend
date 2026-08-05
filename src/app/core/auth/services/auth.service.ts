@@ -162,6 +162,8 @@ export class AuthService {
     
     if (sessionExpired) {
       this.toastr.error('Session expired. Please log in again.');
+    } else {
+      this.toastr.success('Logout successfully');
     }
     
     void this.router.navigate(['/auth/login']);

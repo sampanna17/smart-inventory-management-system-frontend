@@ -8,4 +8,11 @@ export const DASHBOARD_ROUTES: Routes = [
         (m) => m.DashboardComponent
       ),
   },
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('../users/pages/user-profile/user-profile.component').then(
+        (m) => m.UserProfileComponent
+      ),
+  },
 ];

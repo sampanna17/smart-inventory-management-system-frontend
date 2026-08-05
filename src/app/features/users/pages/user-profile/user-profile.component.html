@@ -1,0 +1,176 @@
+<div class="max-w-4xl mx-auto py-8">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-heading">User Profile</h1>
+      <p class="text-sm text-muted mt-1">Manage your account settings and preferences.</p>
+    </div>
+    
+    @if (!isLoading() && !isEditMode()) {
+    <button 
+      (click)="toggleEditMode()"
+      class="flex items-center gap-2 px-4 py-2 bg-white border border-border rounded-lg text-sm font-medium text-heading hover:bg-slate-50 transition-colors shadow-sm"
+    >
+      <ng-icon name="heroPencil" class="text-lg"></ng-icon>
+      Edit Profile
+    </button>
+    }
+  </div>
+
+  <!-- Loading Skeleton -->
+  @if (isLoading()) {
+  <div class="bg-surface border border-border rounded-xl shadow-sm p-6 animate-pulse">
+    <div class="flex items-center gap-6 mb-8">
+      <div class="h-20 w-20 bg-slate-200 rounded-full"></div>
+      <div class="space-y-3">
+        <div class="h-6 w-48 bg-slate-200 rounded"></div>
+        <div class="h-4 w-32 bg-slate-200 rounded"></div>
+      </div>
+    </div>
+    <div class="space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="h-14 bg-slate-200 rounded-lg"></div>
+        <div class="h-14 bg-slate-200 rounded-lg"></div>
+        <div class="h-14 bg-slate-200 rounded-lg"></div>
+        <div class="h-14 bg-slate-200 rounded-lg"></div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Profile Content -->
+  @if (!isLoading() && profile()) {
+  <div class="bg-surface border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300">
+    
+    <!-- Header Section (Avatar & Role) -->
+    <div class="px-6 py-8 border-b border-border bg-slate-50/50">
+      <div class="flex items-center gap-6">
+        <div class="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-sm border border-primary/20">
+          <span class="text-3xl font-bold">{{ profile()?.fullName?.charAt(0) || 'U' }}</span>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-heading">{{ profile()?.fullName }}</h2>
+          <div class="flex items-center gap-3 mt-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+              {{ profile()?.role }}
+            </span>
+            <span 
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              [ngClass]="profile()?.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+            >
+              {{ profile()?.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="p-6">
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          
+          <!-- Full Name -->
+          <div class="space-y-2">
+            <label for="fullName" class="block text-sm font-medium text-heading">Full Name</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <ng-icon name="heroUser" class="text-muted text-lg"></ng-icon>
+              </div>
+              <input 
+                type="text" 
+                id="fullName" 
+                formControlName="fullName"
+                class="block w-full pl-10 pr-3 py-2 border rounded-lg sm:text-sm transition-colors focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-slate-50 disabled:text-slate-500"
+                [ngClass]="{'border-red-300 focus:ring-red-200': f['fullName'].invalid && (f['fullName'].dirty || f['fullName'].touched), 'border-input': !(f['fullName'].invalid && (f['fullName'].dirty || f['fullName'].touched))}"
+              >
+            </div>
+            @if (f['fullName'].invalid && (f['fullName'].dirty || f['fullName'].touched)) {
+            <div class="text-sm text-red-600 mt-1">
+              @if (f['fullName'].errors?.['required']) { <span>Full name is required.</span> }
+              @if (f['fullName'].errors?.['minlength']) { <span>Must be at least 2 characters.</span> }
+              @if (f['fullName'].errors?.['maxlength']) { <span>Must not exceed 100 characters.</span> }
+            </div>
+            }
+          </div>
+
+          <!-- Email -->
+          <div class="space-y-2">
+            <label for="email" class="block text-sm font-medium text-heading">Email Address</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <ng-icon name="heroEnvelope" class="text-muted text-lg"></ng-icon>
+              </div>
+              <input 
+                type="email" 
+                id="email" 
+                formControlName="email"
+                class="block w-full pl-10 pr-3 py-2 border rounded-lg sm:text-sm transition-colors focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-slate-50 disabled:text-slate-500"
+                [ngClass]="{'border-red-300 focus:ring-red-200': f['email'].invalid && (f['email'].dirty || f['email'].touched), 'border-input': !(f['email'].invalid && (f['email'].dirty || f['email'].touched))}"
+              >
+            </div>
+            @if (f['email'].invalid && (f['email'].dirty || f['email'].touched)) {
+            <div class="text-sm text-red-600 mt-1">
+              @if (f['email'].errors?.['required']) { <span>Email is required.</span> }
+              @if (f['email'].errors?.['email']) { <span>Invalid email format.</span> }
+            </div>
+            }
+          </div>
+
+          <!-- Read-only Fields -->
+          <!-- User ID (Hidden or Read-only) -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-heading">User ID</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <ng-icon name="heroShieldCheck" class="text-muted text-lg"></ng-icon>
+              </div>
+              <input type="text" [value]="profile()?.userID" disabled class="block w-full pl-10 pr-3 py-2 border border-input rounded-lg bg-slate-50 text-slate-500 sm:text-sm">
+            </div>
+          </div>
+
+          <!-- Created At (Read-only) -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-heading">Member Since</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <ng-icon name="heroCalendar" class="text-muted text-lg"></ng-icon>
+              </div>
+              <input type="text" [value]="profile()?.createdAt | date:'mediumDate'" disabled class="block w-full pl-10 pr-3 py-2 border border-input rounded-lg bg-slate-50 text-slate-500 sm:text-sm">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Form Actions (Only visible in edit mode) -->
+        @if (isEditMode()) {
+        <div class="mt-8 pt-6 border-t border-border flex items-center justify-end gap-3">
+          <button 
+            type="button" 
+            (click)="toggleEditMode()"
+            [disabled]="isSaving()"
+            class="px-4 py-2 text-sm font-medium text-heading bg-white border border-border rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          
+          <button 
+            type="submit" 
+            [disabled]="isSaving()"
+            class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            @if (!isSaving()) { <ng-icon name="heroCheck" class="text-lg"></ng-icon> }
+            @if (isSaving()) { <span class="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span> }
+            {{ isSaving() ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+        }
+      </form>
+
+      <!-- Read-only overlay (Prevents interaction when not in edit mode) -->
+      @if (!isEditMode()) {
+      <div class="absolute inset-0 z-10 hidden"></div>
+      }
+    </div>
+  </div>
+  }
+</div>
