@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
 import { GoToTopComponent } from '../../../../shared/components/go-to-top/go-to-top.component';
 
-
 @Component({
   selector: 'app-landing',
   standalone: true,

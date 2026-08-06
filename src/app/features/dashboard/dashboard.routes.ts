@@ -22,6 +22,15 @@ export const DASHBOARD_ROUTES: Routes = [
       ),
   },
   {
+    path: 'products',
+    canActivate: [roleGuard],
+    data: { roles: [Role.ADMIN, Role.STAFF] },
+    loadChildren: () =>
+      import('../products/products.routes').then(
+        (m) => m.PRODUCTS_ROUTES
+      ),
+  },
+  {
     path: 'categories',
     canActivate: [roleGuard],
     data: { roles: [Role.ADMIN, Role.STAFF] },
