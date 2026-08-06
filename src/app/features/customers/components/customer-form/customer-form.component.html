@@ -33,9 +33,9 @@
               type="text"
               id="customerName"
               formControlName="customerName"
-              class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 sm:text-sm sm:leading-6"
+              class="block w-full rounded-lg border border-slate-300 py-2 px-3 text-slate-900 bg-white shadow-sm sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[38px]"
               placeholder="e.g., John Doe"
-              [ngClass]="{'focus:ring-red-500': isFieldInvalid('customerName')}"
+              [ngClass]="{'border-red-500 focus:ring-red-500/20 focus:border-red-500': isFieldInvalid('customerName')}"
             />
             @if (isFieldInvalid('customerName')) {
               <p class="mt-1.5 text-sm text-red-500">Customer name is required.</p>
@@ -51,9 +51,9 @@
               type="text"
               id="phone"
               formControlName="phone"
-              class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 sm:text-sm sm:leading-6"
+              class="block w-full rounded-lg border border-slate-300 py-2 px-3 text-slate-900 bg-white shadow-sm sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[38px]"
               placeholder="e.g., 9841000000"
-              [ngClass]="{'focus:ring-red-500': isFieldInvalid('phone')}"
+              [ngClass]="{'border-red-500 focus:ring-red-500/20 focus:border-red-500': isFieldInvalid('phone')}"
             />
             @if (isFieldInvalid('phone')) {
               <p class="mt-1.5 text-sm text-red-500">Phone must be exactly 10 digits.</p>
@@ -69,9 +69,9 @@
               type="email"
               id="email"
               formControlName="email"
-              class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 sm:text-sm sm:leading-6"
+              class="block w-full rounded-lg border border-slate-300 py-2 px-3 text-slate-900 bg-white shadow-sm sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[38px]"
               placeholder="e.g., john@example.com"
-              [ngClass]="{'focus:ring-red-500': isFieldInvalid('email')}"
+              [ngClass]="{'border-red-500 focus:ring-red-500/20 focus:border-red-500': isFieldInvalid('email')}"
             />
             @if (isFieldInvalid('email')) {
               <p class="mt-1.5 text-sm text-red-500">Please enter a valid email address.</p>
@@ -87,7 +87,7 @@
               id="address"
               formControlName="address"
               rows="3"
-              class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 sm:text-sm sm:leading-6 resize-none custom-scrollbar"
+              class="block w-full rounded-lg border border-slate-300 py-2 px-3 text-slate-900 bg-white shadow-sm sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none custom-scrollbar"
               placeholder="Enter customer address..."
             ></textarea>
           </div>

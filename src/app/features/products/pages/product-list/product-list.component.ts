@@ -14,6 +14,8 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { ProductFormComponent } from '../../components/product-form/product-form.component';
 import { ProductDetailModalComponent } from '../../components/product-detail-modal/product-detail-modal.component';
 import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
+import { NprCurrencyPipe } from '../../../../shared/pipes/currency.pipe';
+import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroPencilSquare, heroTrash, heroEye, heroMagnifyingGlass, heroFunnel,
@@ -37,6 +39,8 @@ import {
     HasRoleDirective,
     NgIconComponent,
     NgOptimizedImage,
+    NprCurrencyPipe,
+    CustomSelectComponent,
   ],
   viewProviders: [
     provideIcons({
@@ -69,6 +73,22 @@ export class ProductListComponent implements OnInit {
   searchQuery = signal<string>('');
   selectedCategoryId = signal<string>('all');
   stockStatusFilter = signal<'all' | 'instock' | 'lowstock' | 'outofstock'>('all');
+
+  // Filter Dropdown Options
+  categoryOptions = computed(() => [
+    { label: 'All Categories', value: 'all' },
+    ...this.categoryService.categories().map(c => ({
+      label: c.categoryName,
+      value: String(c.categoryID)
+    }))
+  ]);
+
+  stockStatusOptions = [
+    { label: 'All Stock Status', value: 'all' },
+    { label: 'In Stock', value: 'instock' },
+    { label: 'Low Stock Alert', value: 'lowstock' },
+    { label: 'Out of Stock', value: 'outofstock' }
+  ];
 
   // Modal States
   isFormModalOpen = signal<boolean>(false);
@@ -153,12 +173,25 @@ export class ProductListComponent implements OnInit {
 
   closeFormModal() {
     this.isFormModalOpen.set(false);
-    setTimeout(() => this.selectedProduct.set(null), 200);
+    setTimeout(() => {
+      if (!this.isFormModalOpen() && !this.isDetailModalOpen() && !this.isDeleteModalOpen()) {
+        this.selectedProduct.set(null);
+      }
+    }, 200);
   }
 
   closeDetailModal() {
     this.isDetailModalOpen.set(false);
-    setTimeout(() => this.selectedProduct.set(null), 200);
+    setTimeout(() => {
+      if (!this.isFormModalOpen() && !this.isDetailModalOpen() && !this.isDeleteModalOpen()) {
+        this.selectedProduct.set(null);
+      }
+    }, 200);
+  }
+
+  onEditFromDetail(product: Product) {
+    this.isDetailModalOpen.set(false);
+    this.openEditModal(product);
   }
 
   openDeleteConfirm(product: Product) {
@@ -169,7 +202,11 @@ export class ProductListComponent implements OnInit {
 
   closeDeleteModal() {
     this.isDeleteModalOpen.set(false);
-    setTimeout(() => this.selectedProduct.set(null), 200);
+    setTimeout(() => {
+      if (!this.isFormModalOpen() && !this.isDetailModalOpen() && !this.isDeleteModalOpen()) {
+        this.selectedProduct.set(null);
+      }
+    }, 200);
   }
 
   confirmDelete() {

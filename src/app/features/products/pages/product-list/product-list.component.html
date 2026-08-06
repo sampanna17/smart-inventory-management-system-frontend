@@ -29,7 +29,7 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Total Inventory Value</span>
-        <span class="text-xl font-bold text-slate-900">NPR {{ totalInventoryValue() | number:'1.0-0' }}</span>
+        <span class="text-xl font-bold text-slate-900">{{ totalInventoryValue() | nprCurrency:true:'NPR':0 }}</span>
       </div>
     </div>
 
@@ -67,43 +67,36 @@
       <!-- Search Input & Filters -->
       <div class="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
         <!-- Search Input -->
+        <!-- Search Input -->
         <div class="relative min-w-[220px] flex-1">
-          <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></ng-icon>
+          <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base z-10 pointer-events-none"></ng-icon>
           <input
             type="text"
             [ngModel]="searchQuery()"
             (ngModelChange)="searchQuery.set($event)"
             placeholder="Search by name, category, or unit..."
-            class="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+            class="w-full pl-9 pr-4 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-[38px]"
           />
         </div>
 
         <!-- Category Dropdown Filter -->
-        <div class="shrink-0 min-w-[160px]">
-          <select
+        <div class="shrink-0 min-w-[180px]">
+          <app-select
+            [options]="categoryOptions()"
             [ngModel]="selectedCategoryId()"
             (ngModelChange)="selectedCategoryId.set($event)"
-            class="w-full py-2 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-          >
-            <option value="all">All Categories</option>
-            @for (cat of categoryService.categories(); track cat.categoryID) {
-              <option [value]="cat.categoryID">{{ cat.categoryName }}</option>
-            }
-          </select>
+            placeholder="All Categories"
+          ></app-select>
         </div>
 
         <!-- Stock Status Filter -->
-        <div class="shrink-0 min-w-[150px]">
-          <select
+        <div class="shrink-0 min-w-[170px]">
+          <app-select
+            [options]="stockStatusOptions"
             [ngModel]="stockStatusFilter()"
             (ngModelChange)="stockStatusFilter.set($event)"
-            class="w-full py-2 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-          >
-            <option value="all">All Stock Status</option>
-            <option value="instock">In Stock</option>
-            <option value="lowstock">Low Stock Alert</option>
-            <option value="outofstock">Out of Stock</option>
-          </select>
+            placeholder="All Stock Status"
+          ></app-select>
         </div>
       </div>
 
@@ -195,8 +188,8 @@
 
                   <!-- Pricing -->
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-slate-900">NPR {{ product.sellingPrice | number:'1.2-2' }}</div>
-                    <div class="text-xs text-slate-500">Cost: NPR {{ product.costPrice | number:'1.2-2' }}</div>
+                    <div class="text-sm font-medium text-slate-900">{{ product.sellingPrice | nprCurrency }}</div>
+                    <div class="text-xs text-slate-500">Cost: {{ product.costPrice | nprCurrency }}</div>
                   </td>
 
                   <!-- Stock Status -->
@@ -294,11 +287,11 @@
                   <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
                     <div>
                       <span class="text-[10px] text-slate-400 block uppercase">Price</span>
-                      <span class="text-base font-extrabold text-primary">NPR {{ product.sellingPrice | number:'1.2-2' }}</span>
+                      <span class="text-base font-extrabold text-primary">{{ product.sellingPrice | nprCurrency }}</span>
                     </div>
                     <div class="text-right">
                       <span class="text-[10px] text-slate-400 block uppercase">Cost</span>
-                      <span class="text-xs font-semibold text-slate-600">NPR {{ product.costPrice | number:'1.2-2' }}</span>
+                      <span class="text-xs font-semibold text-slate-600">{{ product.costPrice | nprCurrency }}</span>
                     </div>
                   </div>
                 </div>
@@ -353,7 +346,7 @@
   [isOpen]="isDetailModalOpen()"
   [product]="selectedProduct()"
   (close)="closeDetailModal()"
-  (edit)="closeDetailModal(); openEditModal($event)"
+  (edit)="onEditFromDetail($event)"
 ></app-product-detail-modal>
 
 <app-confirm-dialog

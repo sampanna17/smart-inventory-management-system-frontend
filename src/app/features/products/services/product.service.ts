@@ -21,6 +21,8 @@ export class ProductService {
   isLoading = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
   isUploadingImage = signal<boolean>(false);
+  isLoadingImages = signal<boolean>(false);
+  deletingImageId = signal<number | null>(null);
   error = signal<string | null>(null);
 
   loadProducts(): void {
@@ -76,7 +78,7 @@ export class ProductService {
     return this.http.post<ApiResponse<Product>>(PRODUCT_API.CREATE, data).pipe(
       switchMap(res => {
         if (res.success && res.data && imageFile) {
-          return this.uploadImage(res.data.productId, imageFile).pipe(
+          return this.uploadImage(res.data.productId, imageFile, false).pipe(
             map(imgRes => {
               const createdProduct = {
                 ...res.data,
@@ -110,7 +112,7 @@ export class ProductService {
     return this.http.put<ApiResponse<Product>>(PRODUCT_API.UPDATE(id), data).pipe(
       switchMap(res => {
         if (res.success && res.data && imageFile) {
-          return this.uploadImage(id, imageFile).pipe(
+          return this.uploadImage(id, imageFile, false).pipe(
             map(imgRes => {
               const updatedProduct = {
                 ...res.data,
@@ -157,7 +159,7 @@ export class ProductService {
     );
   }
 
-  uploadImage(productId: number, file: File): Observable<ApiResponse<ProductImage>> {
+  uploadImage(productId: number, file: File, showToast: boolean = true): Observable<ApiResponse<ProductImage>> {
     this.isUploadingImage.set(true);
     const formData = new FormData();
     formData.append('file', file);
@@ -166,7 +168,9 @@ export class ProductService {
       finalize(() => this.isUploadingImage.set(false)),
       tap(res => {
         if (res.success && res.data) {
-          this.toastr.success(res.message || 'Image uploaded successfully');
+          if (showToast) {
+            this.toastr.success(res.message || 'Image uploaded successfully');
+          }
           // Update local state image list
           this.productImages.update(imgs => [...imgs, res.data]);
           // Update product thumbnail in main product list
@@ -194,15 +198,24 @@ export class ProductService {
   }
 
   loadProductImages(productId: number): void {
+    this.isLoadingImages.set(true);
+    this.productImages.set([]);
     this.http.get<ProductImage[]>(PRODUCT_API.IMAGES.GET_ALL(productId)).pipe(
+      finalize(() => this.isLoadingImages.set(false)),
       catchError(() => of([] as ProductImage[]))
     ).subscribe(images => {
       this.productImages.set(images);
     });
   }
 
+  clearProductImages(): void {
+    this.productImages.set([]);
+  }
+
   deleteImage(productId: number, imageId: number): Observable<ApiResponse<ProductImage>> {
+    this.deletingImageId.set(imageId);
     return this.http.delete<ApiResponse<ProductImage>>(PRODUCT_API.IMAGES.DELETE(productId, imageId)).pipe(
+      finalize(() => this.deletingImageId.set(null)),
       tap(res => {
         if (res.success) {
           this.toastr.success(res.message || 'Image deleted successfully');

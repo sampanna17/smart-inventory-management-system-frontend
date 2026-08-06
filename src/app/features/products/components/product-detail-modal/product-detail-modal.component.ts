@@ -6,14 +6,16 @@ import { Product, ProductImage } from '../../../../core/models/product.model';
 import { Role } from '../../../../core/auth/enums/role.enum';
 import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPencilSquare, heroExclamationTriangle, heroCheckCircle, heroArchiveBox } from '@ng-icons/heroicons/outline';
+import { heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPencilSquare, heroExclamationTriangle, heroCheckCircle, heroArchiveBox, heroArrowPath } from '@ng-icons/heroicons/outline';
+
+import { NprCurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-product-detail-modal',
   standalone: true,
-  imports: [CommonModule, HasRoleDirective, NgIconComponent],
+  imports: [CommonModule, HasRoleDirective, NgIconComponent, NprCurrencyPipe],
   viewProviders: [provideIcons({
-    heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPencilSquare, heroExclamationTriangle, heroCheckCircle, heroArchiveBox
+    heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPencilSquare, heroExclamationTriangle, heroCheckCircle, heroArchiveBox, heroArrowPath
   })],
   templateUrl: './product-detail-modal.component.html'
 })
@@ -38,6 +40,9 @@ export class ProductDetailModalComponent {
       if (open && p) {
         this.activeImageIndex.set(0);
         this.productService.loadProductImages(p.productId);
+      } else {
+        this.activeImageIndex.set(0);
+        this.productService.clearProductImages();
       }
     });
   }
@@ -47,6 +52,10 @@ export class ProductDetailModalComponent {
     const index = this.activeImageIndex();
     if (images && images.length > index) {
       return images[index];
+    }
+    const p = this.product();
+    if (p && p.primaryImageUrl) {
+      return { imageId: 0, productId: p.productId, imageURL: p.primaryImageUrl, publicId: '' } as ProductImage;
     }
     return null;
   });
