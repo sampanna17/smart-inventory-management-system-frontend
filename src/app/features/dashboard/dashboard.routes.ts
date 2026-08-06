@@ -37,4 +37,13 @@ export const DASHBOARD_ROUTES: Routes = [
         (m) => m.UNITS_ROUTES
       ),
   },
+  {
+    path: 'suppliers',
+    canActivate: [roleGuard],
+    data: { roles: ['ADMIN', 'STAFF'] },
+    loadChildren: () =>
+      import('../suppliers/suppliers.routes').then(
+        (m) => m.SUPPLIERS_ROUTES
+      ),
+  },
 ];
