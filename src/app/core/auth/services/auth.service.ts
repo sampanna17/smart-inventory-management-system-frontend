@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { User } from '../../models/user.model';
 import { ApiResponse } from '../../models/api-response.model';
-import { environment } from '../../../../environments/environment';
+import { AUTH_API } from '../constants/auth.api';
 import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
@@ -16,7 +16,6 @@ export class AuthService {
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
   private toastr = inject(ToastrService);
-  private apiUrl = `${environment.apiUrl}/auth`;
   private expirationTimer: any;
 
   constructor() {
@@ -47,17 +46,17 @@ export class AuthService {
   }
 
   createAdmin(userData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/signup`, userData);
+    return this.http.post(AUTH_API.SIGNUP, userData);
   }
 
   login(credentials: { email: string; password: string }): Observable<ApiResponse<User>> {
-    return this.http.post<ApiResponse<User>>(`${this.apiUrl}/login`, credentials).pipe(
+    return this.http.post<ApiResponse<User>>(AUTH_API.LOGIN, credentials).pipe(
       tap(response => this.handleAuthResponse(response))
     );
   }
 
   loginWithGoogle(idToken: string): Observable<ApiResponse<User>> {
-    return this.http.post<ApiResponse<User>>(`${this.apiUrl}/login/google`, { idToken }).pipe(
+    return this.http.post<ApiResponse<User>>(AUTH_API.LOGIN_GOOGLE, { idToken }).pipe(
       tap(response => this.handleAuthResponse(response))
     );
   }
@@ -88,11 +87,11 @@ export class AuthService {
   }
 
   forgotPassword(email: string): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/forgot-password`, { email });
+    return this.http.post<ApiResponse<void>>(AUTH_API.FORGOT_PASSWORD, { email });
   }
 
   resetPassword(token: string, newPassword: string): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/reset-password`, { token, newPassword });
+    return this.http.post<ApiResponse<void>>(AUTH_API.RESET_PASSWORD, { token, newPassword });
   }
 
   private decodeToken(token: string | undefined): any {
