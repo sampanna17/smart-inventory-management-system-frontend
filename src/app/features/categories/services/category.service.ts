@@ -1,8 +1,9 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
 import { ApiResponse } from '../../../core/models/api-response.model';
-import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../../../core/models/category.model';
+import { Category } from '../../../core/models/category.model';
+import { CreateCategoryRequest, UpdateCategoryRequest } from '../models/category-request.model';
+import { CATEGORY_API } from '../constants/category.api';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import { throwError } from 'rxjs';
@@ -13,7 +14,6 @@ import { throwError } from 'rxjs';
 export class CategoryService {
   private http = inject(HttpClient);
   private toastr = inject(ToastrService);
-  private baseUrl = `${environment.apiUrl}/categories`;
 
   // State
   categories = signal<Category[]>([]);
@@ -25,7 +25,7 @@ export class CategoryService {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.get<ApiResponse<Category[]>>(this.baseUrl)
+    this.http.get<ApiResponse<Category[]>>(CATEGORY_API.GET_ALL)
       .pipe(
         finalize(() => this.isLoading.set(false)),
         catchError(err => {
@@ -44,7 +44,7 @@ export class CategoryService {
   createCategory(data: CreateCategoryRequest) {
     this.isSubmitting.set(true);
 
-    return this.http.post<ApiResponse<Category>>(`${this.baseUrl}/create`, data)
+    return this.http.post<ApiResponse<Category>>(CATEGORY_API.CREATE, data)
       .pipe(
         finalize(() => this.isSubmitting.set(false)),
         tap(res => {
@@ -63,7 +63,7 @@ export class CategoryService {
   updateCategory(id: number, data: UpdateCategoryRequest) {
     this.isSubmitting.set(true);
 
-    return this.http.put<ApiResponse<Category>>(`${this.baseUrl}/update/${id}`, data).pipe(
+    return this.http.put<ApiResponse<Category>>(CATEGORY_API.UPDATE(id), data).pipe(
       finalize(() => this.isSubmitting.set(false)),
       tap((res) => {
         if (res.success) {
@@ -81,7 +81,7 @@ export class CategoryService {
   deleteCategory(id: number) {
     this.isSubmitting.set(true);
 
-    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/${id}`)
+    return this.http.delete<ApiResponse<void>>(CATEGORY_API.DELETE(id))
       .pipe(
         finalize(() => this.isSubmitting.set(false)),
         tap(res => {
