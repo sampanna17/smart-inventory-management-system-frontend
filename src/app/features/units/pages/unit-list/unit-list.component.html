@@ -1,0 +1,104 @@
+<div class="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
+
+  <app-page-header
+    title="Units"
+    subtitle="Manage measurement units for products"
+    [showAction]="isAdmin()"
+    actionLabel="Add Unit"
+    (action)="openCreateModal()"
+  ></app-page-header>
+
+  <!-- Main Content Area -->
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+    <!-- Loading State -->
+    @if (unitService.isLoading()) {
+      <div class="p-6">
+        <app-skeleton-loader type="table"></app-skeleton-loader>
+      </div>
+    } @else if (unitService.error()) {
+      <!-- Error State -->
+      <div class="p-6">
+        <app-error-state
+          [message]="unitService.error()!"
+          (retry)="loadUnits()"
+        ></app-error-state>
+      </div>
+    } @else if (unitService.units().length === 0) {
+      <!-- Empty State -->
+      <div class="p-6">
+        <app-empty-state
+          title="No units found"
+          message="Get started by creating your first unit."
+          [showAction]="isAdmin()"
+          (action)="openCreateModal()"
+        ></app-empty-state>
+      </div>
+    } @else {
+      <!-- Data Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Unit Name</th>
+              @if (isAdmin()) {
+                <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+              }
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-slate-200">
+            @for (unit of unitService.units(); track unit.unitId) {
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                  {{ unit.unitId }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-slate-900">{{ unit.unitName }}</div>
+                </td>
+
+                @if (isAdmin()) {
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex justify-end gap-2">
+                      <button
+                        (click)="openEditModal(unit)"
+                        class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                        title="Edit Unit">
+                        <ng-icon name="heroPencilSquare" class="text-lg"></ng-icon>
+                      </button>
+                      <button
+                        (click)="openDeleteConfirm(unit)"
+                        class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                        title="Delete Unit">
+                        <ng-icon name="heroTrash" class="text-lg"></ng-icon>
+                      </button>
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modals -->
+<app-unit-form
+  [isOpen]="isFormModalOpen()"
+  [unit]="selectedUnit()"
+  (close)="closeFormModal()"
+  (saved)="loadUnits()"
+></app-unit-form>
+
+<app-confirm-dialog
+  [isOpen]="isDeleteModalOpen()"
+  title="Delete Unit"
+  message="Are you sure you want to delete '{{ selectedUnit()?.unitName }}'? This action cannot be undone."
+  confirmLabel="Delete"
+  type="danger"
+  [isLoading]="unitService.isSubmitting()"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteModal()"
+></app-confirm-dialog>

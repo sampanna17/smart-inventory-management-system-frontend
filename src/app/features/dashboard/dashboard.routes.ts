@@ -28,4 +28,13 @@ export const DASHBOARD_ROUTES: Routes = [
         (m) => m.CATEGORIES_ROUTES
       ),
   },
+  {
+    path: 'units',
+    canActivate: [roleGuard],
+    data: { roles: ['ADMIN', 'STAFF'] },
+    loadChildren: () =>
+      import('../units/units.routes').then(
+        (m) => m.UNITS_ROUTES
+      ),
+  },
 ];
