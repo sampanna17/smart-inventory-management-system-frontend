@@ -11,6 +11,7 @@ import {
   heroShoppingCart,
   heroCurrencyDollar,
   heroChartBar,
+  heroUserGroup,
   heroUsers,
   heroCog6Tooth,
   heroArrowLeftOnRectangle
@@ -24,13 +25,22 @@ import { AuthService } from '../../auth/services/auth.service';
   imports: [CommonModule, RouterModule, NgIconComponent, NgOptimizedImage],
   viewProviders: [
     provideIcons({
-      heroHome, heroArchiveBox, heroTag, heroScale, heroTruck,
-      heroShoppingCart, heroCurrencyDollar, heroChartBar,
-      heroUsers, heroCog6Tooth, heroArrowLeftOnRectangle
-    })
+      heroHome,
+      heroArchiveBox,
+      heroTag,
+      heroScale,
+      heroTruck,
+      heroShoppingCart,
+      heroCurrencyDollar,
+      heroChartBar,
+      heroUserGroup,
+      heroUsers,
+      heroCog6Tooth,
+      heroArrowLeftOnRectangle,
+    }),
   ],
   templateUrl: './sidebar.component.html',
-  styleUrls: []
+  styleUrls: [],
 })
 export class SidebarComponent {
   private authService = inject(AuthService);
@@ -41,18 +51,54 @@ export class SidebarComponent {
 
   menuItems = [
     { label: 'Dashboard', icon: 'heroHome', route: '/dashboard', roles: [Role.ADMIN, Role.STAFF] },
-    { label: 'Products', icon: 'heroArchiveBox', route: '/dashboard/products', roles: [Role.ADMIN, Role.STAFF] },
-    { label: 'Categories', icon: 'heroTag', route: '/dashboard/categories', roles: [Role.ADMIN, Role.STAFF] },
-    { label: 'Units', icon: 'heroScale', route: '/dashboard/units', roles: [Role.ADMIN, Role.STAFF] },
-    { label: 'Suppliers', icon: 'heroTruck', route: '/dashboard/suppliers', roles: [Role.ADMIN, Role.STAFF] },
-    { label: 'Purchases', icon: 'heroShoppingCart', route: '/dashboard/purchases', roles: [Role.ADMIN, Role.STAFF] },
-    { label: 'Sales', icon: 'heroCurrencyDollar', route: '/dashboard/sales', roles: [Role.ADMIN, Role.STAFF] },
+    {
+      label: 'Products',
+      icon: 'heroArchiveBox',
+      route: '/dashboard/products',
+      roles: [Role.ADMIN, Role.STAFF],
+    },
+    {
+      label: 'Categories',
+      icon: 'heroTag',
+      route: '/dashboard/categories',
+      roles: [Role.ADMIN, Role.STAFF],
+    },
+    {
+      label: 'Units',
+      icon: 'heroScale',
+      route: '/dashboard/units',
+      roles: [Role.ADMIN, Role.STAFF],
+    },
+    {
+      label: 'Suppliers',
+      icon: 'heroTruck',
+      route: '/dashboard/suppliers',
+      roles: [Role.ADMIN, Role.STAFF],
+    },
+    {
+      label: 'Customers',
+      icon: 'heroUserGroup',
+      route: '/dashboard/customers',
+      roles: [Role.ADMIN, Role.STAFF],
+    },
+    {
+      label: 'Purchases',
+      icon: 'heroShoppingCart',
+      route: '/dashboard/purchases',
+      roles: [Role.ADMIN, Role.STAFF],
+    },
+    {
+      label: 'Sales',
+      icon: 'heroCurrencyDollar',
+      route: '/dashboard/sales',
+      roles: [Role.ADMIN, Role.STAFF],
+    },
     { label: 'Reports', icon: 'heroChartBar', route: '/dashboard/reports', roles: [Role.ADMIN] },
     { label: 'Users', icon: 'heroUsers', route: '/dashboard/users', roles: [Role.ADMIN] },
   ];
 
   filteredMenuItems = computed(() => {
-    return this.menuItems.filter(item => this.authService.hasRole(item.roles));
+    return this.menuItems.filter((item) => this.authService.hasRole(item.roles));
   });
 
   onMobileClose(): void {

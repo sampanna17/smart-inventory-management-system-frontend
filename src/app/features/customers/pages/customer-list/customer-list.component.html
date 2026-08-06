@@ -1,0 +1,116 @@
+<div class="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
+
+  <app-page-header
+    title="Customers"
+    subtitle="Manage your client database and contact details"
+    [roles]="Role.ADMIN"
+    actionLabel="Add Customer"
+    (action)="openCreateModal()"
+  ></app-page-header>
+
+  <!-- Main Content Area -->
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+    <!-- Loading State -->
+    @if (customerService.isLoading()) {
+      <div class="p-6">
+        <app-skeleton-loader type="table"></app-skeleton-loader>
+      </div>
+    } @else if (customerService.error()) {
+      <!-- Error State -->
+      <div class="p-6">
+        <app-error-state
+          [message]="customerService.error()!"
+          (retry)="loadCustomers()"
+        ></app-error-state>
+      </div>
+    } @else if (customerService.customers().length === 0) {
+      <!-- Empty State -->
+      <div class="p-6">
+        <app-empty-state
+          title="No customers found"
+          message="Get started by adding your first customer."
+          [roles]="Role.ADMIN"
+          (action)="openCreateModal()"
+        ></app-empty-state>
+      </div>
+    } @else {
+      <!-- Data Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer Name</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Phone</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Email</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Address</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden xl:table-cell">Created</th>
+              <th scope="col" *appHasRole="Role.ADMIN" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-slate-200">
+            @for (customer of customerService.customers(); track customer.customerID) {
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                  {{ customer.customerID }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-slate-900">{{ customer.customerName }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden sm:table-cell">
+                  {{ customer.phone || '-' }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden md:table-cell">
+                  {{ customer.email || '-' }}
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-500 hidden lg:table-cell max-w-xs truncate">
+                  {{ customer.address || '-' }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden xl:table-cell">
+                  {{ customer.createdAt | date:'mediumDate' }}
+                </td>
+
+                <td *appHasRole="Role.ADMIN" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex justify-end gap-2">
+                    <button
+                      (click)="openEditModal(customer)"
+                      class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                      title="Edit Customer">
+                      <ng-icon name="heroPencilSquare" class="text-lg"></ng-icon>
+                    </button>
+                    <button
+                      (click)="openDeleteConfirm(customer)"
+                      class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                      title="Delete Customer">
+                      <ng-icon name="heroTrash" class="text-lg"></ng-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modals -->
+<app-customer-form
+  [isOpen]="isFormModalOpen()"
+  [customer]="selectedCustomer()"
+  (close)="closeFormModal()"
+  (saved)="loadCustomers()"
+></app-customer-form>
+
+<app-confirm-dialog
+  [isOpen]="isDeleteModalOpen()"
+  title="Delete Customer"
+  message="Are you sure you want to delete '{{ selectedCustomer()?.customerName }}'? This action cannot be undone."
+  confirmLabel="Delete"
+  type="danger"
+  [isLoading]="customerService.isSubmitting()"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteModal()"
+></app-confirm-dialog>
