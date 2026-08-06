@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
 import { roleGuard } from '../../core/auth/guards/role.guard';
+import { Role } from '../../core/auth/enums/role.enum';
+
 export const DASHBOARD_ROUTES: Routes = [
   {
     path: '',
     canActivate: [roleGuard],
-    data: { roles: ['ADMIN', 'STAFF'] },
+    data: { roles: [Role.ADMIN, Role.STAFF] },
     loadComponent: () =>
       import('./pages/dashboard/dashboard.component').then(
         (m) => m.DashboardComponent
@@ -13,7 +15,7 @@ export const DASHBOARD_ROUTES: Routes = [
   {
     path: 'profile',
     canActivate: [roleGuard],
-    data: { roles: ['ADMIN', 'STAFF'] },
+    data: { roles: [Role.ADMIN, Role.STAFF] },
     loadComponent: () =>
       import('../users/pages/user-profile/user-profile.component').then(
         (m) => m.UserProfileComponent
@@ -22,7 +24,7 @@ export const DASHBOARD_ROUTES: Routes = [
   {
     path: 'categories',
     canActivate: [roleGuard],
-    data: { roles: ['ADMIN', 'STAFF'] },
+    data: { roles: [Role.ADMIN, Role.STAFF] },
     loadChildren: () =>
       import('../categories/categories.routes').then(
         (m) => m.CATEGORIES_ROUTES
@@ -31,7 +33,7 @@ export const DASHBOARD_ROUTES: Routes = [
   {
     path: 'units',
     canActivate: [roleGuard],
-    data: { roles: ['ADMIN', 'STAFF'] },
+    data: { roles: [Role.ADMIN, Role.STAFF] },
     loadChildren: () =>
       import('../units/units.routes').then(
         (m) => m.UNITS_ROUTES
@@ -40,7 +42,7 @@ export const DASHBOARD_ROUTES: Routes = [
   {
     path: 'suppliers',
     canActivate: [roleGuard],
-    data: { roles: ['ADMIN', 'STAFF'] },
+    data: { roles: [Role.ADMIN, Role.STAFF] },
     loadChildren: () =>
       import('../suppliers/suppliers.routes').then(
         (m) => m.SUPPLIERS_ROUTES

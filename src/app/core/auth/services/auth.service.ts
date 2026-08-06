@@ -1,9 +1,10 @@
-import { Injectable, inject, signal, PLATFORM_ID } from '@angular/core';
+import { Injectable, inject, signal, computed, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { User } from '../../models/user.model';
+import { Role } from '../enums/role.enum';
 import { ApiResponse } from '../../models/api-response.model';
 import { AUTH_API } from '../constants/auth.api';
 import { ToastrService } from 'ngx-toastr';
@@ -30,6 +31,25 @@ export class AuthService {
 
   // Use a signal to store the current user state
   currentUser = signal<User | null>(this.loadUserFromStorage());
+
+  // Computed role state
+  userRole = computed(() => this.currentUser()?.role || null);
+  isAdmin = computed(() => this.currentUser()?.role === Role.ADMIN);
+
+  /**
+   * Checks if the currently authenticated user has the specified role(s).
+   * Supports single Role/string or array of Roles/strings.
+   */
+  hasRole(requiredRoles: Role | Role[] | string | string[] | null | undefined): boolean {
+    if (!requiredRoles) return false;
+    const currentRole = this.currentUser()?.role;
+    if (!currentRole) return false;
+
+    if (Array.isArray(requiredRoles)) {
+      return (requiredRoles as string[]).includes(currentRole);
+    }
+    return currentRole === requiredRoles;
+  }
 
   private loadUserFromStorage(): User | null {
     if (isPlatformBrowser(this.platformId)) {
