@@ -1,0 +1,368 @@
+<div class="px-4 sm:px-6 lg:px-8 w-full max-w-9xl mx-auto space-y-6">
+
+  <!-- Page Header -->
+  <app-page-header
+    title="Products Catalog"
+    subtitle="Manage inventory items, pricing, stock levels, and product media"
+    [roles]="Role.ADMIN"
+    actionLabel="Add Product"
+    (action)="openCreateModal()"
+  ></app-page-header>
+
+  <!-- Top Metrics Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Card 1: Total Products -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="p-3 bg-primary/10 text-primary rounded-xl shrink-0">
+        <ng-icon name="heroArchiveBox" class="text-2xl"></ng-icon>
+      </div>
+      <div>
+        <span class="text-xs font-medium text-slate-500 block">Total Products</span>
+        <span class="text-xl font-bold text-slate-900">{{ totalProductsCount() }}</span>
+      </div>
+    </div>
+
+    <!-- Card 2: Inventory Value -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
+        <ng-icon name="heroCurrencyDollar" class="text-2xl"></ng-icon>
+      </div>
+      <div>
+        <span class="text-xs font-medium text-slate-500 block">Total Inventory Value</span>
+        <span class="text-xl font-bold text-slate-900">NPR {{ totalInventoryValue() | number:'1.0-0' }}</span>
+      </div>
+    </div>
+
+    <!-- Card 3: Low Stock Alerts -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="p-3 bg-amber-50 text-amber-600 rounded-xl shrink-0">
+        <ng-icon name="heroExclamationTriangle" class="text-2xl"></ng-icon>
+      </div>
+      <div>
+        <span class="text-xs font-medium text-slate-500 block">Low Stock Alerts</span>
+        <span class="text-xl font-bold" [ngClass]="lowStockAlertsCount() > 0 ? 'text-amber-600' : 'text-slate-900'">
+          {{ lowStockAlertsCount() }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Card 4: Categories -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl shrink-0">
+        <ng-icon name="heroTag" class="text-2xl"></ng-icon>
+      </div>
+      <div>
+        <span class="text-xs font-medium text-slate-500 block">Categories</span>
+        <span class="text-xl font-bold text-slate-900">{{ categoriesCount() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Data Container -->
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+    <!-- Filters & View Options Bar -->
+    <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+
+      <!-- Search Input & Filters -->
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+        <!-- Search Input -->
+        <div class="relative min-w-[220px] flex-1">
+          <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></ng-icon>
+          <input
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            placeholder="Search by name, category, or unit..."
+            class="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+          />
+        </div>
+
+        <!-- Category Dropdown Filter -->
+        <div class="shrink-0 min-w-[160px]">
+          <select
+            [ngModel]="selectedCategoryId()"
+            (ngModelChange)="selectedCategoryId.set($event)"
+            class="w-full py-2 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+          >
+            <option value="all">All Categories</option>
+            @for (cat of categoryService.categories(); track cat.categoryID) {
+              <option [value]="cat.categoryID">{{ cat.categoryName }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Stock Status Filter -->
+        <div class="shrink-0 min-w-[150px]">
+          <select
+            [ngModel]="stockStatusFilter()"
+            (ngModelChange)="stockStatusFilter.set($event)"
+            class="w-full py-2 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+          >
+            <option value="all">All Stock Status</option>
+            <option value="instock">In Stock</option>
+            <option value="lowstock">Low Stock Alert</option>
+            <option value="outofstock">Out of Stock</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- View Toggle Buttons -->
+      <div class="flex items-center gap-1 bg-slate-200/70 p-1 rounded-lg shrink-0 self-end md:self-auto">
+        <button
+          (click)="viewMode.set('table')"
+          [ngClass]="viewMode() === 'table' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+          class="p-1.5 rounded-md transition-colors"
+          title="Table View"
+        >
+          <ng-icon name="heroListBullet" class="text-lg"></ng-icon>
+        </button>
+        <button
+          (click)="viewMode.set('grid')"
+          [ngClass]="viewMode() === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+          class="p-1.5 rounded-md transition-colors"
+          title="Grid View"
+        >
+          <ng-icon name="heroSquares2x2" class="text-lg"></ng-icon>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Content Area: Loading / Error / Empty / Data -->
+    @if (productService.isLoading()) {
+      <div class="p-6">
+        <app-skeleton-loader type="table"></app-skeleton-loader>
+      </div>
+    } @else if (productService.error()) {
+      <div class="p-6">
+        <app-error-state
+          [message]="productService.error()!"
+          (retry)="loadData()"
+        ></app-error-state>
+      </div>
+    } @else if (filteredProducts().length === 0) {
+      <div class="p-6">
+        <app-empty-state
+          title="No products found"
+          message="No products match your criteria. Try adjusting your search query or filters."
+          [roles]="Role.ADMIN"
+          (action)="openCreateModal()"
+        ></app-empty-state>
+      </div>
+    } @else {
+
+      <!-- VIEW MODE 1: Table View -->
+      @if (viewMode() === 'table') {
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Product</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Category</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Price (Cost / Sell)</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Stock Level</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Unit</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-slate-200">
+              @for (product of filteredProducts(); track product.productId) {
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <!-- Product Image & Name -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                        @if (product.primaryImageUrl) {
+                          <img [ngSrc]="product.primaryImageUrl" width="40" height="40" [alt]="product.productName" class="w-full h-full object-cover" />
+                        } @else {
+                          <ng-icon name="heroPhoto" class="text-lg text-slate-400"></ng-icon>
+                        }
+                      </div>
+                      <div>
+                        <div class="text-sm font-semibold text-slate-900">{{ product.productName }}</div>
+                        <div class="text-xs text-slate-400">ID: {{ product.productId }}</div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Category -->
+                  <td class="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                      {{ product.categoryName || '-' }}
+                    </span>
+                  </td>
+
+                  <!-- Pricing -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-slate-900">NPR {{ product.sellingPrice | number:'1.2-2' }}</div>
+                    <div class="text-xs text-slate-500">Cost: NPR {{ product.costPrice | number:'1.2-2' }}</div>
+                  </td>
+
+                  <!-- Stock Status -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-bold" [ngClass]="{'text-red-600': product.stockQuantity <= product.reorderLevel, 'text-slate-900': product.stockQuantity > product.reorderLevel}">
+                        {{ product.stockQuantity }}
+                      </span>
+
+                      @if (product.stockQuantity <= 0) {
+                        <span class="px-2 py-0.5 text-xs font-semibold bg-red-100 text-red-800 rounded-full">Out of stock</span>
+                      } @else if (product.stockQuantity <= product.reorderLevel) {
+                        <span class="px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 rounded-full">Low Stock</span>
+                      }
+                    </div>
+                  </td>
+
+                  <!-- Unit -->
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden md:table-cell">
+                    {{ product.unitName || '-' }}
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex justify-end gap-1.5">
+                      <button
+                        (click)="openDetailModal(product)"
+                        class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+                        title="View Details">
+                        <ng-icon name="heroEye" class="text-lg"></ng-icon>
+                      </button>
+
+                      <button
+                        *appHasRole="Role.ADMIN"
+                        (click)="openEditModal(product)"
+                        class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                        title="Edit Product">
+                        <ng-icon name="heroPencilSquare" class="text-lg"></ng-icon>
+                      </button>
+
+                      <button
+                        *appHasRole="Role.ADMIN"
+                        (click)="openDeleteConfirm(product)"
+                        class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                        title="Delete Product">
+                        <ng-icon name="heroTrash" class="text-lg"></ng-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- VIEW MODE 2: Grid View -->
+      @if (viewMode() === 'grid') {
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          @for (product of filteredProducts(); track product.productId) {
+            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between group">
+              <!-- Thumbnail & Badges Header -->
+              <div>
+                <div class="relative aspect-video bg-slate-100 border-b border-slate-200 overflow-hidden flex items-center justify-center">
+                  @if (product.primaryImageUrl) {
+                    <img [ngSrc]="product.primaryImageUrl" width="300" height="200" [alt]="product.productName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  } @else {
+                    <ng-icon name="heroPhoto" class="text-3xl text-slate-300"></ng-icon>
+                  }
+
+                  <!-- Category Overlay Badge -->
+                  <span class="absolute top-2 left-2 px-2 py-0.5 bg-slate-900/70 backdrop-blur-sm text-white text-[10px] font-semibold rounded-md">
+                    {{ product.categoryName || 'General' }}
+                  </span>
+
+                  <!-- Stock Status Overlay -->
+                  @if (product.stockQuantity <= 0) {
+                    <span class="absolute top-2 right-2 px-2 py-0.5 bg-red-600 text-white text-[10px] font-bold rounded-md shadow">Out of stock</span>
+                  } @else if (product.stockQuantity <= product.reorderLevel) {
+                    <span class="absolute top-2 right-2 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold rounded-md shadow">Low Stock</span>
+                  }
+                </div>
+
+                <!-- Product Body Info -->
+                <div class="p-4 space-y-2">
+                  <h4 class="text-base font-bold text-slate-900 truncate" [title]="product.productName">
+                    {{ product.productName }}
+                  </h4>
+
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Unit: {{ product.unitName || '-' }}</span>
+                    <span class="font-bold text-slate-700">Stock: {{ product.stockQuantity }}</span>
+                  </div>
+
+                  <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                      <span class="text-[10px] text-slate-400 block uppercase">Price</span>
+                      <span class="text-base font-extrabold text-primary">NPR {{ product.sellingPrice | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-[10px] text-slate-400 block uppercase">Cost</span>
+                      <span class="text-xs font-semibold text-slate-600">NPR {{ product.costPrice | number:'1.2-2' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Action Bar -->
+              <div class="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+                <button
+                  (click)="openDetailModal(product)"
+                  class="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-primary transition-colors"
+                >
+                  <ng-icon name="heroEye" class="text-sm"></ng-icon>
+                  Details
+                </button>
+
+                <div class="flex items-center gap-1">
+                  <button
+                    *appHasRole="Role.ADMIN"
+                    (click)="openEditModal(product)"
+                    class="p-1.5 text-slate-400 hover:text-primary hover:bg-white rounded-md transition-colors border border-transparent hover:border-slate-200"
+                    title="Edit">
+                    <ng-icon name="heroPencilSquare" class="text-base"></ng-icon>
+                  </button>
+                  <button
+                    *appHasRole="Role.ADMIN"
+                    (click)="openDeleteConfirm(product)"
+                    class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-white rounded-md transition-colors border border-transparent hover:border-slate-200"
+                    title="Delete">
+                    <ng-icon name="heroTrash" class="text-base"></ng-icon>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          }
+        </div>
+      }
+
+    }
+  </div>
+</div>
+
+<!-- Modals -->
+<app-product-form
+  [isOpen]="isFormModalOpen()"
+  [product]="selectedProduct()"
+  (close)="closeFormModal()"
+  (saved)="loadData()"
+></app-product-form>
+
+<app-product-detail-modal
+  [isOpen]="isDetailModalOpen()"
+  [product]="selectedProduct()"
+  (close)="closeDetailModal()"
+  (edit)="closeDetailModal(); openEditModal($event)"
+></app-product-detail-modal>
+
+<app-confirm-dialog
+  [isOpen]="isDeleteModalOpen()"
+  title="Delete Product"
+  message="Are you sure you want to delete '{{ selectedProduct()?.productName }}'? This action cannot be undone."
+  confirmLabel="Delete"
+  type="danger"
+  [isLoading]="productService.isSubmitting()"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteModal()"
+></app-confirm-dialog>
