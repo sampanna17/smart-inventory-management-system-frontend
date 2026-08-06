@@ -4,16 +4,18 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ProductService } from '../../services/product.service';
 import { CategoryService } from '../../../categories/services/category.service';
 import { UnitService } from '../../../units/services/unit.service';
-import { Product } from '../../../../core/models/product.model';
+import { Product, ProductImage } from '../../../../core/models/product.model';
 import { CreateProductRequest, UpdateProductRequest } from '../../models/product-request.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroXMark, heroPhoto, heroCloudArrowUp, heroTrash } from '@ng-icons/heroicons/outline';
+import { heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPlus, heroArrowPath } from '@ng-icons/heroicons/outline';
+
+import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
 
 @Component({
   selector: 'app-product-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIconComponent],
-  viewProviders: [provideIcons({ heroXMark, heroPhoto, heroCloudArrowUp, heroTrash })],
+  imports: [CommonModule, ReactiveFormsModule, NgIconComponent, CustomSelectComponent],
+  viewProviders: [provideIcons({ heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPlus, heroArrowPath })],
   templateUrl: './product-form.component.html'
 })
 export class ProductFormComponent implements OnInit {
@@ -36,22 +38,6 @@ export class ProductFormComponent implements OnInit {
 
   isEditMode = computed(() => !!this.product());
 
-  // Computed Live Profit calculation
-  profitMargin = computed(() => {
-    if (!this.productForm) return 0;
-    const cost = Number(this.productForm.get('costPrice')?.value || 0);
-    const selling = Number(this.productForm.get('sellingPrice')?.value || 0);
-    return selling - cost;
-  });
-
-  profitPercentage = computed(() => {
-    if (!this.productForm) return 0;
-    const cost = Number(this.productForm.get('costPrice')?.value || 0);
-    const selling = Number(this.productForm.get('sellingPrice')?.value || 0);
-    if (cost <= 0) return 0;
-    return ((selling - cost) / cost) * 100;
-  });
-
   ngOnInit() {
     this.initForm();
     this.categoryService.loadCategories();
@@ -65,10 +51,11 @@ export class ProductFormComponent implements OnInit {
       if (open) {
         setTimeout(() => {
           this.selectedFile = null;
-          this.imagePreviewUrl = p?.primaryImageUrl || null;
+          this.imagePreviewUrl = null;
 
-          if (this.productForm) {
-            if (p) {
+          if (p) {
+            this.productService.loadProductImages(p.productId);
+            if (this.productForm) {
               this.productForm.patchValue({
                 productName: p.productName,
                 categoryId: p.categoryId,
@@ -80,7 +67,10 @@ export class ProductFormComponent implements OnInit {
                 description: p.description || ''
               });
               this.productForm.get('stockQuantity')?.disable();
-            } else {
+            }
+          } else {
+            this.productService.clearProductImages();
+            if (this.productForm) {
               this.productForm.reset({
                 productName: '',
                 categoryId: '',
@@ -93,9 +83,11 @@ export class ProductFormComponent implements OnInit {
               });
               this.productForm.get('stockQuantity')?.enable();
             }
-            this.initialFormValue = this.productForm.getRawValue();
           }
+          this.initialFormValue = this.productForm?.getRawValue();
         });
+      } else {
+        this.productService.clearProductImages();
       }
     });
   }
@@ -121,18 +113,20 @@ export class ProductFormComponent implements OnInit {
         return;
       }
       this.selectedFile = file;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.imagePreviewUrl = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+      this.imagePreviewUrl = URL.createObjectURL(file);
     }
   }
 
   removeSelectedFile() {
     this.selectedFile = null;
-    this.imagePreviewUrl = this.product()?.primaryImageUrl || null;
+    this.imagePreviewUrl = null;
+  }
+
+  deleteExistingImage(img: ProductImage) {
+    const p = this.product();
+    if (p && img) {
+      this.productService.deleteImage(p.productId, img.imageId).subscribe();
+    }
   }
 
   isFieldInvalid(field: string): boolean {
