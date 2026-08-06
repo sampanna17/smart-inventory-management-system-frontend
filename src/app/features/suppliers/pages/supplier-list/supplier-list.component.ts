@@ -1,14 +1,16 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SupplierService } from '../../services/supplier.service';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { Supplier } from '../../../../core/models/supplier.model';
+import { Role } from '../../../../core/auth/enums/role.enum';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SupplierFormComponent } from '../../components/supplier-form/supplier-form.component';
+import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroPencilSquare, heroTrash } from '@ng-icons/heroicons/outline';
 
@@ -23,6 +25,7 @@ import { heroPencilSquare, heroTrash } from '@ng-icons/heroicons/outline';
     ErrorStateComponent,
     ConfirmDialogComponent,
     SupplierFormComponent,
+    HasRoleDirective,
     NgIconComponent
   ],
   viewProviders: [provideIcons({ heroPencilSquare, heroTrash })],
@@ -32,15 +35,12 @@ export class SupplierListComponent implements OnInit {
   supplierService = inject(SupplierService);
   private authService = inject(AuthService);
 
+  readonly Role = Role;
+
   // Modal states
   isFormModalOpen = signal<boolean>(false);
   isDeleteModalOpen = signal<boolean>(false);
   selectedSupplier = signal<Supplier | null>(null);
-
-  isAdmin = computed(() => {
-    const user = this.authService.currentUser();
-    return user?.role === 'ADMIN';
-  });
 
   ngOnInit() {
     this.loadSuppliers();
@@ -51,13 +51,13 @@ export class SupplierListComponent implements OnInit {
   }
 
   openCreateModal() {
-    if (!this.isAdmin()) return;
+    if (!this.authService.hasRole(Role.ADMIN)) return;
     this.selectedSupplier.set(null);
     this.isFormModalOpen.set(true);
   }
 
   openEditModal(supplier: Supplier) {
-    if (!this.isAdmin()) return;
+    if (!this.authService.hasRole(Role.ADMIN)) return;
     this.selectedSupplier.set(supplier);
     this.isFormModalOpen.set(true);
   }
@@ -68,7 +68,7 @@ export class SupplierListComponent implements OnInit {
   }
 
   openDeleteConfirm(supplier: Supplier) {
-    if (!this.isAdmin()) return;
+    if (!this.authService.hasRole(Role.ADMIN)) return;
     this.selectedSupplier.set(supplier);
     this.isDeleteModalOpen.set(true);
   }
@@ -80,7 +80,7 @@ export class SupplierListComponent implements OnInit {
 
   confirmDelete() {
     const supplier = this.selectedSupplier();
-    if (!supplier || !this.isAdmin()) return;
+    if (!supplier || !this.authService.hasRole(Role.ADMIN)) return;
 
     this.supplierService.deleteSupplier(supplier.supplierID).subscribe({
       next: () => {

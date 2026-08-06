@@ -1,14 +1,16 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CategoryService } from '../../services/category.service';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { Category } from '../../../../core/models/category.model';
+import { Role } from '../../../../core/auth/enums/role.enum';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { CategoryFormComponent } from '../../components/category-form/category-form.component';
+import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroPencilSquare, heroTrash } from '@ng-icons/heroicons/outline';
 
@@ -23,6 +25,7 @@ import { heroPencilSquare, heroTrash } from '@ng-icons/heroicons/outline';
     ErrorStateComponent,
     ConfirmDialogComponent,
     CategoryFormComponent,
+    HasRoleDirective,
     NgIconComponent
   ],
   viewProviders: [provideIcons({ heroPencilSquare, heroTrash })],
@@ -32,15 +35,12 @@ export class CategoryListComponent implements OnInit {
   categoryService = inject(CategoryService);
   private authService = inject(AuthService);
 
+  readonly Role = Role;
+
   // Modal states
   isFormModalOpen = signal<boolean>(false);
   isDeleteModalOpen = signal<boolean>(false);
   selectedCategory = signal<Category | null>(null);
-
-  isAdmin = computed(() => {
-    const user = this.authService.currentUser();
-    return user?.role === 'ADMIN';
-  });
 
   ngOnInit() {
     this.loadCategories();
@@ -51,25 +51,24 @@ export class CategoryListComponent implements OnInit {
   }
 
   openCreateModal() {
-    if (!this.isAdmin()) return;
+    if (!this.authService.hasRole(Role.ADMIN)) return;
     this.selectedCategory.set(null);
     this.isFormModalOpen.set(true);
   }
 
   openEditModal(category: Category) {
-    if (!this.isAdmin()) return;
+    if (!this.authService.hasRole(Role.ADMIN)) return;
     this.selectedCategory.set(category);
     this.isFormModalOpen.set(true);
   }
 
   closeFormModal() {
     this.isFormModalOpen.set(false);
-    // Delay clearing selected to prevent flicker during close animation
     setTimeout(() => this.selectedCategory.set(null), 200);
   }
 
   openDeleteConfirm(category: Category) {
-    if (!this.isAdmin()) return;
+    if (!this.authService.hasRole(Role.ADMIN)) return;
     this.selectedCategory.set(category);
     this.isDeleteModalOpen.set(true);
   }
@@ -81,7 +80,7 @@ export class CategoryListComponent implements OnInit {
 
   confirmDelete() {
     const category = this.selectedCategory();
-    if (!category || !this.isAdmin()) return;
+    if (!category || !this.authService.hasRole(Role.ADMIN)) return;
 
     this.categoryService.deleteCategory(category.categoryID).subscribe({
       next: () => {

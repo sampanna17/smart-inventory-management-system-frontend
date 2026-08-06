@@ -15,6 +15,7 @@ import {
   heroCog6Tooth,
   heroArrowLeftOnRectangle
 } from '@ng-icons/heroicons/outline';
+import { Role } from '../../auth/enums/role.enum';
 import { AuthService } from '../../auth/services/auth.service';
 
 @Component({
@@ -39,24 +40,19 @@ export class SidebarComponent {
   closeMobileSidebar = output<void>();
 
   menuItems = [
-    { label: 'Dashboard', icon: 'heroHome', route: '/dashboard', roles: ['ADMIN', 'STAFF'] },
-    { label: 'Products', icon: 'heroArchiveBox', route: '/dashboard/products', roles: ['ADMIN', 'STAFF'] },
-    { label: 'Categories', icon: 'heroTag', route: '/dashboard/categories', roles: ['ADMIN', 'STAFF'] },
-    { label: 'Units', icon: 'heroScale', route: '/dashboard/units', roles: ['ADMIN', 'STAFF'] },
-    { label: 'Suppliers', icon: 'heroTruck', route: '/dashboard/suppliers', roles: ['ADMIN', 'STAFF'] },
-    { label: 'Purchases', icon: 'heroShoppingCart', route: '/dashboard/purchases', roles: ['ADMIN', 'STAFF'] },
-    { label: 'Sales', icon: 'heroCurrencyDollar', route: '/dashboard/sales', roles: ['ADMIN', 'STAFF'] },
-    { label: 'Reports', icon: 'heroChartBar', route: '/dashboard/reports', roles: ['ADMIN'] },
-    { label: 'Users', icon: 'heroUsers', route: '/dashboard/users', roles: ['ADMIN'] },
+    { label: 'Dashboard', icon: 'heroHome', route: '/dashboard', roles: [Role.ADMIN, Role.STAFF] },
+    { label: 'Products', icon: 'heroArchiveBox', route: '/dashboard/products', roles: [Role.ADMIN, Role.STAFF] },
+    { label: 'Categories', icon: 'heroTag', route: '/dashboard/categories', roles: [Role.ADMIN, Role.STAFF] },
+    { label: 'Units', icon: 'heroScale', route: '/dashboard/units', roles: [Role.ADMIN, Role.STAFF] },
+    { label: 'Suppliers', icon: 'heroTruck', route: '/dashboard/suppliers', roles: [Role.ADMIN, Role.STAFF] },
+    { label: 'Purchases', icon: 'heroShoppingCart', route: '/dashboard/purchases', roles: [Role.ADMIN, Role.STAFF] },
+    { label: 'Sales', icon: 'heroCurrencyDollar', route: '/dashboard/sales', roles: [Role.ADMIN, Role.STAFF] },
+    { label: 'Reports', icon: 'heroChartBar', route: '/dashboard/reports', roles: [Role.ADMIN] },
+    { label: 'Users', icon: 'heroUsers', route: '/dashboard/users', roles: [Role.ADMIN] },
   ];
 
   filteredMenuItems = computed(() => {
-    const user = this.authService.currentUser();
-    const userRole = user?.role;
-    
-    if (!userRole) return [];
-    
-    return this.menuItems.filter(item => item.roles.includes(userRole));
+    return this.menuItems.filter(item => this.authService.hasRole(item.roles));
   });
 
   onMobileClose(): void {
