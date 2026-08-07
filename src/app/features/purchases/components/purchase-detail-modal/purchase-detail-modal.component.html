@@ -1,0 +1,173 @@
+@if (isOpen() && purchase()) {
+  <div class="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-0">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" (click)="closeModal()"></div>
+
+    <!-- Modal Panel -->
+    <div class="relative w-full max-w-2xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all flex flex-col max-h-[90vh]">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary/10 rounded-lg text-primary">
+            <ng-icon name="heroShoppingCart" class="text-xl"></ng-icon>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">
+              Purchase Order {{ purchase()!.purchaseNumber }}
+            </h3>
+            <p class="text-xs text-slate-500">Created on {{ purchase()!.createdAt | date:'medium' }}</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="rounded-md text-slate-400 hover:text-slate-500 focus:outline-none transition-colors"
+        >
+          <ng-icon name="heroXMark" class="text-2xl"></ng-icon>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+
+        <!-- Status & Metadata Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+
+          <!-- Supplier -->
+          <div class="flex items-center gap-3">
+            <ng-icon name="heroTruck" class="text-xl text-slate-400 shrink-0"></ng-icon>
+            <div>
+              <span class="block text-[10px] uppercase font-semibold text-slate-400">Supplier</span>
+              <span class="text-sm font-semibold text-slate-900">{{ purchase()!.supplierName }}</span>
+            </div>
+          </div>
+
+          <!-- Purchase Date -->
+          <div class="flex items-center gap-3">
+            <ng-icon name="heroCalendarDays" class="text-xl text-slate-400 shrink-0"></ng-icon>
+            <div>
+              <span class="block text-[10px] uppercase font-semibold text-slate-400">Date</span>
+              <span class="text-sm font-medium text-slate-900">{{ purchase()!.purchaseDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="flex items-center gap-3">
+            <div>
+              <span class="block text-[10px] uppercase font-semibold text-slate-400 mb-0.5">Status</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    [ngClass]="{
+                      'bg-amber-100 text-amber-800': purchase()!.status === PurchaseStatus.PENDING,
+                      'bg-emerald-100 text-emerald-800': purchase()!.status === PurchaseStatus.RECEIVED,
+                      'bg-red-100 text-red-800': purchase()!.status === PurchaseStatus.CANCELLED
+                    }">
+                {{ purchase()!.status }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Created By User info if available -->
+        @if (purchase()!.userName) {
+          <div class="text-xs text-slate-500 flex items-center gap-1.5">
+            <ng-icon name="heroUser" class="text-sm text-slate-400"></ng-icon>
+            <span>Created by: <strong class="text-slate-700">{{ purchase()!.userName }}</strong></span>
+          </div>
+        }
+
+        <!-- Items Table -->
+        <div>
+          <h4 class="text-sm font-semibold text-slate-900 mb-3">Order Items</h4>
+
+          <div class="overflow-x-auto rounded-lg border border-slate-200">
+            <table class="min-w-full divide-y divide-slate-200">
+              <thead class="bg-slate-50">
+                <tr>
+                  <th scope="col" class="px-4 py-2.5 text-left text-xs font-semibold text-slate-500">Product Name</th>
+                  <th scope="col" class="px-4 py-2.5 text-right text-xs font-semibold text-slate-500">Qty</th>
+                  <th scope="col" class="px-4 py-2.5 text-right text-xs font-semibold text-slate-500">Unit Price</th>
+                  <th scope="col" class="px-4 py-2.5 text-right text-xs font-semibold text-slate-500">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">
+                @for (item of purchase()!.items; track item.purchaseDetailId || $index) {
+                  <tr>
+                    <td class="px-4 py-3 text-sm font-medium text-slate-900">
+                      {{ item.productName || 'Product #' + item.productId }}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-slate-600 text-right">
+                      {{ item.quantity }}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-slate-600 text-right">
+                      {{ item.unitPrice | nprCurrency }}
+                    </td>
+                    <td class="px-4 py-3 text-sm font-semibold text-slate-900 text-right">
+                      {{ (item.subTotal || (item.quantity * item.unitPrice)) | nprCurrency }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Total Footer -->
+          <div class="mt-4 flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <span class="text-sm font-bold text-slate-900">Total Purchase Amount</span>
+            <span class="text-xl font-extrabold text-primary">
+              {{ purchase()!.totalAmount | nprCurrency }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Action Buttons (Admin Status Controls) -->
+      <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
+        <div *appHasRole="Role.ADMIN" class="flex items-center gap-2">
+          @if (purchase()!.status !== PurchaseStatus.RECEIVED) {
+            <button
+              type="button"
+              (click)="changeStatus(PurchaseStatus.RECEIVED)"
+              class="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors cursor-pointer"
+            >
+              <ng-icon name="heroCheckCircle" class="text-sm"></ng-icon>
+              Mark as Received
+            </button>
+          }
+          @if (purchase()!.status !== PurchaseStatus.PENDING) {
+            <button
+              type="button"
+              (click)="changeStatus(PurchaseStatus.PENDING)"
+              class="inline-flex items-center gap-1.5 rounded-md bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-amber-700 transition-colors cursor-pointer"
+            >
+              <ng-icon name="heroClock" class="text-sm"></ng-icon>
+              Set to Pending
+            </button>
+          }
+          @if (purchase()!.status !== PurchaseStatus.CANCELLED) {
+            <button
+              type="button"
+              (click)="changeStatus(PurchaseStatus.CANCELLED)"
+              class="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-red-700 transition-colors cursor-pointer"
+            >
+              <ng-icon name="heroXCircle" class="text-sm"></ng-icon>
+              Cancel Order
+            </button>
+          }
+        </div>
+
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 transition-colors cursor-pointer"
+        >
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

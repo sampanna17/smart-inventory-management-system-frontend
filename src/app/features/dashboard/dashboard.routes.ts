@@ -67,6 +67,15 @@ export const DASHBOARD_ROUTES: Routes = [
       ),
   },
   {
+    path: 'purchases',
+    canActivate: [roleGuard],
+    data: { roles: [Role.ADMIN, Role.STAFF] },
+    loadChildren: () =>
+      import('../purchases/purchases.routes').then(
+        (m) => m.PURCHASES_ROUTES
+      ),
+  },
+  {
     path: 'users',
     canActivate: [roleGuard],
     data: { roles: [Role.ADMIN] },

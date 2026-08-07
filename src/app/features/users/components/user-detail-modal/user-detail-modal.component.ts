@@ -1,6 +1,8 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserProfile } from '../../models/user-profile.model';
+import { Role } from '../../../../core/auth/enums/role.enum';
+import { Status } from '../../../../core/enums/status.enum';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroXMark, heroUser, heroEnvelope, heroShieldCheck, heroSignal, heroCalendarDays } from '@ng-icons/heroicons/outline';
 
@@ -16,6 +18,9 @@ export class UserDetailModalComponent {
   user = input<UserProfile | null>(null);
 
   close = output<void>();
+
+  readonly Role = Role;
+  readonly Status = Status;
 
   closeModal() {
     this.close.emit();
