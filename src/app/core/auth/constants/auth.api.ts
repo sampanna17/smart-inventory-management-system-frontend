@@ -8,4 +8,6 @@ export const AUTH_API = {
   LOGIN_GOOGLE: `${BASE}/login/google`,
   FORGOT_PASSWORD: `${BASE}/forgot-password`,
   RESET_PASSWORD: `${BASE}/reset-password`,
+  ACTIVATE: `${BASE}/activate`,
+  RESEND_ACTIVATE: `${BASE}/resend-activation`,
 } as const;

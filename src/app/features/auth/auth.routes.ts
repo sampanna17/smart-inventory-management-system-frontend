@@ -24,4 +24,11 @@ export const AUTH_ROUTES: Routes = [
         (m) => m.ResetPasswordComponent,
       ),
   },
+  {
+    path: 'activate',
+    loadComponent: () =>
+      import('./pages/activate-account/activate-account.component').then(
+        (m) => m.ActivateAccountComponent,
+      ),
+  },
 ];

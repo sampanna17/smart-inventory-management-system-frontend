@@ -25,6 +25,12 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
+
+  {
+    path: 'activate',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/auth/pages/activate-account/activate-account.component').then((m) => m.ActivateAccountComponent),
+  },
   
   {
     path: 'dashboard',
