@@ -283,6 +283,7 @@ export class ProductService {
         if (res.success) {
           this.toastr.success(res.message || 'Supplier removed successfully');
           this.assignedSuppliers.update(sups => sups.filter(s => s.supplierId !== supplierId));
+          this.loadProductSuppliers(productId);
         }
       }),
       catchError(err => {

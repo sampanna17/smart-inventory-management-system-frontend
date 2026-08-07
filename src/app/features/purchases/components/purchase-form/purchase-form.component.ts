@@ -4,9 +4,7 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { PurchaseService } from '../../services/purchase.service';
 import { SupplierService } from '../../../suppliers/services/supplier.service';
 import { ProductService } from '../../../products/services/product.service';
-import { Purchase, CreatePurchaseRequest, UpdatePurchaseRequest, SupplierProductSummary } from '../../models/purchase.model';
-import { Product } from '../../../../core/models/product.model';
-import { Supplier } from '../../../../core/models/supplier.model';
+import { Purchase, CreatePurchaseRequest, UpdatePurchaseRequest } from '../../models/purchase.model';
 import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
 import { NprCurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -98,7 +96,7 @@ export class PurchaseFormComponent implements OnInit {
       unitPrice: [unitPrice, [Validators.required, Validators.min(0.01)]]
     });
 
-    // Auto-fill price when product changes
+
     group.get('productId')?.valueChanges.subscribe(pId => {
       if (pId) {
         const prod = this.productService.products().find(p => p.productId === Number(pId));

@@ -93,7 +93,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200 bg-white">
-                @for (item of purchase()!.items; track item.purchaseDetailId || $index) {
+                @for (item of purchase()!.items; track item.purchaseDetailId) {
                   <tr>
                     <td class="px-4 py-3 text-sm font-medium text-slate-900">
                       {{ item.productName || 'Product #' + item.productId }}
