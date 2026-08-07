@@ -1,21 +1,31 @@
 import { Component, computed, inject, input, output, effect, signal } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
+import { SupplierService } from '../../../suppliers/services/supplier.service';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { Product, ProductImage } from '../../../../core/models/product.model';
+import { SupplierSummary } from '../../../../core/models/supplier.model';
 import { Role } from '../../../../core/auth/enums/role.enum';
 import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPencilSquare, heroExclamationTriangle, heroCheckCircle, heroArchiveBox, heroArrowPath } from '@ng-icons/heroicons/outline';
+import {
+  heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPencilSquare,
+  heroExclamationTriangle, heroCheckCircle, heroArchiveBox, heroArrowPath,
+  heroPlus, heroUserGroup, heroUserMinus
+} from '@ng-icons/heroicons/outline';
 
 import { NprCurrencyPipe } from '../../../../shared/pipes/currency.pipe';
+import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
 
 @Component({
   selector: 'app-product-detail-modal',
   standalone: true,
-  imports: [CommonModule, HasRoleDirective, NgIconComponent, NprCurrencyPipe, NgOptimizedImage],
+  imports: [CommonModule, FormsModule, HasRoleDirective, NgIconComponent, NprCurrencyPipe, NgOptimizedImage, CustomSelectComponent],
   viewProviders: [provideIcons({
-    heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPencilSquare, heroExclamationTriangle, heroCheckCircle, heroArchiveBox, heroArrowPath
+    heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPencilSquare,
+    heroExclamationTriangle, heroCheckCircle, heroArchiveBox, heroArrowPath,
+    heroPlus, heroUserGroup, heroUserMinus
   })],
   templateUrl: './product-detail-modal.component.html'
 })
@@ -27,11 +37,21 @@ export class ProductDetailModalComponent {
   edit = output<Product>();
 
   productService = inject(ProductService);
+  supplierService = inject(SupplierService);
   authService = inject(AuthService);
 
   readonly Role = Role;
 
   activeImageIndex = signal<number>(0);
+  selectedSupplierToAssign = signal<string>('');
+
+  availableSupplierOptions = computed(() => {
+    const assigned = this.productService.assignedSuppliers();
+    const assignedIds = new Set(assigned.map(s => s.supplierId));
+    return this.supplierService.suppliers()
+      .filter(s => !assignedIds.has(s.supplierID))
+      .map(s => ({ label: `${s.supplierName} (${s.phone})`, value: String(s.supplierID) }));
+  });
 
   constructor() {
     effect(() => {
@@ -39,7 +59,10 @@ export class ProductDetailModalComponent {
       const open = this.isOpen();
       if (open && p) {
         this.activeImageIndex.set(0);
+        this.selectedSupplierToAssign.set('');
         this.productService.loadProductImages(p.productId);
+        this.productService.loadProductSuppliers(p.productId);
+        this.supplierService.loadSuppliers();
       } else {
         this.activeImageIndex.set(0);
         this.productService.clearProductImages();
@@ -110,6 +133,25 @@ export class ProductDetailModalComponent {
     }
   }
 
+  assignSupplier() {
+    const p = this.product();
+    const supId = Number(this.selectedSupplierToAssign());
+    if (p && supId) {
+      this.productService.assignSupplierToProduct(p.productId, supId).subscribe({
+        next: () => {
+          this.selectedSupplierToAssign.set('');
+        }
+      });
+    }
+  }
+
+  removeSupplier(supplier: SupplierSummary) {
+    const p = this.product();
+    if (p && supplier) {
+      this.productService.removeSupplierFromProduct(p.productId, supplier.supplierId).subscribe();
+    }
+  }
+
   onEdit() {
     const p = this.product();
     if (p) {
@@ -117,3 +159,4 @@ export class ProductDetailModalComponent {
     }
   }
 }
+

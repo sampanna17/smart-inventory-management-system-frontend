@@ -7,6 +7,9 @@ import { PRODUCT_API } from '../constants/product.api';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, finalize, forkJoin, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 
+import { PRODUCT_SUPPLIER_API } from '../constants/product-supplier.api';
+import { SupplierSummary } from '../../../core/models/supplier.model';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -18,10 +21,12 @@ export class ProductService {
   products = signal<Product[]>([]);
   selectedProduct = signal<Product | null>(null);
   productImages = signal<ProductImage[]>([]);
+  assignedSuppliers = signal<SupplierSummary[]>([]);
   isLoading = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
   isUploadingImage = signal<boolean>(false);
   isLoadingImages = signal<boolean>(false);
+  isLoadingSuppliers = signal<boolean>(false);
   deletingImageId = signal<number | null>(null);
   error = signal<string | null>(null);
 
@@ -242,4 +247,49 @@ export class ProductService {
       })
     );
   }
+
+  // Product Supplier Relationship methods
+  loadProductSuppliers(productId: number): void {
+    this.isLoadingSuppliers.set(true);
+    this.assignedSuppliers.set([]);
+    this.http.get<ApiResponse<SupplierSummary[]>>(PRODUCT_SUPPLIER_API.GET_SUPPLIERS_BY_PRODUCT(productId)).pipe(
+      finalize(() => this.isLoadingSuppliers.set(false)),
+      catchError(() => of({ success: false, data: [] as SupplierSummary[] } as ApiResponse<SupplierSummary[]>))
+    ).subscribe(res => {
+      if (res.success && res.data) {
+        this.assignedSuppliers.set(res.data);
+      }
+    });
+  }
+
+  assignSupplierToProduct(productId: number, supplierId: number): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(PRODUCT_SUPPLIER_API.ADD(productId, supplierId), {}).pipe(
+      tap(res => {
+        if (res.success) {
+          this.toastr.success(res.message || 'Supplier assigned successfully');
+          this.loadProductSuppliers(productId);
+        }
+      }),
+      catchError(err => {
+        this.toastr.error(err.error?.message || 'Failed to assign supplier');
+        return throwError(() => err);
+      })
+    );
+  }
+
+  removeSupplierFromProduct(productId: number, supplierId: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(PRODUCT_SUPPLIER_API.REMOVE(productId, supplierId)).pipe(
+      tap(res => {
+        if (res.success) {
+          this.toastr.success(res.message || 'Supplier removed successfully');
+          this.assignedSuppliers.update(sups => sups.filter(s => s.supplierId !== supplierId));
+        }
+      }),
+      catchError(err => {
+        this.toastr.error(err.error?.message || 'Failed to remove supplier');
+        return throwError(() => err);
+      })
+    );
+  }
 }
+

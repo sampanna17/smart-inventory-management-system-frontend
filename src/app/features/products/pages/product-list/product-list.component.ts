@@ -20,7 +20,8 @@ import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroPencilSquare, heroTrash, heroEye, heroMagnifyingGlass, heroFunnel,
   heroSquares2x2, heroListBullet, heroExclamationTriangle, heroArchiveBox,
-  heroCurrencyDollar, heroTag
+  heroCurrencyDollar, heroTag, heroBarsArrowDown, heroBarsArrowUp,
+  heroChevronLeft, heroChevronRight
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -55,6 +56,10 @@ import {
       heroArchiveBox,
       heroCurrencyDollar,
       heroTag,
+      heroBarsArrowDown,
+      heroBarsArrowUp,
+      heroChevronLeft,
+      heroChevronRight
     }),
   ],
   templateUrl: './product-list.component.html',
@@ -65,14 +70,21 @@ export class ProductListComponent implements OnInit {
   private authService = inject(AuthService);
 
   readonly Role = Role;
+  readonly Math = Math;
 
   // View Layout Mode
   viewMode = signal<'table' | 'grid'>('table');
 
-  // Filter States
+  // Filter & Search States
   searchQuery = signal<string>('');
   selectedCategoryId = signal<string>('all');
   stockStatusFilter = signal<'all' | 'instock' | 'lowstock' | 'outofstock'>('all');
+
+  // Sorting & Pagination States
+  sortBy = signal<'name' | 'price' | 'stock' | 'date'>('name');
+  sortOrder = signal<'asc' | 'desc'>('asc');
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(10);
 
   // Filter Dropdown Options
   categoryOptions = computed(() => [
@@ -88,6 +100,20 @@ export class ProductListComponent implements OnInit {
     { label: 'In Stock', value: 'instock' },
     { label: 'Low Stock Alert', value: 'lowstock' },
     { label: 'Out of Stock', value: 'outofstock' }
+  ];
+
+  sortOptions = [
+    { label: 'Product Name', value: 'name' },
+    { label: 'Selling Price', value: 'price' },
+    { label: 'Stock Level', value: 'stock' },
+    { label: 'Date Added', value: 'date' }
+  ];
+
+  pageSizeOptions = [
+    { label: '5 per page', value: 5 },
+    { label: '10 per page', value: 10 },
+    { label: '25 per page', value: 25 },
+    { label: '50 per page', value: 50 }
   ];
 
   // Modal States
@@ -137,6 +163,48 @@ export class ProductListComponent implements OnInit {
       return matchesSearch && matchesCategory && matchesStock;
     });
   });
+
+  // Sorted Products Computed
+  sortedProducts = computed(() => {
+    const list = [...this.filteredProducts()];
+    const field = this.sortBy();
+    const order = this.sortOrder() === 'asc' ? 1 : -1;
+
+    return list.sort((a, b) => {
+      if (field === 'name') {
+        return a.productName.localeCompare(b.productName) * order;
+      } else if (field === 'price') {
+        return (a.sellingPrice - b.sellingPrice) * order;
+      } else if (field === 'stock') {
+        return (a.stockQuantity - b.stockQuantity) * order;
+      } else if (field === 'date') {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return (dateA - dateB) * order;
+      }
+      return 0;
+    });
+  });
+
+  // Paginated Products Computed
+  paginatedProducts = computed(() => {
+    const list = this.sortedProducts();
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return list.slice(start, start + this.pageSize());
+  });
+
+  totalPages = computed(() => Math.ceil(this.sortedProducts().length / this.pageSize()) || 1);
+
+  // Pagination Handlers
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  toggleSortOrder() {
+    this.sortOrder.update(o => o === 'asc' ? 'desc' : 'asc');
+  }
 
   // Top KPI Metrics
   totalProductsCount = computed(() => this.productService.products().length);

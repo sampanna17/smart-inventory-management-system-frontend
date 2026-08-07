@@ -56,6 +56,7 @@ export class ProductFormComponent implements OnInit {
           if (p) {
             this.productService.loadProductImages(p.productId);
             if (this.productForm) {
+              this.productForm.get('productName')?.setValidators([Validators.required, Validators.maxLength(100), Validators.pattern(/.*\S.*/)]);
               this.productForm.patchValue({
                 productName: p.productName,
                 categoryId: p.categoryId,
@@ -71,6 +72,7 @@ export class ProductFormComponent implements OnInit {
           } else {
             this.productService.clearProductImages();
             if (this.productForm) {
+              this.productForm.get('productName')?.setValidators([Validators.required, Validators.maxLength(50), Validators.pattern(/.*\S.*/)]);
               this.productForm.reset({
                 productName: '',
                 categoryId: '',
@@ -84,6 +86,7 @@ export class ProductFormComponent implements OnInit {
               this.productForm.get('stockQuantity')?.enable();
             }
           }
+          this.productForm.get('productName')?.updateValueAndValidity();
           this.initialFormValue = this.productForm?.getRawValue();
         });
       } else {
@@ -94,7 +97,7 @@ export class ProductFormComponent implements OnInit {
 
   private initForm() {
     this.productForm = this.fb.group({
-      productName: ['', [Validators.required, Validators.maxLength(100), Validators.pattern(/.*\S.*/)]],
+      productName: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/.*\S.*/)]],
       categoryId: ['', [Validators.required]],
       unitId: ['', [Validators.required]],
       costPrice: [0, [Validators.required, Validators.min(0)]],
