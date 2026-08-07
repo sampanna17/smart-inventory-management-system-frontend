@@ -114,6 +114,14 @@ export class AuthService {
     return this.http.post<ApiResponse<void>>(AUTH_API.RESET_PASSWORD, { token, newPassword });
   }
 
+  activateAccount(token: string, newPassword: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(AUTH_API.ACTIVATE, { token, newPassword });
+  }
+
+  resendActivationLink(email: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(AUTH_API.RESEND_ACTIVATE, { email });
+  }
+
   private decodeToken(token: string | undefined): any {
     if (!token) return null;
     try {
