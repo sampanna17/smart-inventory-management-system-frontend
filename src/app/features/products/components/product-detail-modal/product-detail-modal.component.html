@@ -1,4 +1,4 @@
-@if (isOpen() && product()) {
+  @if (isOpen() && product()) {
   <div class="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6">
     <!-- Backdrop -->
     <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" (click)="close.emit()"></div>
@@ -42,7 +42,7 @@
                   <span class="text-xs font-medium text-slate-500">Loading images...</span>
                 </div>
               } @else if (activeImage()) {
-                <img [src]="activeImage()?.imageURL" [alt]="product()?.productName" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                <img [ngSrc]="activeImage()?.imageURL || ''" [alt]="product()?.productName || 'Product Image'" fill priority class="object-cover transition-transform duration-300 group-hover:scale-105" />
 
                 <!-- Action button to delete active image (Admin) -->
                 @if (productService.deletingImageId() === activeImage()?.imageId) {
@@ -53,9 +53,9 @@
                 } @else {
                   <button
                     *appHasRole="Role.ADMIN"
-                    (click)="deleteImage(activeImage()!)"
+                    (click)="activeImage() && deleteImage(activeImage()!)"
                     [disabled]="productService.deletingImageId() !== null"
-                    class="absolute top-2 right-2 p-2 bg-red-600/90 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 shadow-md cursor-pointer disabled:opacity-50"
+                    class="absolute top-2 right-2 p-2 bg-red-600/90 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 shadow-md cursor-pointer disabled:opacity-50 z-10"
                     title="Delete image"
                   >
                     <ng-icon name="heroTrash" class="text-sm"></ng-icon>
@@ -78,7 +78,7 @@
                     class="w-12 h-12 rounded-lg border-2 overflow-hidden shrink-0 transition-all relative"
                     [ngClass]="activeImageIndex() === i ? 'border-primary shadow-sm scale-105' : 'border-slate-200 opacity-60 hover:opacity-100'"
                   >
-                    <img [src]="img.imageURL" [alt]="product()?.productName" class="w-full h-full object-cover" />
+                    <img [ngSrc]="img.imageURL" [alt]="product()?.productName || 'Thumbnail'" width="48" height="48" class="w-full h-full object-cover" />
                     @if (productService.deletingImageId() === img.imageId) {
                       <div class="absolute inset-0 bg-slate-900/60 flex items-center justify-center text-white">
                         <ng-icon name="heroArrowPath" class="animate-spin text-xs"></ng-icon>

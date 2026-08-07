@@ -13,7 +13,7 @@ import { Role } from '../../../core/auth/enums/role.enum';
   template: `
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900">{{ title() }}</h1>
+        <h1 class="text-2xl font-semibold text-text">{{ title() }}</h1>
         @if (subtitle()) {
           <p class="mt-1 text-sm text-slate-500">{{ subtitle() }}</p>
         }
