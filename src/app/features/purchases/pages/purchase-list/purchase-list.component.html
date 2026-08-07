@@ -1,0 +1,293 @@
+<div class="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto space-y-6">
+
+  <!-- Page Header -->
+  <app-page-header
+    title="Purchase Orders"
+    subtitle="Manage inventory purchases, suppliers, and incoming stock orders"
+    [roles]="Role.ADMIN"
+    actionLabel="Create Purchase"
+    actionIcon="heroPlus"
+    (action)="openCreateModal()"
+  ></app-page-header>
+
+  <!-- KPI Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Total Purchases -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="p-3 bg-primary/10 text-primary rounded-xl shrink-0">
+        <ng-icon name="heroShoppingCart" class="text-2xl"></ng-icon>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Purchases</p>
+        <h3 class="text-xl font-bold text-slate-900 mt-0.5">{{ totalPurchasesCount() }}</h3>
+      </div>
+    </div>
+
+    <!-- Total Amount Spent -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
+        <ng-icon name="heroCurrencyDollar" class="text-2xl"></ng-icon>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Amount Spent</p>
+        <h3 class="text-xl font-bold text-slate-900 mt-0.5">{{ totalSpentAmount() | nprCurrency }}</h3>
+      </div>
+    </div>
+
+    <!-- Received Purchases -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="p-3 bg-green-50 text-green-600 rounded-xl shrink-0">
+        <ng-icon name="heroCheckCircle" class="text-2xl"></ng-icon>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Received Orders</p>
+        <h3 class="text-xl font-bold text-slate-900 mt-0.5">{{ receivedPurchasesCount() }}</h3>
+      </div>
+    </div>
+
+    <!-- Pending Purchases -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="p-3 bg-amber-50 text-amber-600 rounded-xl shrink-0">
+        <ng-icon name="heroClock" class="text-2xl"></ng-icon>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Orders</p>
+        <h3 class="text-xl font-bold text-slate-900 mt-0.5">{{ pendingPurchasesCount() }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Container -->
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+    <!-- Filters & Search Bar -->
+    <div class="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+      <!-- Search Input -->
+      <div class="relative w-full sm:max-w-xs">
+        <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></ng-icon>
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Search by PO #, supplier..."
+          class="block w-full rounded-md border-0 py-2 pl-10 pr-10 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 sm:text-sm sm:leading-6"
+        />
+        @if (searchTerm()) {
+          <button
+            (click)="clearSearch()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <ng-icon name="heroXMark" class="text-lg"></ng-icon>
+          </button>
+        }
+      </div>
+
+      <!-- Status Filter Tabs -->
+      <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg w-full sm:w-auto overflow-x-auto">
+        <button
+          (click)="setStatusFilter('ALL')"
+          class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
+          [ngClass]="selectedStatusFilter() === 'ALL' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+        >
+          All
+        </button>
+        <button
+          (click)="setStatusFilter(PurchaseStatus.PENDING)"
+          class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
+          [ngClass]="selectedStatusFilter() === PurchaseStatus.PENDING ? 'bg-white text-amber-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+        >
+          Pending
+        </button>
+        <button
+          (click)="setStatusFilter(PurchaseStatus.RECEIVED)"
+          class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
+          [ngClass]="selectedStatusFilter() === PurchaseStatus.RECEIVED ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+        >
+          Received
+        </button>
+        <button
+          (click)="setStatusFilter(PurchaseStatus.CANCELLED)"
+          class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
+          [ngClass]="selectedStatusFilter() === PurchaseStatus.CANCELLED ? 'bg-white text-red-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+        >
+          Cancelled
+        </button>
+      </div>
+    </div>
+
+    <!-- Data Table / Loading / Error / Empty States -->
+    @if (purchaseService.isLoading()) {
+      <div class="p-6">
+        <app-skeleton-loader type="table"></app-skeleton-loader>
+      </div>
+    } @else if (purchaseService.error()) {
+      <div class="p-6">
+        <app-error-state
+          [message]="purchaseService.error()!"
+          (retry)="loadPurchases()"
+        ></app-error-state>
+      </div>
+    } @else if (purchaseService.purchases().length === 0) {
+      <div class="p-6">
+        <app-empty-state
+          title="No purchase orders found"
+          message="Get started by creating your first purchase order."
+          [roles]="Role.ADMIN"
+          actionLabel="Create Purchase"
+          (action)="openCreateModal()"
+        ></app-empty-state>
+      </div>
+    } @else if (filteredPurchases().length === 0) {
+      <div class="p-12 text-center text-slate-500 text-sm">
+        No purchase orders match your filter criteria.
+      </div>
+    } @else {
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">PO Number</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Supplier</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Created By</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Amount</th>
+              <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-slate-200">
+            @for (p of filteredPurchases(); track p.purchaseId) {
+              <tr class="hover:bg-slate-50 transition-colors">
+                <!-- PO Number -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">
+                  {{ p.purchaseNumber }}
+                </td>
+
+                <!-- Supplier Name -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                  {{ p.supplierName }}
+                </td>
+
+                <!-- Date -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden sm:table-cell">
+                  {{ p.purchaseDate | date:'mediumDate' }}
+                </td>
+
+                <!-- Created By User -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden md:table-cell">
+                  {{ p.userName || '-' }}
+                </td>
+
+                <!-- Total Amount -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 text-right">
+                  {{ p.totalAmount | nprCurrency }}
+                </td>
+
+                <!-- Status Badge -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                        [ngClass]="{
+                          'bg-amber-100 text-amber-800': p.status === PurchaseStatus.PENDING,
+                          'bg-emerald-100 text-emerald-800': p.status === PurchaseStatus.RECEIVED,
+                          'bg-red-100 text-red-800': p.status === PurchaseStatus.CANCELLED
+                        }">
+                    {{ p.status }}
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex justify-end gap-1">
+                    <!-- View Details -->
+                    <button
+                      (click)="openDetailModal(p)"
+                      class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer"
+                      title="View Details">
+                      <ng-icon name="heroEye" class="text-lg"></ng-icon>
+                    </button>
+
+                    <div *appHasRole="Role.ADMIN" class="flex gap-1">
+                      <!-- Mark as Received Quick Action -->
+                      @if (p.status === PurchaseStatus.PENDING) {
+                        <button
+                          (click)="openStatusModal(p, PurchaseStatus.RECEIVED)"
+                          class="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors cursor-pointer"
+                          title="Mark as Received">
+                          <ng-icon name="heroCheckCircle" class="text-lg"></ng-icon>
+                        </button>
+                      }
+
+                      <!-- Edit (Only if PENDING) -->
+                      @if (p.status === PurchaseStatus.PENDING) {
+                        <button
+                          (click)="openEditModal(p)"
+                          class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer"
+                          title="Edit Purchase Order">
+                          <ng-icon name="heroPencilSquare" class="text-lg"></ng-icon>
+                        </button>
+                      }
+
+                      <!-- Delete (Only if NOT RECEIVED) -->
+                      @if (p.status !== PurchaseStatus.RECEIVED) {
+                        <button
+                          (click)="openDeleteConfirm(p)"
+                          class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
+                          title="Delete Purchase">
+                          <ng-icon name="heroTrash" class="text-lg"></ng-icon>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </div>
+</div>
+
+<!-- Modals -->
+
+<!-- Purchase Form Modal (Create / Edit) -->
+<app-purchase-form
+  [isOpen]="isFormModalOpen()"
+  [purchase]="selectedPurchase()"
+  (close)="closeFormModal()"
+  (saved)="loadPurchases()"
+></app-purchase-form>
+
+<!-- Purchase Detail View Modal -->
+<app-purchase-detail-modal
+  [isOpen]="isDetailModalOpen()"
+  [purchase]="selectedPurchase()"
+  (close)="closeDetailModal()"
+  (statusChange)="onDetailStatusChange($event)"
+></app-purchase-detail-modal>
+
+<!-- Status Transition Confirmation Modal -->
+<app-confirm-dialog
+  [isOpen]="isStatusModalOpen()"
+  [title]="'Change Status to ' + targetStatus()"
+  [message]="getStatusMessage()"
+  confirmLabel="Update Status"
+  [type]="targetStatus() === PurchaseStatus.CANCELLED ? 'danger' : 'primary'"
+  [isLoading]="purchaseService.isSubmitting()"
+  (confirm)="confirmStatusChange()"
+  (cancel)="closeStatusModal()"
+></app-confirm-dialog>
+
+<!-- Delete Confirmation Modal -->
+<app-confirm-dialog
+  [isOpen]="isDeleteModalOpen()"
+  title="Delete Purchase Order"
+  message="Are you sure you want to delete purchase order '{{ selectedPurchase()?.purchaseNumber }}'? This action cannot be undone."
+  confirmLabel="Delete"
+  type="danger"
+  [isLoading]="purchaseService.isSubmitting()"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteModal()"
+></app-confirm-dialog>

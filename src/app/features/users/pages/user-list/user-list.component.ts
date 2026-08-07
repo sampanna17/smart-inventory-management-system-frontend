@@ -23,6 +23,8 @@ import {
   heroXMark
 } from '@ng-icons/heroicons/outline';
 
+import { Status } from '../../../../core/enums/status.enum';
+
 @Component({
   selector: 'app-user-list',
   standalone: true,
@@ -47,6 +49,7 @@ export class UserListComponent implements OnInit {
   private authService = inject(AuthService);
 
   readonly Role = Role;
+  readonly Status = Status;
 
   // Search
   searchTerm = signal<string>('');
@@ -186,6 +189,6 @@ export class UserListComponent implements OnInit {
 
   // Helper: check if user is STAFF (actions only apply to staff)
   isStaff(user: UserProfile): boolean {
-    return user.role === 'STAFF';
+    return user.role === Role.STAFF;
   }
 }
