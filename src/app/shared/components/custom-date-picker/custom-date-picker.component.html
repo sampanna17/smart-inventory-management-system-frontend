@@ -1,0 +1,162 @@
+<div class="w-full flex flex-col sm:flex-row gap-2 items-stretch">
+
+  <!-- Date Picker Field (Angular Material) -->
+  <div
+    (click)="picker.open()"
+    class="relative flex-1 bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm shadow-sm flex items-center justify-between gap-2 hover:border-slate-400 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all min-h-[40px] cursor-pointer"
+  >
+    <input
+      type="text"
+      [matDatepicker]="picker"
+      [value]="selectedDate()"
+      (dateChange)="onDateSelected($event.value)"
+      [disabled]="disabled"
+      [placeholder]="placeholder"
+      class="w-full bg-transparent text-slate-800 outline-none text-sm placeholder:text-slate-400 cursor-pointer pointer-events-none"
+      readonly
+    />
+
+    <button
+      type="button"
+      (click)="$event.stopPropagation(); picker.open()"
+      [disabled]="disabled"
+      class="text-primary hover:text-primary-dark transition-colors focus:outline-none p-0.5 rounded cursor-pointer disabled:opacity-50 shrink-0"
+      title="Open Calendar"
+    >
+      <ng-icon name="heroCalendarDays" class="text-lg"></ng-icon>
+    </button>
+
+    <mat-datepicker #picker></mat-datepicker>
+  </div>
+
+  <!-- Custom SIMS Time Picker Field & CDK Overlay -->
+  <div class="w-full sm:w-44">
+    <!-- Trigger Button -->
+    <button
+      type="button"
+      cdkOverlayOrigin
+      #timeOrigin="cdkOverlayOrigin"
+      (click)="toggleTimeDropdown($event)"
+      [disabled]="disabled"
+      class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 shadow-sm flex items-center justify-between gap-2 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer min-h-[40px]"
+    >
+      <span class="font-medium text-slate-800">{{ displayTimeLabel() }}</span>
+      <ng-icon name="heroClock" class="text-primary text-lg shrink-0 pointer-events-none"></ng-icon>
+    </button>
+
+    <!-- CDK Overlay Panel -->
+    <ng-template
+      cdkConnectedOverlay
+      [cdkConnectedOverlayOrigin]="timeOrigin"
+      [cdkConnectedOverlayOpen]="isTimeOpen()"
+      (overlayOutsideClick)="isTimeOpen.set(false)"
+    >
+      <div class="mt-1.5 w-72 bg-white border border-slate-200 rounded-2xl shadow-2xl p-4 flex flex-col gap-3 border-t-4 border-t-primary z-[9999] overflow-hidden max-h-[360px]">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 shrink-0">
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Select Time</span>
+          <span class="text-xs font-bold text-primary px-2.5 py-1 bg-primary/10 rounded-lg">
+            {{ displayTimeLabel() }}
+          </span>
+        </div>
+
+        <!-- Time Select Columns: Hours | Minutes | AM/PM -->
+        <div class="grid grid-cols-3 gap-2 h-44 shrink-0 overflow-hidden">
+
+          <!-- Hours Column (1-12) -->
+          <div class="flex flex-col h-full overflow-hidden">
+            <span class="text-[10px] font-bold text-slate-400 mb-1.5 text-center shrink-0 uppercase tracking-wider">Hour</span>
+            <div class="overflow-y-auto overflow-x-hidden hide-scrollbar flex-1 space-y-1 px-0.5">
+              @for (h of hoursList; track h) {
+                <button
+                  type="button"
+                  (click)="setHour(h)"
+                  class="w-full py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer block text-center"
+                  [ngClass]="{
+                    'bg-primary text-white shadow-sm font-bold': selectedHour() === h,
+                    'hover:bg-primary/10 text-slate-700': selectedHour() !== h
+                  }"
+                >
+                  {{ padZero(h) }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Minutes Column (0-59 all minutes) -->
+          <div class="flex flex-col h-full overflow-hidden border-l border-r border-slate-100 px-0.5">
+            <span class="text-[10px] font-bold text-slate-400 mb-1.5 text-center shrink-0 uppercase tracking-wider">Minute</span>
+            <div class="overflow-y-auto overflow-x-hidden hide-scrollbar flex-1 space-y-1 px-0.5">
+              @for (m of minutesList; track m) {
+                <button
+                  type="button"
+                  (click)="setMinute(m)"
+                  class="w-full py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer block text-center"
+                  [ngClass]="{
+                    'bg-primary text-white shadow-sm font-bold': selectedMinute() === m,
+                    'hover:bg-primary/10 text-slate-700': selectedMinute() !== m
+                  }"
+                >
+                  {{ padZero(m) }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- AM / PM Column -->
+          <div class="flex flex-col h-full overflow-hidden">
+            <span class="text-[10px] font-bold text-slate-400 mb-1.5 text-center shrink-0 uppercase tracking-wider">Period</span>
+            <div class="space-y-2 py-1 flex flex-col justify-center flex-1">
+              <button
+                type="button"
+                (click)="setPeriod('AM')"
+                class="w-full py-2.5 text-xs font-extrabold rounded-lg transition-colors cursor-pointer block text-center"
+                [ngClass]="{
+                  'bg-primary text-white shadow-sm': selectedPeriod() === 'AM',
+                  'hover:bg-primary/10 text-slate-700 border border-slate-200': selectedPeriod() !== 'AM'
+                }"
+              >
+                AM
+              </button>
+              <button
+                type="button"
+                (click)="setPeriod('PM')"
+                class="w-full py-2.5 text-xs font-extrabold rounded-lg transition-colors cursor-pointer block text-center"
+                [ngClass]="{
+                  'bg-primary text-white shadow-sm': selectedPeriod() === 'PM',
+                  'hover:bg-primary/10 text-slate-700 border border-slate-200': selectedPeriod() !== 'PM'
+                }"
+              >
+                PM
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer Action Buttons -->
+        <div class="pt-2.5 border-t border-slate-100 flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            (click)="setNow()"
+            class="px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-1 shrink-0"
+            title="Set to Current Time"
+          >
+            Now
+          </button>
+
+          <button
+            type="button"
+            (click)="isTimeOpen.set(false)"
+            class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md text-center"
+          >
+            Apply Time
+          </button>
+        </div>
+
+      </div>
+    </ng-template>
+  </div>
+
+</div>

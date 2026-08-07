@@ -12,6 +12,9 @@ import { NprCurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroXMark, heroPlus, heroTrash } from '@ng-icons/heroicons/outline';
 
+import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
+import { CustomDateTimePickerComponent } from '../../../../shared/components/custom-date-picker/custom-date-picker.component';
+
 @Component({
   selector: 'app-purchase-form',
   standalone: true,
@@ -20,7 +23,9 @@ import { heroXMark, heroPlus, heroTrash } from '@ng-icons/heroicons/outline';
     ReactiveFormsModule,
     FormErrorComponent,
     NprCurrencyPipe,
-    NgIconComponent
+    NgIconComponent,
+    CustomSelectComponent,
+    CustomDateTimePickerComponent
   ],
   viewProviders: [provideIcons({ heroXMark, heroPlus, heroTrash })],
   templateUrl: './purchase-form.component.html'
