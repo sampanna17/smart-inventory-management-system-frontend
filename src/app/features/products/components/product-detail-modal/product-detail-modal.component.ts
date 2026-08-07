@@ -1,5 +1,5 @@
-import { Component, computed, inject, input, output, OnInit, effect, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, inject, input, output, effect, signal } from '@angular/core';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ProductService } from '../../services/product.service';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { Product, ProductImage } from '../../../../core/models/product.model';
@@ -13,7 +13,7 @@ import { NprCurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 @Component({
   selector: 'app-product-detail-modal',
   standalone: true,
-  imports: [CommonModule, HasRoleDirective, NgIconComponent, NprCurrencyPipe],
+  imports: [CommonModule, HasRoleDirective, NgIconComponent, NprCurrencyPipe, NgOptimizedImage],
   viewProviders: [provideIcons({
     heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPencilSquare, heroExclamationTriangle, heroCheckCircle, heroArchiveBox, heroArrowPath
   })],
