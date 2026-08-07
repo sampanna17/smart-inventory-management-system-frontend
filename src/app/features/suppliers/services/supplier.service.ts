@@ -8,6 +8,10 @@ import { ToastrService } from 'ngx-toastr';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
+import { PRODUCT_SUPPLIER_API } from '../../products/constants/product-supplier.api';
+import { ProductSummary } from '../../../core/models/supplier.model';
+import { of } from 'rxjs';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,8 +21,10 @@ export class SupplierService {
 
   // State
   suppliers = signal<Supplier[]>([]);
+  supplierProducts = signal<ProductSummary[]>([]);
   isLoading = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
+  isLoadingProducts = signal<boolean>(false);
   error = signal<string | null>(null);
 
   loadSuppliers(): void {
@@ -39,6 +45,23 @@ export class SupplierService {
           this.suppliers.set(res.data);
         }
       });
+  }
+
+  getSupplierById(id: number) {
+    return this.http.get<ApiResponse<Supplier>>(`${SUPPLIER_API.GET_ALL}/${id}`);
+  }
+
+  loadSupplierProducts(supplierId: number): void {
+    this.isLoadingProducts.set(true);
+    this.supplierProducts.set([]);
+    this.http.get<ApiResponse<ProductSummary[]>>(PRODUCT_SUPPLIER_API.GET_PRODUCTS_BY_SUPPLIER(supplierId)).pipe(
+      finalize(() => this.isLoadingProducts.set(false)),
+      catchError(() => of({ success: false, data: [] as ProductSummary[] } as ApiResponse<ProductSummary[]>))
+    ).subscribe(res => {
+      if (res.success && res.data) {
+        this.supplierProducts.set(res.data);
+      }
+    });
   }
 
   createSupplier(data: CreateSupplierRequest) {
@@ -99,3 +122,4 @@ export class SupplierService {
       );
   }
 }
+

@@ -1,3 +1,5 @@
+import { SupplierSummary } from './supplier.model';
+
 export interface Product {
   productId: number;
   productName: string;
@@ -14,6 +16,7 @@ export interface Product {
   updatedAt?: string;
   images?: ProductImage[];
   primaryImageUrl?: string;
+  suppliers?: SupplierSummary[];
 }
 
 export interface ProductImage {
