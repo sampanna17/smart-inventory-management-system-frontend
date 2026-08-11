@@ -1,15 +1,135 @@
-<div class="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
+<div class="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto space-y-6">
 
+  <!-- Page Header -->
   <app-page-header
-    title="Users"
-    subtitle="Manage staff accounts and permissions"
+    title="Users & Access"
+    subtitle="Manage staff accounts, administrative permissions, and system access"
     [roles]="Role.ADMIN"
     actionLabel="Add Staff"
     (action)="openCreateModal()"
   ></app-page-header>
 
-  <!-- Main Content Area -->
+  <!-- Main Content Container -->
   <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+    <!-- Filters & Search Toolbar -->
+    <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-col gap-4">
+
+      <!-- Top Row: Role Filter Tabs -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- Role Tabs -->
+        <div class="flex items-center p-1 bg-slate-200/60 rounded-lg text-xs font-medium">
+          <button
+            type="button"
+            (click)="setRoleFilter('ALL')"
+            class="px-3 py-1.5 rounded-md transition-all cursor-pointer"
+            [ngClass]="selectedRoleFilter() === 'ALL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+          >
+            All Roles
+          </button>
+          <button
+            type="button"
+            (click)="setRoleFilter('ADMIN')"
+            class="px-3 py-1.5 rounded-md transition-all cursor-pointer"
+            [ngClass]="selectedRoleFilter() === 'ADMIN' ? 'bg-white text-purple-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+          >
+            Admins
+          </button>
+          <button
+            type="button"
+            (click)="setRoleFilter('STAFF')"
+            class="px-3 py-1.5 rounded-md transition-all cursor-pointer"
+            [ngClass]="selectedRoleFilter() === 'STAFF' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+          >
+            Staff
+          </button>
+        </div>
+
+        <!-- Status Filter Pills -->
+        <div class="flex items-center gap-1.5 text-xs">
+          <span class="text-slate-500 font-medium mr-1">Status:</span>
+          <button
+            type="button"
+            (click)="setStatusFilter('ALL')"
+            class="px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer border"
+            [ngClass]="selectedStatusFilter() === 'ALL'
+              ? 'bg-slate-800 text-white border-slate-800'
+              : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            (click)="setStatusFilter('ACTIVE')"
+            class="px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer border"
+            [ngClass]="selectedStatusFilter() === 'ACTIVE'
+              ? 'bg-emerald-600 text-white border-emerald-600'
+              : 'bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50'"
+          >
+            Active
+          </button>
+          <button
+            type="button"
+            (click)="setStatusFilter('INACTIVE')"
+            class="px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer border"
+            [ngClass]="selectedStatusFilter() === 'INACTIVE'
+              ? 'bg-red-600 text-white border-red-600'
+              : 'bg-white text-red-700 border-red-300 hover:bg-red-50'"
+          >
+            Inactive
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Search & Sort Controls -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- Search Input -->
+        <div class="relative flex-1 w-full sm:w-auto min-w-[240px]">
+          <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none"></ng-icon>
+          <input
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchInput($event)"
+            placeholder="Search by full name or email address..."
+            class="w-full pl-9 pr-9 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-[38px]"
+          />
+          @if (searchQuery()) {
+            <button
+              (click)="clearSearch()"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
+              title="Clear search"
+            >
+              <ng-icon name="heroXMark" class="text-base"></ng-icon>
+            </button>
+          }
+        </div>
+
+        <!-- Sort Controls -->
+        <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+          <div class="w-44">
+            <app-select
+              [options]="sortOptions"
+              [ngModel]="sortBy()"
+              (ngModelChange)="onSortChange($event)"
+              placeholder="Sort by"
+            ></app-select>
+          </div>
+
+          <button
+            type="button"
+            (click)="toggleSortOrder()"
+            class="p-2 bg-white border border-slate-300 rounded-lg hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-colors shadow-sm cursor-pointer min-h-[38px] flex items-center justify-center shrink-0"
+            [title]="sortOrder() === 'asc' ? 'Sort Ascending' : 'Sort Descending'"
+          >
+            @if (sortOrder() === 'asc') {
+              <ng-icon name="heroBarsArrowDown" class="text-base"></ng-icon>
+            } @else {
+              <ng-icon name="heroBarsArrowUp" class="text-base"></ng-icon>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Loading State -->
     @if (userService.isLoading()) {
@@ -24,145 +144,139 @@
           (retry)="loadUsers()"
         ></app-error-state>
       </div>
-    } @else if (userService.users().length === 0) {
+    } @else if (users().length === 0) {
       <!-- Empty State -->
       <div class="p-6">
         <app-empty-state
           title="No users found"
-          message="Get started by adding your first staff member."
+          message="No users match your filter criteria. Try resetting your search or filters."
           [roles]="Role.ADMIN"
           actionLabel="Add Staff"
           (action)="openCreateModal()"
         ></app-empty-state>
       </div>
     } @else {
-
-      <!-- Search Bar -->
-      <div class="px-6 py-4 border-b border-slate-200">
-        <div class="relative max-w-sm">
-          <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></ng-icon>
-          <input
-            type="text"
-            [ngModel]="searchTerm()"
-            (ngModelChange)="onSearchChange($event)"
-            placeholder="Search by name, email, role..."
-            class="block w-full rounded-md border-0 py-2 pl-10 pr-10 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 sm:text-sm sm:leading-6"
-          />
-          @if (searchTerm()) {
-            <button
-              (click)="clearSearch()"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              <ng-icon name="heroXMark" class="text-lg"></ng-icon>
-            </button>
-          }
-        </div>
-      </div>
-
-      <!-- No search results -->
-      @if (filteredUsers().length === 0) {
-        <div class="p-12 text-center">
-          <p class="text-sm text-slate-500">No users match your search "{{ searchTerm() }}"</p>
-        </div>
-      } @else {
-        <!-- Data Table -->
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-slate-200">
-            <thead class="bg-slate-50">
-              <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Email</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Created</th>
-                <th scope="col" *appHasRole="Role.ADMIN" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-slate-200">
-              @for (user of filteredUsers(); track user.userID) {
-                <tr class="hover:bg-slate-50 transition-colors">
-                  <!-- User (Avatar + Name) -->
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center gap-3">
+      <!-- Data Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Email</th>
+              <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
+              <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Created</th>
+              <th scope="col" *appHasRole="Role.ADMIN" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-slate-200">
+            @for (user of users(); track user.userID) {
+              <tr class="hover:bg-slate-50 transition-colors">
+                <!-- User (Avatar Initials + Name) -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <div>
                       <div class="text-sm font-medium text-slate-900">{{ user.fullName }}</div>
                     </div>
-                  </td>
+                  </div>
+                </td>
 
-                  <!-- Email -->
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden md:table-cell">
-                    {{ user.email }}
-                  </td>
+                <!-- Email -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 hidden md:table-cell">
+                  {{ user.email }}
+                </td>
 
-                  <!-- Role Badge -->
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                          [ngClass]="user.role === Role.ADMIN
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-blue-100 text-blue-700'">
-                      {{ user.role }}
+                <!-- Role Badge -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        [ngClass]="user.role === Role.ADMIN
+                          ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                          : 'bg-blue-100 text-blue-700 border border-blue-200'">
+                    {{ user.role }}
+                  </span>
+                </td>
+
+                <!-- Status Badge -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        [ngClass]="user.status === Status.ACTIVE
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-red-100 text-red-800'">
+                    {{ user.status }}
+                  </span>
+                </td>
+
+                <!-- Created Date & Time -->
+                <td class="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-sm font-medium text-slate-700">
+                      {{ user.createdAt | date:'MMM d, y' }}
                     </span>
-                  </td>
-
-                  <!-- Status Badge -->
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                          [ngClass]="user.status === Status.ACTIVE
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700'">
-                      {{ user.status }}
+                    <span class="text-xs text-slate-400">
+                      {{ user.createdAt | date:'h:mm a' }}
                     </span>
-                  </td>
+                  </div>
+                </td>
 
-                  <!-- Created Date -->
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden lg:table-cell">
-                    {{ user.createdAt | date:'mediumDate' }}
-                  </td>
+                <!-- Actions -->
+                <td *appHasRole="Role.ADMIN" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex justify-end gap-1">
+                    <!-- View Details -->
+                    <button
+                      (click)="openDetailModal(user)"
+                      class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer"
+                      title="View Details">
+                      <ng-icon name="heroEye" class="text-lg"></ng-icon>
+                    </button>
 
-                  <!-- Actions -->
-                  <td *appHasRole="Role.ADMIN" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div class="flex justify-end gap-1">
-                      <!-- View Details -->
-                      <button
-                        (click)="openDetailModal(user)"
-                        class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
-                        title="View Details">
-                        <ng-icon name="heroEye" class="text-lg"></ng-icon>
-                      </button>
-
-                      @if (isStaff(user)) {
-                        <!-- Activate/Deactivate Toggle -->
-                        @if (user.status === Status.INACTIVE) {
-                          <button
-                            (click)="openActivateConfirm(user)"
-                            class="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors"
-                            title="Activate Staff">
-                            <ng-icon name="heroCheckCircle" class="text-lg"></ng-icon>
-                          </button>
-                        } @else {
-                          <button
-                            (click)="openDeactivateConfirm(user)"
-                            class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-md transition-colors"
-                            title="Deactivate Staff">
-                            <ng-icon name="heroXCircle" class="text-lg"></ng-icon>
-                          </button>
-                        }
-
-                        <!-- Delete -->
+                    @if (isStaff(user)) {
+                      <!-- Activate/Deactivate Toggle -->
+                      @if (user.status === Status.INACTIVE) {
                         <button
-                          (click)="openDeleteConfirm(user)"
-                          class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                          title="Delete Staff">
-                          <ng-icon name="heroTrash" class="text-lg"></ng-icon>
+                          (click)="openActivateConfirm(user)"
+                          class="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors cursor-pointer"
+                          title="Activate Staff">
+                          <ng-icon name="heroCheckCircle" class="text-lg"></ng-icon>
+                        </button>
+                      } @else {
+                        <button
+                          (click)="openDeactivateConfirm(user)"
+                          class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-md transition-colors cursor-pointer"
+                          title="Deactivate Staff">
+                          <ng-icon name="heroXCircle" class="text-lg"></ng-icon>
                         </button>
                       }
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
+
+                      <!-- Delete -->
+                      <button
+                        (click)="openDeleteConfirm(user)"
+                        class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
+                        title="Delete Staff">
+                        <ng-icon name="heroTrash" class="text-lg"></ng-icon>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Angular Material MatPaginator -->
+      <div class="border-t border-slate-200 bg-white">
+        <mat-paginator
+          [length]="totalElements()"
+          [pageSize]="pageSize()"
+          [pageIndex]="currentPage() - 1"
+          [pageSizeOptions]="pageSizeOptions"
+          [showFirstLastButtons]="true"
+          (page)="onPageChange($event)"
+          aria-label="Select page of users"
+          class="!bg-transparent"
+        >
+        </mat-paginator>
+      </div>
     }
   </div>
 </div>
