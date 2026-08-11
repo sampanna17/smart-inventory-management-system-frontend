@@ -1,6 +1,9 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { SupplierService } from '../../services/supplier.service';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { Supplier } from '../../../../core/models/supplier.model';
@@ -27,6 +30,7 @@ import {
   imports: [
     CommonModule,
     FormsModule,
+    MatPaginatorModule,
     PageHeaderComponent,
     SkeletonLoaderComponent,
     EmptyStateComponent,
@@ -59,28 +63,25 @@ import {
 export class SupplierListComponent implements OnInit {
   supplierService = inject(SupplierService);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
+
+  private searchSubject = new Subject<string>();
 
   readonly Role = Role;
   readonly Math = Math;
 
   // Search, Filter, Sort & Pagination States
   searchQuery = signal<string>('');
-  sortBy = signal<'name' | 'phone' | 'date'>('name');
-  sortOrder = signal<'asc' | 'desc'>('asc');
+  sortBy = signal<'name' | 'phone' | 'date'>('date');
+  sortOrder = signal<'asc' | 'desc'>('desc');
   currentPage = signal<number>(1);
   pageSize = signal<number>(10);
+  pageSizeOptions: number[] = [5, 10, 25, 50];
 
   sortOptions = [
     { label: 'Supplier Name', value: 'name' },
     { label: 'Phone Number', value: 'phone' },
     { label: 'Date Added', value: 'date' }
-  ];
-
-  pageSizeOptions = [
-    { label: '5 per page', value: 5 },
-    { label: '10 per page', value: 10 },
-    { label: '25 per page', value: 25 },
-    { label: '50 per page', value: 50 }
   ];
 
   // Modal states
@@ -89,59 +90,13 @@ export class SupplierListComponent implements OnInit {
   isDeleteModalOpen = signal<boolean>(false);
   selectedSupplier = signal<Supplier | null>(null);
 
-  ngOnInit() {
-    this.loadSuppliers();
-  }
-
-  loadSuppliers() {
-    this.supplierService.loadSuppliers();
-  }
-
-  // Filtered Suppliers Computed
-  filteredSuppliers = computed(() => {
-    const list = this.supplierService.suppliers();
-    const query = this.searchQuery().toLowerCase().trim();
-    if (!query) return list;
-
-    return list.filter(s =>
-      s.supplierName.toLowerCase().includes(query) ||
-      (s.phone && s.phone.toLowerCase().includes(query)) ||
-      (s.email && s.email.toLowerCase().includes(query)) ||
-      (s.address && s.address.toLowerCase().includes(query))
-    );
-  });
-
-  // Sorted Suppliers Computed
-  sortedSuppliers = computed(() => {
-    const list = [...this.filteredSuppliers()];
-    const field = this.sortBy();
-    const order = this.sortOrder() === 'asc' ? 1 : -1;
-
-    return list.sort((a, b) => {
-      if (field === 'name') {
-        return a.supplierName.localeCompare(b.supplierName) * order;
-      } else if (field === 'phone') {
-        return (a.phone || '').localeCompare(b.phone || '') * order;
-      } else if (field === 'date') {
-        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return (dateA - dateB) * order;
-      }
-      return 0;
-    });
-  });
-
-  // Paginated Suppliers Computed
-  paginatedSuppliers = computed(() => {
-    const list = this.sortedSuppliers();
-    const start = (this.currentPage() - 1) * this.pageSize();
-    return list.slice(start, start + this.pageSize());
-  });
-
-  totalPages = computed(() => Math.ceil(this.sortedSuppliers().length / this.pageSize()) || 1);
+  // Server-fed data accessors
+  suppliers = computed(() => this.supplierService.suppliers());
+  totalElements = computed(() => this.supplierService.totalElements());
+  totalPages = computed(() => Math.max(1, this.supplierService.totalPages()));
 
   // Top Metrics
-  totalSuppliersCount = computed(() => this.supplierService.suppliers().length);
+  totalSuppliersCount = computed(() => this.supplierService.totalElements());
 
   suppliersWithEmailCount = computed(() =>
     this.supplierService.suppliers().filter(s => !!s.email).length
@@ -151,15 +106,51 @@ export class SupplierListComponent implements OnInit {
     this.supplierService.suppliers().filter(s => !!s.address).length
   );
 
-  // Handlers
-  goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages()) {
-      this.currentPage.set(page);
-    }
+  ngOnInit() {
+    this.setupSearchDebounce();
+    this.loadSuppliers();
   }
 
-  toggleSortOrder() {
-    this.sortOrder.update(o => o === 'asc' ? 'desc' : 'asc');
+  private setupSearchDebounce(): void {
+    this.searchSubject.pipe(
+      debounceTime(350),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(query => {
+      this.searchQuery.set(query);
+      this.currentPage.set(1);
+      this.loadSuppliers();
+    });
+  }
+
+  loadSuppliers(): void {
+    this.supplierService.loadSuppliers({
+      page: this.currentPage() - 1, // backend is 0-indexed
+      size: this.pageSize(),
+      search: this.searchQuery(),
+      sortBy: this.sortBy(),
+      sortDir: this.sortOrder(),
+    });
+  }
+
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
+  }
+
+  onSortChange(sortBy: string): void {
+    this.sortBy.set(sortBy as 'name' | 'phone' | 'date');
+    this.loadSuppliers();
+  }
+
+  toggleSortOrder(): void {
+    this.sortOrder.update(o => (o === 'asc' ? 'desc' : 'asc'));
+    this.loadSuppliers();
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageSize.set(event.pageSize);
+    this.currentPage.set(event.pageIndex + 1);
+    this.loadSuppliers();
   }
 
   openCreateModal() {
@@ -224,6 +215,7 @@ export class SupplierListComponent implements OnInit {
     this.supplierService.deleteSupplier(supplier.supplierID).subscribe({
       next: () => {
         this.closeDeleteModal();
+        this.loadSuppliers();
       }
     });
   }

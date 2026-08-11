@@ -56,7 +56,7 @@
         <input
           type="text"
           [ngModel]="searchQuery()"
-          (ngModelChange)="searchQuery.set($event); currentPage.set(1)"
+          (ngModelChange)="onSearchInput($event)"
           placeholder="Search suppliers by name, phone, email, or address..."
           class="w-full pl-9 pr-4 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-[38px]"
         />
@@ -68,7 +68,7 @@
           <app-select
             [options]="sortOptions"
             [ngModel]="sortBy()"
-            (ngModelChange)="sortBy.set($event)"
+            (ngModelChange)="onSortChange($event)"
             placeholder="Sort by"
           ></app-select>
         </div>
@@ -101,7 +101,7 @@
           (retry)="loadSuppliers()"
         ></app-error-state>
       </div>
-    } @else if (filteredSuppliers().length === 0) {
+    } @else if (suppliers().length === 0) {
       <!-- Empty State -->
       <div class="p-6">
         <app-empty-state
@@ -127,7 +127,7 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-slate-200">
-            @for (supplier of paginatedSuppliers(); track supplier.supplierID) {
+            @for (supplier of suppliers(); track supplier.supplierID) {
               <tr class="hover:bg-slate-50 transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">
                   #{{ supplier.supplierID }}
@@ -152,7 +152,7 @@
                   <div class="flex justify-end gap-1.5">
                     <button
                       (click)="openDetailModal(supplier)"
-                      class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+                      class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
                       title="View Details">
                       <ng-icon name="heroEye" class="text-lg"></ng-icon>
                     </button>
@@ -160,7 +160,7 @@
                     <button
                       *appHasRole="Role.ADMIN"
                       (click)="openEditModal(supplier)"
-                      class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                      class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer"
                       title="Edit Supplier">
                       <ng-icon name="heroPencilSquare" class="text-lg"></ng-icon>
                     </button>
@@ -168,7 +168,7 @@
                     <button
                       *appHasRole="Role.ADMIN"
                       (click)="openDeleteConfirm(supplier)"
-                      class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                      class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
                       title="Delete Supplier">
                       <ng-icon name="heroTrash" class="text-lg"></ng-icon>
                     </button>
@@ -180,49 +180,19 @@
         </table>
       </div>
 
-      <!-- Pagination Bar -->
-      <div class="px-6 py-4 border-t border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-3 text-xs text-slate-500">
-          <span>
-            Showing <strong class="text-slate-900">{{ (currentPage() - 1) * pageSize() + 1 }}</strong> to
-            <strong class="text-slate-900">{{ Math.min(currentPage() * pageSize(), sortedSuppliers().length) }}</strong> of
-            <strong class="text-slate-900">{{ sortedSuppliers().length }}</strong> suppliers
-          </span>
-
-          <div class="w-32">
-            <app-select
-              [options]="pageSizeOptions"
-              [ngModel]="pageSize()"
-              (ngModelChange)="pageSize.set($event); currentPage.set(1)"
-            ></app-select>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button
-            type="button"
-            (click)="goToPage(currentPage() - 1)"
-            [disabled]="currentPage() <= 1"
-            class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-1 cursor-pointer"
-          >
-            <ng-icon name="heroChevronLeft" class="text-sm"></ng-icon>
-            Previous
-          </button>
-
-          <span class="text-xs font-semibold text-slate-700 px-2">
-            Page {{ currentPage() }} of {{ totalPages() }}
-          </span>
-
-          <button
-            type="button"
-            (click)="goToPage(currentPage() + 1)"
-            [disabled]="currentPage() >= totalPages()"
-            class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-1 cursor-pointer"
-          >
-            Next
-            <ng-icon name="heroChevronRight" class="text-sm"></ng-icon>
-          </button>
-        </div>
+      <!-- Angular Material MatPaginator -->
+      <div class="border-t border-slate-200 bg-white">
+        <mat-paginator
+          [length]="totalElements()"
+          [pageSize]="pageSize()"
+          [pageIndex]="currentPage() - 1"
+          [pageSizeOptions]="pageSizeOptions"
+          [showFirstLastButtons]="true"
+          (page)="onPageChange($event)"
+          aria-label="Select page of suppliers"
+          class="!bg-transparent"
+        >
+        </mat-paginator>
       </div>
     }
   </div>

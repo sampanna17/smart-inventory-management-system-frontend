@@ -3,6 +3,7 @@ import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { ProductService } from '../../services/product.service';
 import { CategoryService } from '../../../categories/services/category.service';
 import { AuthService } from '../../../../core/auth/services/auth.service';
@@ -32,6 +33,7 @@ import {
   imports: [
     CommonModule,
     FormsModule,
+    MatPaginatorModule,
     PageHeaderComponent,
     SkeletonLoaderComponent,
     EmptyStateComponent,
@@ -91,6 +93,7 @@ export class ProductListComponent implements OnInit {
   sortOrder = signal<'asc' | 'desc'>('desc');
   currentPage = signal<number>(1);
   pageSize = signal<number>(10);
+  pageSizeOptions: number[] = [5, 10, 25, 50];
 
   // Filter Dropdown Options
   categoryOptions = computed(() => [
@@ -115,13 +118,6 @@ export class ProductListComponent implements OnInit {
     { label: 'Date Added', value: 'date' }
   ];
 
-  pageSizeOptions = [
-    { label: '5 per page', value: 5 },
-    { label: '10 per page', value: 10 },
-    { label: '25 per page', value: 25 },
-    { label: '50 per page', value: 50 }
-  ];
-
   // Modal States
   isFormModalOpen = signal<boolean>(false);
   isDetailModalOpen = signal<boolean>(false);
@@ -132,13 +128,6 @@ export class ProductListComponent implements OnInit {
   products = computed(() => this.productService.products());
   totalElements = computed(() => this.productService.totalElements());
   totalPages = computed(() => Math.max(1, this.productService.totalPages()));
-  startItemIndex = computed(() => {
-    if (this.totalElements() === 0) return 0;
-    return (this.currentPage() - 1) * this.pageSize() + 1;
-  });
-  endItemIndex = computed(() => {
-    return Math.min(this.currentPage() * this.pageSize(), this.totalElements());
-  });
 
   // Top KPI Metrics
   totalProductsCount = computed(() => this.productService.totalElements());
@@ -217,17 +206,10 @@ export class ProductListComponent implements OnInit {
     this.loadProducts();
   }
 
-  onPageSizeChange(size: number): void {
-    this.pageSize.set(size);
-    this.currentPage.set(1);
+  onPageChange(event: PageEvent): void {
+    this.pageSize.set(event.pageSize);
+    this.currentPage.set(event.pageIndex + 1);
     this.loadProducts();
-  }
-
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages() && page !== this.currentPage()) {
-      this.currentPage.set(page);
-      this.loadProducts();
-    }
   }
 
   // Modal handlers
