@@ -1,12 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { ApiResponse } from '../../../core/models/api-response.model';
+import { PageResponse } from '../../../core/models/page-response.model';
 import { Product, ProductImage } from '../../../core/models/product.model';
 import { CreateProductRequest, UpdateProductRequest } from '../models/product-request.model';
+import { ProductFilterParams } from '../models/product-filter.model';
 import { PRODUCT_API } from '../constants/product.api';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, finalize, forkJoin, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
-
 import { PRODUCT_SUPPLIER_API } from '../constants/product-supplier.api';
 import { SupplierSummary } from '../../../core/models/supplier.model';
 
@@ -19,6 +20,15 @@ export class ProductService {
 
   // State
   products = signal<Product[]>([]);
+  totalElements = signal<number>(0);
+  totalPages = signal<number>(0);
+  currentPage = signal<number>(0); // 0-based
+  pageSize = signal<number>(10);
+  isFirst = signal<boolean>(true);
+  isLast = signal<boolean>(true);
+  hasNext = signal<boolean>(false);
+  hasPrevious = signal<boolean>(false);
+
   selectedProduct = signal<Product | null>(null);
   productImages = signal<ProductImage[]>([]);
   assignedSuppliers = signal<SupplierSummary[]>([]);
@@ -30,17 +40,62 @@ export class ProductService {
   deletingImageId = signal<number | null>(null);
   error = signal<string | null>(null);
 
-  loadProducts(): void {
+  loadProducts(params?: ProductFilterParams): void {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.get<ApiResponse<Product[]>>(PRODUCT_API.GET_ALL)
+    let httpParams = new HttpParams();
+
+    if (params) {
+      if (params.page !== undefined && params.page !== null) {
+        httpParams = httpParams.set('page', params.page.toString());
+      }
+      if (params.size !== undefined && params.size !== null) {
+        httpParams = httpParams.set('size', params.size.toString());
+      }
+      if (params.sortBy) {
+        httpParams = httpParams.set('sortBy', params.sortBy);
+      }
+      if (params.sortDir) {
+        httpParams = httpParams.set('sortDir', params.sortDir);
+      }
+      if (params.search && params.search.trim()) {
+        httpParams = httpParams.set('search', params.search.trim());
+      }
+      if (params.categoryId && params.categoryId !== 'all') {
+        httpParams = httpParams.set('categoryId', params.categoryId.toString());
+      }
+      if (params.unitId && params.unitId !== 'all') {
+        httpParams = httpParams.set('unitId', params.unitId.toString());
+      }
+      if (params.stockStatus && params.stockStatus !== 'all') {
+        httpParams = httpParams.set('stockStatus', params.stockStatus);
+      }
+      if (params.minPrice !== undefined && params.minPrice !== null) {
+        httpParams = httpParams.set('minPrice', params.minPrice.toString());
+      }
+      if (params.maxPrice !== undefined && params.maxPrice !== null) {
+        httpParams = httpParams.set('maxPrice', params.maxPrice.toString());
+      }
+      if (params.minStock !== undefined && params.minStock !== null) {
+        httpParams = httpParams.set('minStock', params.minStock.toString());
+      }
+      if (params.maxStock !== undefined && params.maxStock !== null) {
+        httpParams = httpParams.set('maxStock', params.maxStock.toString());
+      }
+    }
+
+    this.http.get<ApiResponse<PageResponse<Product>>>(PRODUCT_API.GET_ALL, { params: httpParams })
       .pipe(
         switchMap(res => {
-          if (!res.success || !res.data || res.data.length === 0) {
-            return of([]);
+          if (!res.success || !res.data || !res.data.content || res.data.content.length === 0) {
+            const pageData = res.data ?? null;
+            return of({ pageData, enrichedProducts: [] as Product[] });
           }
-          const productList = res.data;
+
+          const pageData = res.data;
+          const productList = pageData.content;
+
           // Concurrently load images for all products to enrich thumbnails
           const imageRequests = productList.map(prod =>
             this.http.get<ProductImage[]>(PRODUCT_API.IMAGES.GET_ALL(prod.productId)).pipe(
@@ -50,7 +105,7 @@ export class ProductService {
 
           return forkJoin(imageRequests).pipe(
             map(imageLists => {
-              return productList.map((prod, index) => {
+              const enriched = productList.map((prod, index) => {
                 const images = imageLists[index] || [];
                 return {
                   ...prod,
@@ -58,6 +113,7 @@ export class ProductService {
                   primaryImageUrl: images.length > 0 ? images[0].imageURL : undefined
                 };
               });
+              return { pageData, enrichedProducts: enriched };
             })
           );
         }),
@@ -65,12 +121,33 @@ export class ProductService {
         catchError(err => {
           this.error.set(err.error?.message || 'Failed to load products');
           this.toastr.error('Failed to load products');
-          return of([]);
+          return of({ pageData: null, enrichedProducts: [] as Product[] });
         })
       )
-      .subscribe(productsWithImages => {
-        this.products.set(productsWithImages);
+      .subscribe(({ pageData, enrichedProducts }) => {
+        this.products.set(enrichedProducts);
+        if (pageData) {
+          this.totalElements.set(pageData.totalElements);
+          this.totalPages.set(pageData.totalPages);
+          this.currentPage.set(pageData.pageNumber);
+          this.pageSize.set(pageData.pageSize);
+          this.isFirst.set(pageData.first);
+          this.isLast.set(pageData.last);
+          this.hasNext.set(pageData.hasNext);
+          this.hasPrevious.set(pageData.hasPrevious);
+        } else {
+          this.totalElements.set(0);
+          this.totalPages.set(0);
+          this.isFirst.set(true);
+          this.isLast.set(true);
+          this.hasNext.set(false);
+          this.hasPrevious.set(false);
+        }
       });
+  }
+
+  getAllProductsList(): Observable<ApiResponse<Product[]>> {
+    return this.http.get<ApiResponse<Product[]>>(PRODUCT_API.GET_ALL_LIST);
   }
 
   getProductById(id: number): Observable<ApiResponse<Product>> {
@@ -100,7 +177,6 @@ export class ProductService {
       finalize(() => this.isSubmitting.set(false)),
       tap(res => {
         if (res.success) {
-          this.products.update(prods => [res.data, ...prods]);
           this.toastr.success(res.message || 'Product created successfully');
         }
       }),
@@ -133,9 +209,6 @@ export class ProductService {
       finalize(() => this.isSubmitting.set(false)),
       tap(res => {
         if (res.success) {
-          this.products.update(prods =>
-            prods.map(p => (p.productId === id ? { ...p, ...res.data } : p))
-          );
           this.toastr.success(res.message || 'Product updated successfully');
         }
       }),
@@ -153,7 +226,6 @@ export class ProductService {
       finalize(() => this.isSubmitting.set(false)),
       tap(res => {
         if (res.success) {
-          this.products.update(prods => prods.filter(p => p.productId !== id));
           this.toastr.success(res.message || 'Product deleted successfully');
         }
       }),
@@ -176,23 +248,7 @@ export class ProductService {
           if (showToast) {
             this.toastr.success(res.message || 'Image uploaded successfully');
           }
-          // Update local state image list
           this.productImages.update(imgs => [...imgs, res.data]);
-          // Update product thumbnail in main product list
-          this.products.update(prods =>
-            prods.map(p => {
-              if (p.productId === productId) {
-                const currentImages = p.images || [];
-                const newImages = [...currentImages, res.data];
-                return {
-                  ...p,
-                  images: newImages,
-                  primaryImageUrl: newImages[0]?.imageURL
-                };
-              }
-              return p;
-            })
-          );
         }
       }),
       catchError(err => {
@@ -225,20 +281,6 @@ export class ProductService {
         if (res.success) {
           this.toastr.success(res.message || 'Image deleted successfully');
           this.productImages.update(imgs => imgs.filter(i => i.imageId !== imageId));
-          // Update product thumbnail in main product list
-          this.products.update(prods =>
-            prods.map(p => {
-              if (p.productId === productId) {
-                const updatedImages = (p.images || []).filter(i => i.imageId !== imageId);
-                return {
-                  ...p,
-                  images: updatedImages,
-                  primaryImageUrl: updatedImages.length > 0 ? updatedImages[0].imageURL : undefined
-                };
-              }
-              return p;
-            })
-          );
         }
       }),
       catchError(err => {
@@ -293,4 +335,3 @@ export class ProductService {
     );
   }
 }
-

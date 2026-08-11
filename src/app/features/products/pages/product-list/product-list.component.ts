@@ -1,6 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { CategoryService } from '../../../categories/services/category.service';
 import { AuthService } from '../../../../core/auth/services/auth.service';
@@ -21,7 +23,7 @@ import {
   heroPencilSquare, heroTrash, heroEye, heroMagnifyingGlass, heroFunnel,
   heroSquares2x2, heroListBullet, heroExclamationTriangle, heroArchiveBox,
   heroCurrencyDollar, heroTag, heroBarsArrowDown, heroBarsArrowUp,
-  heroChevronLeft, heroChevronRight
+  heroChevronLeft, heroChevronRight, heroPhoto
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -59,7 +61,8 @@ import {
       heroBarsArrowDown,
       heroBarsArrowUp,
       heroChevronLeft,
-      heroChevronRight
+      heroChevronRight,
+      heroPhoto
     }),
   ],
   templateUrl: './product-list.component.html',
@@ -68,6 +71,9 @@ export class ProductListComponent implements OnInit {
   productService = inject(ProductService);
   categoryService = inject(CategoryService);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
+
+  private searchSubject = new Subject<string>();
 
   readonly Role = Role;
   readonly Math = Math;
@@ -81,8 +87,8 @@ export class ProductListComponent implements OnInit {
   stockStatusFilter = signal<'all' | 'instock' | 'lowstock' | 'outofstock'>('all');
 
   // Sorting & Pagination States
-  sortBy = signal<'name' | 'price' | 'stock' | 'date'>('name');
-  sortOrder = signal<'asc' | 'desc'>('asc');
+  sortBy = signal<'name' | 'price' | 'stock' | 'date'>('date');
+  sortOrder = signal<'asc' | 'desc'>('desc');
   currentPage = signal<number>(1);
   pageSize = signal<number>(10);
 
@@ -122,92 +128,20 @@ export class ProductListComponent implements OnInit {
   isDeleteModalOpen = signal<boolean>(false);
   selectedProduct = signal<Product | null>(null);
 
-  ngOnInit() {
-    this.loadData();
-  }
-
-  loadData() {
-    this.productService.loadProducts();
-    this.categoryService.loadCategories();
-  }
-
-  // Filtered Products Computed
-  filteredProducts = computed(() => {
-    const list = this.productService.products();
-    const query = this.searchQuery().toLowerCase().trim();
-    const catId = this.selectedCategoryId();
-    const stockFilter = this.stockStatusFilter();
-
-    return list.filter((p) => {
-      // Search filter
-      const matchesSearch =
-        !query ||
-        p.productName.toLowerCase().includes(query) ||
-        (p.description && p.description.toLowerCase().includes(query)) ||
-        (p.categoryName && p.categoryName.toLowerCase().includes(query)) ||
-        (p.unitName && p.unitName.toLowerCase().includes(query));
-
-      // Category filter
-      const matchesCategory = catId === 'all' || p.categoryId === Number(catId);
-
-      // Stock status filter
-      let matchesStock = true;
-      if (stockFilter === 'instock') {
-        matchesStock = p.stockQuantity > p.reorderLevel;
-      } else if (stockFilter === 'lowstock') {
-        matchesStock = p.stockQuantity > 0 && p.stockQuantity <= p.reorderLevel;
-      } else if (stockFilter === 'outofstock') {
-        matchesStock = p.stockQuantity <= 0;
-      }
-
-      return matchesSearch && matchesCategory && matchesStock;
-    });
+  // Server-fed data accessors
+  products = computed(() => this.productService.products());
+  totalElements = computed(() => this.productService.totalElements());
+  totalPages = computed(() => Math.max(1, this.productService.totalPages()));
+  startItemIndex = computed(() => {
+    if (this.totalElements() === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize() + 1;
   });
-
-  // Sorted Products Computed
-  sortedProducts = computed(() => {
-    const list = [...this.filteredProducts()];
-    const field = this.sortBy();
-    const order = this.sortOrder() === 'asc' ? 1 : -1;
-
-    return list.sort((a, b) => {
-      if (field === 'name') {
-        return a.productName.localeCompare(b.productName) * order;
-      } else if (field === 'price') {
-        return (a.sellingPrice - b.sellingPrice) * order;
-      } else if (field === 'stock') {
-        return (a.stockQuantity - b.stockQuantity) * order;
-      } else if (field === 'date') {
-        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return (dateA - dateB) * order;
-      }
-      return 0;
-    });
+  endItemIndex = computed(() => {
+    return Math.min(this.currentPage() * this.pageSize(), this.totalElements());
   });
-
-  // Paginated Products Computed
-  paginatedProducts = computed(() => {
-    const list = this.sortedProducts();
-    const start = (this.currentPage() - 1) * this.pageSize();
-    return list.slice(start, start + this.pageSize());
-  });
-
-  totalPages = computed(() => Math.ceil(this.sortedProducts().length / this.pageSize()) || 1);
-
-  // Pagination Handlers
-  goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages()) {
-      this.currentPage.set(page);
-    }
-  }
-
-  toggleSortOrder() {
-    this.sortOrder.update(o => o === 'asc' ? 'desc' : 'asc');
-  }
 
   // Top KPI Metrics
-  totalProductsCount = computed(() => this.productService.products().length);
+  totalProductsCount = computed(() => this.productService.totalElements());
 
   totalInventoryValue = computed(() => {
     return this.productService
@@ -220,6 +154,81 @@ export class ProductListComponent implements OnInit {
   });
 
   categoriesCount = computed(() => this.categoryService.categories().length);
+
+  ngOnInit() {
+    this.setupSearchDebounce();
+    this.categoryService.loadCategories();
+    this.loadProducts();
+  }
+
+  private setupSearchDebounce(): void {
+    this.searchSubject.pipe(
+      debounceTime(350),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(query => {
+      this.searchQuery.set(query);
+      this.currentPage.set(1);
+      this.loadProducts();
+    });
+  }
+
+  loadData(): void {
+    this.loadProducts();
+    this.categoryService.loadCategories();
+  }
+
+  loadProducts(): void {
+    this.productService.loadProducts({
+      page: this.currentPage() - 1, // backend uses 0-based page index
+      size: this.pageSize(),
+      search: this.searchQuery(),
+      categoryId: this.selectedCategoryId() !== 'all' ? Number(this.selectedCategoryId()) : undefined,
+      stockStatus: this.stockStatusFilter() !== 'all' ? this.stockStatusFilter() : undefined,
+      sortBy: this.sortBy(),
+      sortDir: this.sortOrder(),
+    });
+  }
+
+  // Filter Handlers
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
+  }
+
+  onCategoryChange(catId: string): void {
+    this.selectedCategoryId.set(catId);
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  onStockStatusChange(status: string): void {
+    this.stockStatusFilter.set(status as 'all' | 'instock' | 'lowstock' | 'outofstock');
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  onSortChange(sortBy: string): void {
+    this.sortBy.set(sortBy as 'name' | 'price' | 'stock' | 'date');
+    this.loadProducts();
+  }
+
+  toggleSortOrder(): void {
+    this.sortOrder.update(o => (o === 'asc' ? 'desc' : 'asc'));
+    this.loadProducts();
+  }
+
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages() && page !== this.currentPage()) {
+      this.currentPage.set(page);
+      this.loadProducts();
+    }
+  }
 
   // Modal handlers
   openCreateModal() {
@@ -284,6 +293,7 @@ export class ProductListComponent implements OnInit {
     this.productService.deleteProduct(product.productId).subscribe({
       next: () => {
         this.closeDeleteModal();
+        this.loadProducts();
       },
     });
   }

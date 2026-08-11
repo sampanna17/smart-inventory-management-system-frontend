@@ -4,6 +4,7 @@ const BASE = `${environment.apiUrl}/products`;
 
 export const PRODUCT_API = {
   GET_ALL: BASE,
+  GET_ALL_LIST: `${BASE}/all`,
   GET_BY_ID: (id: number | string) => `${BASE}/${id}`,
   CREATE: `${BASE}/create`,
   UPDATE: (id: number | string) => `${BASE}/update/${id}`,
