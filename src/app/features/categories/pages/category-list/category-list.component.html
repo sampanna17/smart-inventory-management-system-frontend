@@ -1,5 +1,6 @@
-<div class="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
+<div class="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto space-y-6">
 
+  <!-- Page Header -->
   <app-page-header
     title="Categories"
     subtitle="Manage product categories and classifications"
@@ -10,6 +11,46 @@
 
   <!-- Main Content Area -->
   <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+    <!-- Filters & Search Bar -->
+    <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <!-- Search Input -->
+      <div class="relative flex-1 w-full sm:w-auto min-w-[240px]">
+        <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none"></ng-icon>
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchInput($event)"
+          placeholder="Search categories by name or description..."
+          class="w-full pl-9 pr-4 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-[38px]"
+        />
+      </div>
+
+      <!-- Sort Controls -->
+      <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+        <div class="w-44">
+          <app-select
+            [options]="sortOptions"
+            [ngModel]="sortBy()"
+            (ngModelChange)="onSortChange($event)"
+            placeholder="Sort by"
+          ></app-select>
+        </div>
+
+        <button
+          type="button"
+          (click)="toggleSortOrder()"
+          class="p-2 bg-white border border-slate-300 rounded-lg hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-colors shadow-sm cursor-pointer min-h-[38px] flex items-center justify-center shrink-0"
+          [title]="sortOrder() === 'asc' ? 'Sort Ascending' : 'Sort Descending'"
+        >
+          @if (sortOrder() === 'asc') {
+            <ng-icon name="heroBarsArrowDown" class="text-base"></ng-icon>
+          } @else {
+            <ng-icon name="heroBarsArrowUp" class="text-base"></ng-icon>
+          }
+        </button>
+      </div>
+    </div>
 
     <!-- Loading State -->
     @if (categoryService.isLoading()) {
@@ -24,12 +65,12 @@
           (retry)="loadCategories()"
         ></app-error-state>
       </div>
-    } @else if (categoryService.categories().length === 0) {
+    } @else if (categories().length === 0) {
       <!-- Empty State -->
       <div class="p-6">
         <app-empty-state
           title="No categories found"
-          message="Get started by creating your first category."
+          message="No categories match your search. Get started by creating a new category."
           [roles]="Role.ADMIN"
           (action)="openCreateModal()"
         ></app-empty-state>
@@ -48,13 +89,13 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-slate-200">
-            @for (category of categoryService.categories(); track category.categoryID) {
+            @for (category of categories(); track category.categoryID) {
               <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                  {{ category.categoryID }}
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">
+                  #{{ category.categoryID }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-medium text-slate-900">{{ category.categoryName }}</div>
+                  <div class="text-sm font-bold text-slate-900">{{ category.categoryName }}</div>
                 </td>
                 <td class="px-6 py-4 text-sm text-slate-500 hidden sm:table-cell max-w-xs truncate">
                   {{ category.description || '-' }}
@@ -67,13 +108,13 @@
                   <div class="flex justify-end gap-2">
                     <button
                       (click)="openEditModal(category)"
-                      class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                      class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer"
                       title="Edit Category">
                       <ng-icon name="heroPencilSquare" class="text-lg"></ng-icon>
                     </button>
                     <button
                       (click)="openDeleteConfirm(category)"
-                      class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                      class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
                       title="Delete Category">
                       <ng-icon name="heroTrash" class="text-lg"></ng-icon>
                     </button>
@@ -83,6 +124,21 @@
             }
           </tbody>
         </table>
+      </div>
+
+      <!-- Angular Material MatPaginator -->
+      <div class="border-t border-slate-200 bg-white">
+        <mat-paginator
+          [length]="totalElements()"
+          [pageSize]="pageSize()"
+          [pageIndex]="currentPage() - 1"
+          [pageSizeOptions]="pageSizeOptions"
+          [showFirstLastButtons]="true"
+          (page)="onPageChange($event)"
+          aria-label="Select page of categories"
+          class="!bg-transparent"
+        >
+        </mat-paginator>
       </div>
     }
   </div>
