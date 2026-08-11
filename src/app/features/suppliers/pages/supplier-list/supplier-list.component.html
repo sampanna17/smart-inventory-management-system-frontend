@@ -18,7 +18,7 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Total Suppliers</span>
-        <span class="text-xl font-bold text-slate-900">{{ totalSuppliersCount() }}</span>
+        <span class="text-xl font-semibold text-slate-900">{{ totalSuppliersCount() }}</span>
       </div>
     </div>
 
@@ -29,7 +29,7 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Email On File</span>
-        <span class="text-xl font-bold text-slate-900">{{ suppliersWithEmailCount() }}</span>
+        <span class="text-xl font-semibold text-slate-900">{{ suppliersWithEmailCount() }}</span>
       </div>
     </div>
 
@@ -40,7 +40,7 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Address Recorded</span>
-        <span class="text-xl font-bold text-slate-900">{{ suppliersWithAddressCount() }}</span>
+        <span class="text-xl font-semibold text-slate-900">{{ suppliersWithAddressCount() }}</span>
       </div>
     </div>
   </div>
@@ -120,7 +120,7 @@
               <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Supplier Name</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Phone</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Email</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Email</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Address</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden xl:table-cell">Created</th>
               <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
@@ -133,7 +133,7 @@
                   #{{ supplier.supplierID }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-bold text-slate-900">{{ supplier.supplierName }}</div>
+                  <div class="text-sm text-slate-900">{{ supplier.supplierName }}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium hidden sm:table-cell">
                   {{ supplier.phone || '-' }}

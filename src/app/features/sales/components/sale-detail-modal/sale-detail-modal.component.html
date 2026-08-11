@@ -1,0 +1,157 @@
+@if (isOpen()) {
+  <div class="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-0">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" (click)="closeModal()"></div>
+
+    <!-- Modal Panel -->
+    <div class="relative w-full max-w-3xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all flex flex-col max-h-[90vh]">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4 shrink-0">
+        <h3 class="text-lg font-semibold text-slate-900">
+          Sale Invoice Details
+        </h3>
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="rounded-md text-slate-400 hover:text-slate-500 focus:outline-none transition-colors cursor-pointer"
+        >
+          <ng-icon name="heroXMark" class="text-2xl"></ng-icon>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
+        @if (isLoadingDetail()) {
+          <div class="p-8 flex items-center justify-center space-x-2 text-slate-500">
+            <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <span class="text-sm font-medium">Loading invoice details...</span>
+          </div>
+        } @else if (saleDetail() || saleSummary()) {
+          @let sale = saleDetail() || saleSummary()!;
+          <div class="space-y-6">
+
+            <!-- Header Info Banner -->
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Invoice Number</span>
+                <span class="text-sm font-bold text-slate-900 font-mono">{{ sale.invoiceNumber }}</span>
+              </div>
+
+              <div>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Customer</span>
+                <span class="text-sm font-medium text-slate-800">{{ sale.customerName || 'Walk-in Customer' }}</span>
+              </div>
+
+              <div>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Sale Date</span>
+                <span class="text-sm font-medium text-slate-700 block">{{ sale.saleDate | date:'MMM d, y' }}</span>
+                <span class="text-xs text-slate-400">{{ sale.saleDate | date:'h:mm a' }}</span>
+              </div>
+
+              <div>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Status</span>
+                <span class="inline-flex items-center px-2 py-0.5 mt-0.5 rounded-full text-xs font-bold"
+                      [ngClass]="{
+                        'bg-emerald-100 text-emerald-800': sale.status === SaleStatus.COMPLETED,
+                        'bg-amber-100 text-amber-800': sale.status === SaleStatus.REFUNDED,
+                        'bg-red-100 text-red-800': sale.status === SaleStatus.CANCELLED
+                      }">
+                  {{ sale.status }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Line Items Table -->
+            <div>
+              <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Purchased Products</h4>
+              <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                <table class="min-w-full divide-y divide-slate-200">
+                  <thead class="bg-slate-50 text-xs font-semibold text-slate-500 uppercase">
+                    <tr>
+                      <th class="px-4 py-2.5 text-left">Product</th>
+                      <th class="px-4 py-2.5 text-center">Quantity</th>
+                      <th class="px-4 py-2.5 text-right">Unit Price</th>
+                      <th class="px-4 py-2.5 text-right">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-200 text-sm">
+                    @if (saleDetail()?.items && saleDetail()!.items.length > 0) {
+                      @for (item of saleDetail()!.items; track item.saleDetailId) {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                          <td class="px-4 py-3 font-medium text-slate-900">{{ item.productName }}</td>
+                          <td class="px-4 py-3 text-center text-slate-700">{{ item.quantity }}</td>
+                          <td class="px-4 py-3 text-right text-slate-600">{{ item.unitPrice | nprCurrency }}</td>
+                          <td class="px-4 py-3 text-right font-bold text-slate-900">{{ item.subTotal | nprCurrency }}</td>
+                        </tr>
+                      }
+                    } @else {
+                      <tr>
+                        <td colspan="4" class="px-4 py-6 text-center text-slate-400 text-sm">
+                          No items found for this sale.
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        }
+      </div>
+
+      <!-- Footer & Totals -->
+      @if (saleDetail() || saleSummary()) {
+        @let sale = saleDetail() || saleSummary()!;
+        <div class="border-t border-slate-200 px-6 py-4 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
+          <div>
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Grand Total</span>
+            <span class="text-2xl font-black text-primary">{{ sale.totalAmount | nprCurrency }}</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Print Button -->
+            <button
+              type="button"
+              (click)="printInvoice()"
+              class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
+            >
+              <ng-icon name="heroPrinter" class="text-base"></ng-icon>
+              Print
+            </button>
+
+            <!-- Status Transition Buttons (if COMPLETED) -->
+            @if (sale.status === SaleStatus.COMPLETED) {
+              <button
+                type="button"
+                (click)="onUpdateStatus(SaleStatus.REFUNDED)"
+                class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors cursor-pointer"
+              >
+                <ng-icon name="heroArrowPath" class="text-base"></ng-icon>
+                Refund
+              </button>
+              <button
+                type="button"
+                (click)="onUpdateStatus(SaleStatus.CANCELLED)"
+                class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors cursor-pointer"
+              >
+                <ng-icon name="heroXCircle" class="text-base"></ng-icon>
+                Cancel Sale
+              </button>
+            }
+
+            <button
+              type="button"
+              (click)="closeModal()"
+              class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-sm cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+}
