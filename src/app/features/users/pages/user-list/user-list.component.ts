@@ -96,6 +96,18 @@ export class UserListComponent implements OnInit {
     { label: 'Status', value: 'status' }
   ];
 
+  roleFilterOptions = [
+    { label: 'All Roles', value: 'ALL' },
+    { label: 'Admins', value: Role.ADMIN },
+    { label: 'Staff', value: Role.STAFF }
+  ];
+
+  statusFilterOptions = [
+    { label: 'All Status', value: 'ALL' },
+    { label: 'Active', value: Status.ACTIVE },
+    { label: 'Inactive', value: Status.INACTIVE }
+  ];
+
   // Modal states
   isCreateModalOpen = signal<boolean>(false);
   isDetailModalOpen = signal<boolean>(false);
@@ -148,13 +160,13 @@ export class UserListComponent implements OnInit {
     this.loadUsers();
   }
 
-  setRoleFilter(role: string): void {
+  onRoleFilterChange(role: string): void {
     this.selectedRoleFilter.set(role);
     this.currentPage.set(1);
     this.loadUsers();
   }
 
-  setStatusFilter(status: string): void {
+  onStatusFilterChange(status: string): void {
     this.selectedStatusFilter.set(status);
     this.currentPage.set(1);
     this.loadUsers();

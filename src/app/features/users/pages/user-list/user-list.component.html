@@ -12,122 +12,73 @@
   <!-- Main Content Container -->
   <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
 
-    <!-- Filters & Search Toolbar -->
-    <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-col gap-4">
-
-      <!-- Top Row: Role Filter Tabs -->
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <!-- Role Tabs -->
-        <div class="flex items-center p-1 bg-slate-200/60 rounded-lg text-xs font-medium">
+    <!-- Filters & Search Bar -->
+    <div class="p-4 sm:p-6 border-b border-slate-200 flex flex-col xl:flex-row gap-4 items-center justify-between">
+      <!-- Search Input -->
+      <div class="relative w-full xl:max-w-xs">
+        <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base"></ng-icon>
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchInput($event)"
+          placeholder="Search by name, email..."
+          class="w-full pl-9 pr-10 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-[38px]"
+        />
+        @if (searchQuery()) {
           <button
-            type="button"
-            (click)="setRoleFilter('ALL')"
-            class="px-3 py-1.5 rounded-md transition-all cursor-pointer"
-            [ngClass]="selectedRoleFilter() === 'ALL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+            (click)="clearSearch()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
           >
-            All Roles
+            <ng-icon name="heroXMark" class="text-base"></ng-icon>
           </button>
-          <button
-            type="button"
-            (click)="setRoleFilter('ADMIN')"
-            class="px-3 py-1.5 rounded-md transition-all cursor-pointer"
-            [ngClass]="selectedRoleFilter() === 'ADMIN' ? 'bg-white text-purple-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
-          >
-            Admins
-          </button>
-          <button
-            type="button"
-            (click)="setRoleFilter('STAFF')"
-            class="px-3 py-1.5 rounded-md transition-all cursor-pointer"
-            [ngClass]="selectedRoleFilter() === 'STAFF' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
-          >
-            Staff
-          </button>
-        </div>
-
-        <!-- Status Filter Pills -->
-        <div class="flex items-center gap-1.5 text-xs">
-          <span class="text-slate-500 font-medium mr-1">Status:</span>
-          <button
-            type="button"
-            (click)="setStatusFilter('ALL')"
-            class="px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer border"
-            [ngClass]="selectedStatusFilter() === 'ALL'
-              ? 'bg-slate-800 text-white border-slate-800'
-              : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'"
-          >
-            All
-          </button>
-          <button
-            type="button"
-            (click)="setStatusFilter('ACTIVE')"
-            class="px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer border"
-            [ngClass]="selectedStatusFilter() === 'ACTIVE'
-              ? 'bg-emerald-600 text-white border-emerald-600'
-              : 'bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50'"
-          >
-            Active
-          </button>
-          <button
-            type="button"
-            (click)="setStatusFilter('INACTIVE')"
-            class="px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer border"
-            [ngClass]="selectedStatusFilter() === 'INACTIVE'
-              ? 'bg-red-600 text-white border-red-600'
-              : 'bg-white text-red-700 border-red-300 hover:bg-red-50'"
-          >
-            Inactive
-          </button>
-        </div>
+        }
       </div>
 
-      <!-- Bottom Row: Search & Sort Controls -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <!-- Search Input -->
-        <div class="relative flex-1 w-full sm:w-auto min-w-[240px]">
-          <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none"></ng-icon>
-          <input
-            type="text"
-            [ngModel]="searchQuery()"
-            (ngModelChange)="onSearchInput($event)"
-            placeholder="Search by full name or email address..."
-            class="w-full pl-9 pr-9 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-[38px]"
-          />
-          @if (searchQuery()) {
-            <button
-              (click)="clearSearch()"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
-              title="Clear search"
-            >
-              <ng-icon name="heroXMark" class="text-base"></ng-icon>
-            </button>
+      <!-- Filter Dropdowns & Sort Controls -->
+      <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto justify-start xl:justify-end">
+        <!-- Role Filter Dropdown -->
+        <div class="w-36">
+          <app-select
+            [options]="roleFilterOptions"
+            [ngModel]="selectedRoleFilter()"
+            (ngModelChange)="onRoleFilterChange($event)"
+            placeholder="Filter Role"
+          ></app-select>
+        </div>
+
+        <!-- Status Filter Dropdown -->
+        <div class="w-36">
+          <app-select
+            [options]="statusFilterOptions"
+            [ngModel]="selectedStatusFilter()"
+            (ngModelChange)="onStatusFilterChange($event)"
+            placeholder="Filter Status"
+          ></app-select>
+        </div>
+
+        <!-- Sort Dropdown -->
+        <div class="w-40">
+          <app-select
+            [options]="sortOptions"
+            [ngModel]="sortBy()"
+            (ngModelChange)="onSortChange($event)"
+            placeholder="Sort by"
+          ></app-select>
+        </div>
+
+        <!-- Sort Direction Toggle -->
+        <button
+          type="button"
+          (click)="toggleSortOrder()"
+          class="p-2 bg-white border border-slate-300 rounded-lg hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-colors shadow-sm cursor-pointer min-h-[38px] flex items-center justify-center shrink-0"
+          [title]="sortOrder() === 'asc' ? 'Sort Ascending' : 'Sort Descending'"
+        >
+          @if (sortOrder() === 'asc') {
+            <ng-icon name="heroBarsArrowDown" class="text-base"></ng-icon>
+          } @else {
+            <ng-icon name="heroBarsArrowUp" class="text-base"></ng-icon>
           }
-        </div>
-
-        <!-- Sort Controls -->
-        <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
-          <div class="w-44">
-            <app-select
-              [options]="sortOptions"
-              [ngModel]="sortBy()"
-              (ngModelChange)="onSortChange($event)"
-              placeholder="Sort by"
-            ></app-select>
-          </div>
-
-          <button
-            type="button"
-            (click)="toggleSortOrder()"
-            class="p-2 bg-white border border-slate-300 rounded-lg hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-colors shadow-sm cursor-pointer min-h-[38px] flex items-center justify-center shrink-0"
-            [title]="sortOrder() === 'asc' ? 'Sort Ascending' : 'Sort Descending'"
-          >
-            @if (sortOrder() === 'asc') {
-              <ng-icon name="heroBarsArrowDown" class="text-base"></ng-icon>
-            } @else {
-              <ng-icon name="heroBarsArrowUp" class="text-base"></ng-icon>
-            }
-          </button>
-        </div>
+        </button>
       </div>
     </div>
 
