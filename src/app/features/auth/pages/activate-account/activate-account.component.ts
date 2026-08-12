@@ -8,6 +8,9 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroEye, heroEyeSlash, heroCheckCircle, heroExclamationTriangle, heroPaperAirplane, heroArrowLeft } from '@ng-icons/heroicons/outline';
 
+import { confirmPasswordValidator } from '../../../../shared/validators/confirm-password.validator';
+import { passwordStrengthValidator } from '../../../../shared/validators/password.validator';
+
 @Component({
   selector: 'app-activate-account',
   standalone: true,
@@ -54,9 +57,9 @@ export class ActivateAccountComponent implements OnInit {
   hideConfirmPassword = signal(true);
 
   activateForm = this.fb.nonNullable.group({
-    newPassword: ['', [Validators.required, Validators.minLength(6)]],
+    newPassword: ['', [Validators.required, passwordStrengthValidator({ minLength: 6 })]],
     confirmPassword: ['', [Validators.required]]
-  }, { validators: this.passwordMatchValidator });
+  }, { validators: confirmPasswordValidator('newPassword', 'confirmPassword') });
 
   resendForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]]
@@ -94,16 +97,8 @@ export class ActivateAccountComponent implements OnInit {
     this.hideConfirmPassword.update(v => !v);
   }
 
-  passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-    const password = control.get('newPassword')?.value;
-    const confirmPassword = control.get('confirmPassword')?.value;
-    if (password && confirmPassword && password !== confirmPassword) {
-      return { mismatch: true };
-    }
-    return null;
-  }
-
   toggleResendForm(): void {
+
     this.showResendForm.update(v => !v);
     this.resendSuccessMessage.set(null);
     this.resendErrorMessage.set(null);

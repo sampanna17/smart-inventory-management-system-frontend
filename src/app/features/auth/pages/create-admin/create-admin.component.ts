@@ -11,6 +11,8 @@ import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroEye, heroEyeSlash, heroArrowLeft } from '@ng-icons/heroicons/outline';
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 
+import { passwordStrengthValidator } from '../../../../shared/validators/password.validator';
+
 @Component({
   selector: 'app-create-admin',
   standalone: true,
@@ -35,8 +37,9 @@ export class CreateAdminComponent {
   adminForm = this.fb.nonNullable.group({
     fullName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    password: ['', [Validators.required, passwordStrengthValidator({ minLength: 6 })]]
   });
+
 
   get fullName() {
     return this.adminForm.controls.fullName;

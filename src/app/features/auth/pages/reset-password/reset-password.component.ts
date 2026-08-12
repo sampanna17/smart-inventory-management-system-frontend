@@ -9,6 +9,9 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroEye, heroEyeSlash } from '@ng-icons/heroicons/outline';
 
+import { confirmPasswordValidator } from '../../../../shared/validators/confirm-password.validator';
+import { passwordStrengthValidator } from '../../../../shared/validators/password.validator';
+
 @Component({
   selector: 'app-reset-password',
   standalone: true,
@@ -41,9 +44,9 @@ export class ResetPasswordComponent {
   hideConfirmPassword = signal(true);
 
   resetForm = this.fb.nonNullable.group({
-    newPassword: ['', [Validators.required, Validators.minLength(6)]],
+    newPassword: ['', [Validators.required, passwordStrengthValidator({ minLength: 6 })]],
     confirmPassword: ['', [Validators.required]]
-  }, { validators: this.passwordMatchValidator });
+  }, { validators: confirmPasswordValidator('newPassword', 'confirmPassword') });
 
   get newPassword() {
     return this.resetForm.controls.newPassword;
@@ -61,16 +64,8 @@ export class ResetPasswordComponent {
     this.hideConfirmPassword.update(value => !value);
   }
 
-  passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-    const password = control.get('newPassword')?.value;
-    const confirmPassword = control.get('confirmPassword')?.value;
-    if (password !== confirmPassword) {
-      return { mismatch: true };
-    }
-    return null;
-  }
-
   onSubmit(): void {
+
     if (this.resetForm.invalid) {
       this.resetForm.markAllAsTouched();
       return;
