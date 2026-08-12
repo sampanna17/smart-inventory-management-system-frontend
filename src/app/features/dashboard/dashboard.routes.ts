@@ -85,6 +85,15 @@ export const DASHBOARD_ROUTES: Routes = [
       ),
   },
   {
+    path: 'stock-movement',
+    canActivate: [roleGuard],
+    data: { roles: [Role.ADMIN, Role.STAFF] },
+    loadChildren: () =>
+      import('../stock-movement/stock-movement.routes').then(
+        (m) => m.STOCK_MOVEMENT_ROUTES
+      ),
+  },
+  {
     path: 'users',
     canActivate: [roleGuard],
     data: { roles: [Role.ADMIN] },
