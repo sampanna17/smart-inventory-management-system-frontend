@@ -14,7 +14,8 @@ import {
   heroUserGroup,
   heroUsers,
   heroCog6Tooth,
-  heroArrowLeftOnRectangle
+  heroArrowLeftOnRectangle,
+  heroArrowsRightLeft
 } from '@ng-icons/heroicons/outline';
 import { Role } from '../../auth/enums/role.enum';
 import { AuthService } from '../../auth/services/auth.service';
@@ -37,6 +38,7 @@ import { AuthService } from '../../auth/services/auth.service';
       heroUsers,
       heroCog6Tooth,
       heroArrowLeftOnRectangle,
+      heroArrowsRightLeft,
     }),
   ],
   templateUrl: './sidebar.component.html',
@@ -91,6 +93,12 @@ export class SidebarComponent {
       label: 'Sales',
       icon: 'heroCurrencyDollar',
       route: '/dashboard/sales',
+      roles: [Role.ADMIN, Role.STAFF],
+    },
+    {
+      label: 'Stock Movement',
+      icon: 'heroArrowsRightLeft',
+      route: '/dashboard/stock-movement',
       roles: [Role.ADMIN, Role.STAFF],
     },
     { label: 'Reports', icon: 'heroChartBar', route: '/dashboard/reports', roles: [Role.ADMIN] },
