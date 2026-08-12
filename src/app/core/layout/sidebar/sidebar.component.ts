@@ -101,9 +101,9 @@ export class SidebarComponent {
       route: '/dashboard/stock-movement',
       roles: [Role.ADMIN, Role.STAFF],
     },
-    { label: 'Reports', icon: 'heroChartBar', route: '/dashboard/reports', roles: [Role.ADMIN] },
     { label: 'Users', icon: 'heroUsers', route: '/dashboard/users', roles: [Role.ADMIN] },
   ];
+
 
   filteredMenuItems = computed(() => {
     return this.menuItems.filter((item) => this.authService.hasRole(item.roles));

@@ -1,4 +1,4 @@
-import { Component, inject, signal, AfterViewInit, PLATFORM_ID, NgZone } from '@angular/core';
+import { Component, inject, signal, AfterViewInit, OnDestroy, PLATFORM_ID, NgZone } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -19,12 +19,13 @@ declare var google: any;
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements AfterViewInit {
+export class LoginComponent implements AfterViewInit, OnDestroy {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private authService = inject(AuthService);
   private platformId = inject(PLATFORM_ID);
   private ngZone = inject(NgZone);
+  private googleCheckInterval: ReturnType<typeof setInterval> | null = null;
 
   isLoading = signal(false);
   hidePassword = signal(true);
@@ -66,12 +67,10 @@ export class LoginComponent implements AfterViewInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        console.error('Login error', err);
 
         let msg = 'Invalid email or password. Please try again.';
         if (err.error && err.error.message) {
           msg = err.error.message;
-          // If the backend returns detailed errors in a list, you can append them
           if (err.error.errors && err.error.errors.length > 0) {
             msg += ': ' + err.error.errors.join(', ');
           }
@@ -87,14 +86,33 @@ export class LoginComponent implements AfterViewInit {
     }
   }
 
+  ngOnDestroy(): void {
+    if (this.googleCheckInterval) {
+      clearInterval(this.googleCheckInterval);
+      this.googleCheckInterval = null;
+    }
+  }
+
   private renderGoogleButton(): void {
     // Robustly wait for the Google library to load to prevent race conditions on reload
-    const checkGoogle = setInterval(() => {
+    let attempts = 0;
+    const maxAttempts = 100; // Stop polling after 5 seconds
+
+    this.googleCheckInterval = setInterval(() => {
+      attempts++;
       if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-        clearInterval(checkGoogle);
+        if (this.googleCheckInterval) {
+          clearInterval(this.googleCheckInterval);
+          this.googleCheckInterval = null;
+        }
         this.initializeGoogle();
+      } else if (attempts >= maxAttempts) {
+        if (this.googleCheckInterval) {
+          clearInterval(this.googleCheckInterval);
+          this.googleCheckInterval = null;
+        }
       }
-    }, 50); // Check every 50ms
+    }, 50);
   }
 
   private initializeGoogle(): void {
@@ -125,7 +143,6 @@ export class LoginComponent implements AfterViewInit {
         },
         error: (err) => {
           this.isLoading.set(false);
-          console.error('Google Login error', err);
           let msg = 'Google login failed. Please try again.';
           if (err.error && err.error.message) {
             msg = err.error.message;
@@ -136,3 +153,4 @@ export class LoginComponent implements AfterViewInit {
     }
   }
 }
+

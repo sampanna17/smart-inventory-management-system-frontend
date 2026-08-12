@@ -7,3 +7,8 @@ export interface User {
   role: Role | string;
   token?: string;
 }
+export interface CreateAdminRequest {
+  fullName: string;
+  email: string;
+  password: string;
+}

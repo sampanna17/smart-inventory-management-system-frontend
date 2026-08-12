@@ -118,7 +118,7 @@ export class SupplierService {
     return this.http.get<ApiResponse<Supplier[]>>(SUPPLIER_API.GET_ALL_LIST);
   }
 
-  getSupplierById(id: number) {
+  getSupplierById(id: number): Observable<ApiResponse<Supplier>> {
     return this.http.get<ApiResponse<Supplier>>(`${SUPPLIER_API.GET_ALL}/${id}`);
   }
 
@@ -135,7 +135,7 @@ export class SupplierService {
     });
   }
 
-  createSupplier(data: CreateSupplierRequest) {
+  createSupplier(data: CreateSupplierRequest): Observable<ApiResponse<Supplier>> {
     this.isSubmitting.set(true);
 
     return this.http.post<ApiResponse<Supplier>>(SUPPLIER_API.CREATE, data)
@@ -153,7 +153,7 @@ export class SupplierService {
       );
   }
 
-  updateSupplier(id: number, data: UpdateSupplierRequest) {
+  updateSupplier(id: number, data: UpdateSupplierRequest): Observable<ApiResponse<Supplier>> {
     this.isSubmitting.set(true);
 
     return this.http.put<ApiResponse<Supplier>>(SUPPLIER_API.UPDATE(id), data).pipe(
@@ -170,7 +170,7 @@ export class SupplierService {
     );
   }
 
-  deleteSupplier(id: number) {
+  deleteSupplier(id: number): Observable<ApiResponse<void>> {
     this.isSubmitting.set(true);
 
     return this.http.delete<ApiResponse<void>>(SUPPLIER_API.DELETE(id))
@@ -188,3 +188,4 @@ export class SupplierService {
       );
   }
 }
+

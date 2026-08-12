@@ -1,4 +1,5 @@
-import { Component, ElementRef, Input, forwardRef, signal, computed } from '@angular/core';
+import { Component, ElementRef, forwardRef, signal, computed, input } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -44,8 +45,11 @@ import { heroCalendarDays, heroClock, heroCheck } from '@ng-icons/heroicons/outl
   `]
 })
 export class CustomDateTimePickerComponent implements ControlValueAccessor {
-  @Input() placeholder: string = 'Select date';
-  @Input() disabled: boolean = false;
+  placeholder = input<string>('Select date');
+  disabled = input<boolean>(false);
+
+  private formDisabled = signal<boolean>(false);
+  effectiveDisabled = computed(() => this.disabled() || this.formDisabled());
 
   selectedDate = signal<Date | null>(new Date());
 
@@ -59,14 +63,16 @@ export class CustomDateTimePickerComponent implements ControlValueAccessor {
   readonly hoursList = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
   readonly minutesList = Array.from({ length: 60 }, (_, i) => i);
 
+
   onChange: any = () => {};
   onTouched: any = () => {};
 
   toggleTimeDropdown(event: Event) {
     event.stopPropagation();
-    if (this.disabled) return;
+    if (this.effectiveDisabled()) return;
     this.isTimeOpen.update(v => !v);
   }
+
 
   setHour(h: number) {
     this.selectedHour.set(h);
@@ -180,6 +186,7 @@ export class CustomDateTimePickerComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.formDisabled.set(isDisabled);
   }
 }
+

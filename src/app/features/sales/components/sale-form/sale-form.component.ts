@@ -44,20 +44,29 @@ export class SaleFormComponent implements OnInit {
   form!: FormGroup;
   availableProducts = signal<Product[]>([]);
   availableCustomers = signal<Customer[]>([]);
+  totalAmount = signal<number>(0);
 
   customerOptions = computed(() =>
-    this.customerService.customers().map(c => ({
+    this.availableCustomers().map(c => ({
       label: `${c.customerName} (${c.phone || c.email || 'No contact'})`,
       value: c.customerID
     }))
   );
 
   productOptions = computed(() =>
-    this.productService.products().map(p => ({
+    this.availableProducts().map(p => ({
       label: `${p.productName} (Stock: ${p.stockQuantity}) - Rs. ${p.sellingPrice}`,
       value: p.productId
     }))
   );
+
+  productStockMap = computed(() => {
+    const map = new Map<number, number>();
+    for (const p of this.availableProducts()) {
+      map.set(p.productId, p.stockQuantity);
+    }
+    return map;
+  });
 
   isEditMode = computed(() => !!this.sale());
 
@@ -89,6 +98,10 @@ export class SaleFormComponent implements OnInit {
       saleDate: [today, Validators.required],
       items: this.fb.array([])
     });
+
+    this.items.valueChanges.subscribe(() => {
+      this.recalculateTotal();
+    });
   }
 
   get items(): FormArray {
@@ -96,8 +109,17 @@ export class SaleFormComponent implements OnInit {
   }
 
   private loadPrerequisites() {
-    this.productService.loadProducts({ page: 0, size: 100 });
-    this.customerService.loadCustomers({ page: 0, size: 100 });
+    this.productService.getAllProductsList().subscribe(res => {
+      if (res.success && res.data) {
+        this.availableProducts.set(res.data);
+      }
+    });
+
+    this.customerService.getAllCustomersList().subscribe(res => {
+      if (res.success && res.data) {
+        this.availableCustomers.set(res.data);
+      }
+    });
   }
 
   private resetForm() {
@@ -108,6 +130,7 @@ export class SaleFormComponent implements OnInit {
     });
     this.items.clear();
     this.addItem();
+    this.recalculateTotal();
   }
 
   private populateForm(sale: SaleDetail) {
@@ -132,6 +155,7 @@ export class SaleFormComponent implements OnInit {
     } else {
       this.addItem();
     }
+    this.recalculateTotal();
   }
 
   addItem() {
@@ -143,16 +167,18 @@ export class SaleFormComponent implements OnInit {
       subTotal: [0]
     });
     this.items.push(itemGroup);
+    this.recalculateTotal();
   }
 
   removeItem(index: number) {
     if (this.items.length > 1) {
       this.items.removeAt(index);
+      this.recalculateTotal();
     }
   }
 
   onProductSelect(index: number, productId: number) {
-    const product = this.productService.products().find(p => p.productId === productId);
+    const product = this.availableProducts().find(p => p.productId === productId);
     const itemGroup = this.items.at(index);
     if (product) {
       const price = product.sellingPrice || 0;
@@ -162,6 +188,7 @@ export class SaleFormComponent implements OnInit {
         unitPrice: price,
         subTotal: price * qty
       });
+      this.recalculateTotal();
     }
   }
 
@@ -172,17 +199,19 @@ export class SaleFormComponent implements OnInit {
     itemGroup.patchValue({
       subTotal: qty * price
     });
+    this.recalculateTotal();
   }
 
-  getProductStock(productId: number): number {
-    const p = this.productService.products().find(item => item.productId === productId);
-    return p?.stockQuantity ?? 0;
+  getProductStock(productId: number | null | undefined): number {
+    if (!productId) return 0;
+    return this.productStockMap().get(Number(productId)) ?? 0;
   }
 
-  calculateTotal(): number {
-    return this.items.controls.reduce((sum, control) => {
+  private recalculateTotal(): void {
+    const total = this.items.controls.reduce((sum, control) => {
       return sum + (Number(control.get('subTotal')?.value) || 0);
     }, 0);
+    this.totalAmount.set(total);
   }
 
   onSubmit() {
@@ -234,3 +263,4 @@ export class SaleFormComponent implements OnInit {
     this.close.emit();
   }
 }
+
