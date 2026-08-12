@@ -5,6 +5,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
 import { Supplier } from '../../../../core/models/supplier.model';
 import { Role } from '../../../../core/auth/enums/role.enum';
 import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
+import { DateTimeComponent } from '../../../../shared/components/date-time/date-time.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroXMark, heroUser, heroPhone, heroEnvelope, heroMapPin,
@@ -14,7 +15,7 @@ import {
 @Component({
   selector: 'app-supplier-detail-modal',
   standalone: true,
-  imports: [CommonModule, HasRoleDirective, NgIconComponent],
+  imports: [CommonModule, HasRoleDirective, DateTimeComponent, NgIconComponent],
   viewProviders: [provideIcons({
     heroXMark, heroUser, heroPhone, heroEnvelope, heroMapPin,
     heroPencilSquare, heroArchiveBox, heroArrowPath, heroBuildingStorefront

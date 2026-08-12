@@ -18,6 +18,7 @@ import { CreateStaffFormComponent } from '../../components/create-staff-form/cre
 import { UserDetailModalComponent } from '../../components/user-detail-modal/user-detail-modal.component';
 import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
+import { DateTimeComponent } from '../../../../shared/components/date-time/date-time.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroEye,
@@ -49,6 +50,7 @@ import {
     UserDetailModalComponent,
     HasRoleDirective,
     CustomSelectComponent,
+    DateTimeComponent,
     NgIconComponent
   ],
   viewProviders: [

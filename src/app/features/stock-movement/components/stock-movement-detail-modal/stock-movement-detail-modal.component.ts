@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { StockMovement, MovementType } from '../../models/stock-movement.model';
+import { DateTimeComponent } from '../../../../shared/components/date-time/date-time.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroXMark,
@@ -14,7 +15,7 @@ import {
 @Component({
   selector: 'app-stock-movement-detail-modal',
   standalone: true,
-  imports: [CommonModule, DatePipe, NgIconComponent],
+  imports: [CommonModule, DateTimeComponent, NgIconComponent],
   viewProviders: [
     provideIcons({
       heroXMark,

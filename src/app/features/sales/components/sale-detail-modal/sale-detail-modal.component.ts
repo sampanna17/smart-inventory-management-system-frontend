@@ -2,6 +2,7 @@ import { Component, effect, inject, input, output, signal } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { SaleService } from '../../services/sale.service';
 import { SaleSummary, SaleDetail, SaleStatus } from '../../models/sale.model';
+import { DateTimeComponent } from '../../../../shared/components/date-time/date-time.component';
 import { NprCurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -20,6 +21,7 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    DateTimeComponent,
     NprCurrencyPipe,
     NgIconComponent
   ],

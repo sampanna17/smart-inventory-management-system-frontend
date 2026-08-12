@@ -17,6 +17,7 @@ import { StockMovementFormComponent } from '../../components/stock-movement-form
 import { StockMovementDetailModalComponent } from '../../components/stock-movement-detail-modal/stock-movement-detail-modal.component';
 import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
+import { DateTimeComponent } from '../../../../shared/components/date-time/date-time.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroArrowsRightLeft,
@@ -49,6 +50,7 @@ import {
     StockMovementDetailModalComponent,
     HasRoleDirective,
     CustomSelectComponent,
+    DateTimeComponent,
     NgIconComponent
   ],
   viewProviders: [
