@@ -16,6 +16,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { CategoryFormComponent } from '../../components/category-form/category-form.component';
 import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
+import { DateTimeComponent } from '../../../../shared/components/date-time/date-time.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroPencilSquare, heroTrash, heroEye, heroMagnifyingGlass,
@@ -37,6 +38,7 @@ import {
     CategoryFormComponent,
     HasRoleDirective,
     CustomSelectComponent,
+    DateTimeComponent,
     NgIconComponent
   ],
   viewProviders: [

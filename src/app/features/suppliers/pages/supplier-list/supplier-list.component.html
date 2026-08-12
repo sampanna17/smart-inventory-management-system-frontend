@@ -144,8 +144,8 @@
                 <td class="px-6 py-4 text-sm text-slate-500 hidden lg:table-cell max-w-xs truncate">
                   {{ supplier.address || '-' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden xl:table-cell">
-                  {{ supplier.createdAt | date:'mediumDate' }}
+                <td class="px-6 py-4 whitespace-nowrap hidden xl:table-cell">
+                  <app-date-time [date]="supplier.createdAt" mode="date-only" dateClass="text-sm text-slate-500 font-normal"></app-date-time>
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

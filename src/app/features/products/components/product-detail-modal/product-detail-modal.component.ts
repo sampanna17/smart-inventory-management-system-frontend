@@ -17,11 +17,12 @@ import {
 
 import { NprCurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
+import { DateTimeComponent } from '../../../../shared/components/date-time/date-time.component';
 
 @Component({
   selector: 'app-product-detail-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, HasRoleDirective, NgIconComponent, NprCurrencyPipe, NgOptimizedImage, CustomSelectComponent],
+  imports: [CommonModule, FormsModule, HasRoleDirective, NgIconComponent, NprCurrencyPipe, NgOptimizedImage, CustomSelectComponent, DateTimeComponent],
   viewProviders: [provideIcons({
     heroXMark, heroPhoto, heroCloudArrowUp, heroTrash, heroPencilSquare,
     heroExclamationTriangle, heroCheckCircle, heroArchiveBox, heroArrowPath,

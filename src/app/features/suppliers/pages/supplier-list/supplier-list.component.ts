@@ -17,6 +17,7 @@ import { SupplierFormComponent } from '../../components/supplier-form/supplier-f
 import { SupplierDetailModalComponent } from '../../components/supplier-detail-modal/supplier-detail-modal.component';
 import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
+import { DateTimeComponent } from '../../../../shared/components/date-time/date-time.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroPencilSquare, heroTrash, heroEye, heroMagnifyingGlass,
@@ -40,6 +41,7 @@ import {
     SupplierDetailModalComponent,
     HasRoleDirective,
     CustomSelectComponent,
+    DateTimeComponent,
     NgIconComponent
   ],
   viewProviders: [

@@ -45,8 +45,7 @@
 
               <div>
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Sale Date</span>
-                <span class="text-sm font-medium text-slate-700 block">{{ sale.saleDate | date:'MMM d, y' }}</span>
-                <span class="text-xs text-slate-400">{{ sale.saleDate | date:'h:mm a' }}</span>
+                <app-date-time [date]="sale.saleDate" mode="date-time" layout="stacked"></app-date-time>
               </div>
 
               <div>

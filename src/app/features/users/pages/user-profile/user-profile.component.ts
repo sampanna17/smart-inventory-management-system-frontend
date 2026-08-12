@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { 
@@ -11,6 +11,7 @@ import {
   heroCheck,
   heroXMark
 } from '@ng-icons/heroicons/outline';
+import { DateFormatPipe } from '../../../../shared/pipes/date-format.pipe';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../../../core/auth/services/auth.service';
@@ -19,7 +20,7 @@ import { UserProfile, UpdateProfileRequest } from '../../models/user-profile.mod
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIconComponent, DatePipe],
+  imports: [CommonModule, ReactiveFormsModule, NgIconComponent, DateFormatPipe],
   viewProviders: [provideIcons({ 
     heroUser, heroEnvelope, heroShieldCheck, heroCalendar, heroPencil, heroCheck, heroXMark 
   })],

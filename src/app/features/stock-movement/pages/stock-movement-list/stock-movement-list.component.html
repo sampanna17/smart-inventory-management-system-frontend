@@ -167,25 +167,18 @@
 
                 <!-- Date & Time -->
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex flex-col gap-0.5">
-                    <span class="text-sm font-medium text-slate-800">
-                      {{ m.movementDate | date:'MMM d, y' }}
-                    </span>
-                    <span class="text-xs text-slate-400">
-                      {{ m.movementDate | date:'h:mm:ss a' }}
-                    </span>
-                  </div>
+                  <app-date-time [date]="m.movementDate" mode="date-time" layout="stacked"></app-date-time>
                 </td>
 
                 <!-- Product Name -->
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-semibold text-slate-900">{{ m.productName }}</div>
+                  <div class="text-sm font-medium text-slate-900">{{ m.productName }}</div>
                   <div class="text-xs text-slate-400 font-mono">Product ID: #{{ m.productId }}</div>
                 </td>
 
                 <!-- Movement Type Badge -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                         [ngClass]="{
                           'bg-emerald-100 text-emerald-800': m.movementType === MovementType.PURCHASE || m.movementType === MovementType.RETURN,
                           'bg-rose-100 text-rose-800': m.movementType === MovementType.SALE,
@@ -196,7 +189,7 @@
                 </td>
 
                 <!-- Quantity -->
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold font-mono"
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold font-mono"
                     [ngClass]="{
                       'text-emerald-600': m.movementType === MovementType.PURCHASE || m.movementType === MovementType.RETURN,
                       'text-rose-600': m.movementType === MovementType.SALE,

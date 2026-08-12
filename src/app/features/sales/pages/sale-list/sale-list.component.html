@@ -193,14 +193,7 @@
 
                 <!-- Date & Time -->
                 <td class="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                  <div class="flex flex-col gap-0.5">
-                    <span class="text-sm font-medium text-slate-700">
-                      {{ s.saleDate | date:'MMM d, y' }}
-                    </span>
-                    <span class="text-xs text-slate-400">
-                      {{ s.saleDate | date:'h:mm a' }}
-                    </span>
-                  </div>
+                  <app-date-time [date]="s.saleDate" mode="date-time" layout="stacked"></app-date-time>
                 </td>
 
                 <!-- Served By User -->

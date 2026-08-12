@@ -16,7 +16,9 @@
             <h3 class="text-lg font-bold text-slate-900">
               Purchase Order {{ purchase()!.purchaseNumber }}
             </h3>
-            <p class="text-xs text-slate-500">Created on {{ purchase()!.createdAt | date:'medium' }}</p>
+            <p class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+              Created on <app-date-time [date]="purchase()!.createdAt" mode="full" layout="inline" dateClass="text-xs text-slate-600 font-medium"></app-date-time>
+            </p>
           </div>
         </div>
 
@@ -49,7 +51,7 @@
             <ng-icon name="heroCalendarDays" class="text-xl text-slate-400 shrink-0"></ng-icon>
             <div>
               <span class="block text-[10px] uppercase font-semibold text-slate-400">Date</span>
-              <span class="text-sm font-medium text-slate-900">{{ purchase()!.purchaseDate | date:'mediumDate' }}</span>
+              <app-date-time [date]="purchase()!.purchaseDate" mode="date-only" dateClass="text-sm font-medium text-slate-900"></app-date-time>
             </div>
           </div>
 

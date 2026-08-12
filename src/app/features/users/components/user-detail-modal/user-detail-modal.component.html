@@ -94,7 +94,9 @@
             </div>
             <div>
               <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Created</p>
-              <p class="text-sm font-medium text-slate-900 mt-0.5">{{ user()!.createdAt | date:'medium' }}</p>
+              <div class="mt-0.5">
+                <app-date-time [date]="user()!.createdAt" mode="full" layout="inline"></app-date-time>
+              </div>
             </div>
           </div>
         </div>

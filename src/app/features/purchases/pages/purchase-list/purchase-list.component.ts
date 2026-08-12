@@ -17,6 +17,7 @@ import { PurchaseFormComponent } from '../../components/purchase-form/purchase-f
 import { PurchaseDetailModalComponent } from '../../components/purchase-detail-modal/purchase-detail-modal.component';
 import { HasRoleDirective } from '../../../../shared/directives/has-role.directive';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
+import { DateTimeComponent } from '../../../../shared/components/date-time/date-time.component';
 import { NprCurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -51,6 +52,7 @@ import {
     PurchaseDetailModalComponent,
     HasRoleDirective,
     CustomSelectComponent,
+    DateTimeComponent,
     NprCurrencyPipe,
     NgIconComponent
   ],
