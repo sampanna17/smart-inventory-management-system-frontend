@@ -115,7 +115,7 @@ export class CustomerService {
     return this.http.get<ApiResponse<Customer[]>>(CUSTOMER_API.GET_ALL_LIST);
   }
 
-  createCustomer(data: CreateCustomerRequest) {
+  createCustomer(data: CreateCustomerRequest): Observable<ApiResponse<Customer>> {
     this.isSubmitting.set(true);
 
     return this.http.post<ApiResponse<Customer>>(CUSTOMER_API.CREATE, data)
@@ -133,7 +133,7 @@ export class CustomerService {
       );
   }
 
-  updateCustomer(id: number, data: UpdateCustomerRequest) {
+  updateCustomer(id: number, data: UpdateCustomerRequest): Observable<ApiResponse<Customer>> {
     this.isSubmitting.set(true);
 
     return this.http.put<ApiResponse<Customer>>(CUSTOMER_API.UPDATE(id), data).pipe(
@@ -150,7 +150,7 @@ export class CustomerService {
     );
   }
 
-  deleteCustomer(id: number) {
+  deleteCustomer(id: number): Observable<ApiResponse<void>> {
     this.isSubmitting.set(true);
 
     return this.http.delete<ApiResponse<void>>(CUSTOMER_API.DELETE(id))
@@ -168,3 +168,4 @@ export class CustomerService {
       );
   }
 }
+

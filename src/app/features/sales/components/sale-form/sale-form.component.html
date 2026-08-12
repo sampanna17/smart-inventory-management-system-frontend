@@ -34,7 +34,7 @@
               <app-select
                 id="customerId"
                 formControlName="customerId"
-                [options]="customerService.customers()"
+                [options]="availableCustomers()"
                 optionLabel="customerName"
                 optionValue="customerID"
                 placeholder="Walk-in Customer / Select Customer..."
@@ -83,7 +83,7 @@
                         class="w-full px-3 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
                       >
                         <option [ngValue]="null" disabled>Select product</option>
-                        @for (prod of productService.products(); track prod.productId) {
+                        @for (prod of availableProducts(); track prod.productId) {
                           <option [ngValue]="prod.productId">
                             {{ prod.productName }} (In Stock: {{ prod.stockQuantity }}) - {{ prod.sellingPrice | nprCurrency }}
                           </option>
@@ -148,8 +148,9 @@
       <div class="border-t border-slate-200 px-6 py-4 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
         <div class="w-full sm:w-auto text-left">
           <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Amount</span>
-          <span class="text-2xl font-black text-slate-900">{{ calculateTotal() | nprCurrency }}</span>
+          <span class="text-2xl font-black text-slate-900">{{ totalAmount() | nprCurrency }}</span>
         </div>
+
 
         <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
           <button

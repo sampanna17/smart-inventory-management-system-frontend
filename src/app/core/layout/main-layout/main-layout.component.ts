@@ -17,6 +17,8 @@ export class MainLayoutComponent {
   isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   toggleSidebar(): void {
+    if (!this.isBrowser) return;
+
     if (window.innerWidth >= 1024) {
       // Desktop
       this.isSidebarCollapsed.update(val => !val);
@@ -30,3 +32,4 @@ export class MainLayoutComponent {
     this.isMobileSidebarOpen.set(false);
   }
 }
+

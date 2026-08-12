@@ -173,17 +173,12 @@ export class StockMovementListComponent implements OnInit {
     this.loadMovements();
   }
 
-  setTypeFilter(type: string): void {
-    this.selectedTypeFilter.set(type);
-    this.currentPage.set(1);
-    this.loadMovements();
-  }
-
   onTypeFilterChange(type: string): void {
     this.selectedTypeFilter.set(type);
     this.currentPage.set(1);
     this.loadMovements();
   }
+
 
   onSortChange(sortBy: string): void {
     this.sortBy.set(sortBy);

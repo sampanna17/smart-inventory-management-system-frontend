@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, Input, forwardRef, signal, computed } from '@angular/core';
+import { Component, ElementRef, HostListener, forwardRef, signal, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -17,16 +17,16 @@ import { heroChevronDown, heroMagnifyingGlass, heroCheck } from '@ng-icons/heroi
     }
   ],
   template: `
-    <div class="relative w-full text-left" [class]="styleClass">
+    <div class="relative w-full text-left" [class]="styleClass()">
       <!-- Select Trigger Button -->
       <button
         type="button"
         (click)="toggleDropdown()"
-        [disabled]="disabled"
+        [disabled]="effectiveDisabled()"
         class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 shadow-sm flex items-center justify-between gap-2 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer min-h-[38px]"
       >
         <span class="truncate" [class.text-slate-400]="!selectedOption()">
-          {{ selectedLabel() || placeholder }}
+          {{ selectedLabel() || placeholder() }}
         </span>
         <ng-icon name="heroChevronDown" class="text-slate-400 text-sm transition-transform duration-200" [class.rotate-180]="isOpen()"></ng-icon>
       </button>
@@ -36,7 +36,7 @@ import { heroChevronDown, heroMagnifyingGlass, heroCheck } from '@ng-icons/heroi
         <div class="absolute z-100 mt-1.5 w-full bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden py-1 max-h-60 flex flex-col transition-all animate-in fade-in duration-100">
 
           <!-- Search Filter Header -->
-          @if (filter && options && options.length > 5) {
+          @if (filter() && options().length > 5) {
             <div class="p-2 border-b border-slate-100 bg-slate-50/50 shrink-0">
               <div class="relative">
                 <ng-icon name="heroMagnifyingGlass" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></ng-icon>
@@ -82,20 +82,23 @@ import { heroChevronDown, heroMagnifyingGlass, heroCheck } from '@ng-icons/heroi
   `
 })
 export class CustomSelectComponent implements ControlValueAccessor {
-  @Input() options: any[] = [];
-  @Input() optionLabel: string = 'label';
-  @Input() optionValue: string = 'value';
-  @Input() placeholder: string = 'Select an option';
-  @Input() filter: boolean = true;
-  @Input() disabled: boolean = false;
-  @Input() styleClass: string = '';
+  options = input<any[]>([]);
+  optionLabel = input<string>('label');
+  optionValue = input<string>('value');
+  placeholder = input<string>('Select an option');
+  filter = input<boolean>(true);
+  disabled = input<boolean>(false);
+  styleClass = input<string>('');
+
+  private formDisabled = signal<boolean>(false);
+  effectiveDisabled = computed(() => this.disabled() || this.formDisabled());
 
   isOpen = signal<boolean>(false);
   searchQuery = signal<string>('');
   selectedValue = signal<any>(null);
 
-  onChange: any = () => {};
-  onTouched: any = () => {};
+  private onChange: (val: any) => void = () => {};
+  private onTouched: () => void = () => {};
 
   constructor(private elementRef: ElementRef) {}
 
@@ -107,7 +110,7 @@ export class CustomSelectComponent implements ControlValueAccessor {
   }
 
   toggleDropdown() {
-    if (this.disabled) return;
+    if (this.effectiveDisabled()) return;
     this.isOpen.update(v => !v);
     if (this.isOpen()) {
       this.searchQuery.set('');
@@ -117,21 +120,22 @@ export class CustomSelectComponent implements ControlValueAccessor {
   getOptionLabel(opt: any): string {
     if (!opt) return '';
     if (typeof opt === 'object') {
-      return opt[this.optionLabel] ?? opt.label ?? String(opt);
+      return opt[this.optionLabel()] ?? opt.label ?? String(opt);
     }
     return String(opt);
   }
 
   getOptionValue(opt: any): any {
     if (!opt) return null;
-    if (typeof opt === 'object' && this.optionValue && this.optionValue in opt) {
-      return opt[this.optionValue];
+    const key = this.optionValue();
+    if (typeof opt === 'object' && key && key in opt) {
+      return opt[key];
     }
     return opt;
   }
 
   filteredOptions = computed(() => {
-    const list = this.options || [];
+    const list = this.options() || [];
     const query = this.searchQuery().toLowerCase().trim();
     if (!query) return list;
 
@@ -143,7 +147,7 @@ export class CustomSelectComponent implements ControlValueAccessor {
   selectedOption = computed(() => {
     const val = this.selectedValue();
     if (val === null || val === undefined || val === '') return null;
-    return (this.options || []).find(opt => this.getOptionValue(opt) === val) || null;
+    return (this.options() || []).find(opt => this.getOptionValue(opt) === val) || null;
   });
 
   selectedLabel = computed(() => {
@@ -177,6 +181,7 @@ export class CustomSelectComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.formDisabled.set(isDisabled);
   }
 }
+

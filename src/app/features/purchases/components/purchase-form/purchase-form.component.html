@@ -34,7 +34,7 @@
               <app-select
                 id="supplierId"
                 formControlName="supplierId"
-                [options]="supplierService.suppliers()"
+                [options]="availableSuppliers()"
                 optionLabel="supplierName"
                 optionValue="supplierID"
                 placeholder="Select Supplier..."
@@ -142,11 +142,12 @@
               <div class="mt-4 p-4 bg-slate-100 rounded-lg flex items-center justify-between border border-slate-200">
                 <span class="text-sm font-semibold text-slate-700">Total Purchase Amount</span>
                 <span class="text-lg font-bold text-primary">
-                  {{ grandTotal | nprCurrency }}
+                  {{ totalAmount() | nprCurrency }}
                 </span>
               </div>
             }
           </div>
+
 
         </form>
       </div>

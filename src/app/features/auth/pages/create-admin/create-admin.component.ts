@@ -81,7 +81,7 @@ export class CreateAdminComponent {
           return of(null);
         })
       )
-      .subscribe((response: any) => {
+      .subscribe((response) => {
         if (response?.success) {
           this.toastr.success('Admin created successfully! Redirecting...', 'Success');
           this.isLoading.set(false);
@@ -93,4 +93,5 @@ export class CreateAdminComponent {
         }
       });
   }
+
 }

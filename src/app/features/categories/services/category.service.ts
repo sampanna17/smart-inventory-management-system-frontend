@@ -109,7 +109,7 @@ export class CategoryService {
     return this.http.get<ApiResponse<Category[]>>(CATEGORY_API.GET_ALL_LIST);
   }
 
-  createCategory(data: CreateCategoryRequest) {
+  createCategory(data: CreateCategoryRequest): Observable<ApiResponse<Category>> {
     this.isSubmitting.set(true);
 
     return this.http.post<ApiResponse<Category>>(CATEGORY_API.CREATE, data)
@@ -127,7 +127,7 @@ export class CategoryService {
       );
   }
 
-  updateCategory(id: number, data: UpdateCategoryRequest) {
+  updateCategory(id: number, data: UpdateCategoryRequest): Observable<ApiResponse<Category>> {
     this.isSubmitting.set(true);
 
     return this.http.put<ApiResponse<Category>>(CATEGORY_API.UPDATE(id), data).pipe(
@@ -144,7 +144,7 @@ export class CategoryService {
     );
   }
 
-  deleteCategory(id: number) {
+  deleteCategory(id: number): Observable<ApiResponse<void>> {
     this.isSubmitting.set(true);
 
     return this.http.delete<ApiResponse<void>>(CATEGORY_API.DELETE(id))
@@ -162,3 +162,4 @@ export class CategoryService {
       );
   }
 }
+

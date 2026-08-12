@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { User } from '../../models/user.model';
+import { User, CreateAdminRequest } from '../../models/user.model';
 import { Role } from '../enums/role.enum';
 import { ApiResponse } from '../../models/api-response.model';
 import { AUTH_API } from '../constants/auth.api';
 import { ToastrService } from 'ngx-toastr';
+
 
 @Injectable({
   providedIn: 'root'
@@ -65,9 +66,10 @@ export class AuthService {
     return null;
   }
 
-  createAdmin(userData: any): Observable<any> {
-    return this.http.post(AUTH_API.SIGNUP, userData);
+  createAdmin(userData: CreateAdminRequest): Observable<ApiResponse<User>> {
+    return this.http.post<ApiResponse<User>>(AUTH_API.SIGNUP, userData);
   }
+
 
   login(credentials: { email: string; password: string }): Observable<ApiResponse<User>> {
     return this.http.post<ApiResponse<User>>(AUTH_API.LOGIN, credentials).pipe(

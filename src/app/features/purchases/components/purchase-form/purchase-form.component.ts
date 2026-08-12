@@ -5,7 +5,10 @@ import { PurchaseService } from '../../services/purchase.service';
 import { SupplierService } from '../../../suppliers/services/supplier.service';
 import { ProductService } from '../../../products/services/product.service';
 import { Purchase, CreatePurchaseRequest, UpdatePurchaseRequest } from '../../models/purchase.model';
+import { Supplier } from '../../../../core/models/supplier.model';
+import { Product } from '../../../../core/models/product.model';
 import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
+
 import { NprCurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroXMark, heroPlus, heroTrash } from '@ng-icons/heroicons/outline';
@@ -41,15 +44,17 @@ export class PurchaseFormComponent implements OnInit {
   productService = inject(ProductService);
 
   purchaseForm!: FormGroup;
+  availableSuppliers = signal<Supplier[]>([]);
+  allProducts = signal<Product[]>([]);
   availableProducts = signal<{ productId: number; productName: string; unitPrice?: number }[]>([]);
   isLoadingProducts = signal<boolean>(false);
+  totalAmount = signal<number>(0);
 
   isEditMode = computed(() => !!this.purchase());
 
   ngOnInit() {
     this.initForm();
-    this.supplierService.loadSuppliers();
-    this.productService.loadProducts();
+    this.loadPrerequisites();
   }
 
   constructor() {
@@ -68,6 +73,20 @@ export class PurchaseFormComponent implements OnInit {
     });
   }
 
+  private loadPrerequisites() {
+    this.supplierService.getAllSuppliersList().subscribe(res => {
+      if (res.success && res.data) {
+        this.availableSuppliers.set(res.data);
+      }
+    });
+
+    this.productService.getAllProductsList().subscribe(res => {
+      if (res.success && res.data) {
+        this.allProducts.set(res.data);
+      }
+    });
+  }
+
   private initForm() {
     this.purchaseForm = this.fb.group({
       supplierId: ['', [Validators.required]],
@@ -75,13 +94,16 @@ export class PurchaseFormComponent implements OnInit {
       items: this.fb.array([])
     });
 
-    // Listen to supplier changes
     this.purchaseForm.get('supplierId')?.valueChanges.subscribe(supplierId => {
       if (supplierId) {
         this.loadSupplierProducts(Number(supplierId));
       } else {
         this.availableProducts.set([]);
       }
+    });
+
+    this.items.valueChanges.subscribe(() => {
+      this.recalculateTotal();
     });
   }
 
@@ -96,14 +118,14 @@ export class PurchaseFormComponent implements OnInit {
       unitPrice: [unitPrice, [Validators.required, Validators.min(0.01)]]
     });
 
-
     group.get('productId')?.valueChanges.subscribe(pId => {
       if (pId) {
-        const prod = this.productService.products().find(p => p.productId === Number(pId));
+        const prod = this.allProducts().find(p => p.productId === Number(pId));
         if (prod && !group.get('unitPrice')?.value) {
           group.patchValue({ unitPrice: prod.costPrice });
         }
       }
+      this.recalculateTotal();
     });
 
     return group;
@@ -111,11 +133,13 @@ export class PurchaseFormComponent implements OnInit {
 
   addItemRow(productId = '', quantity = 1, unitPrice = 0) {
     this.items.push(this.createItemFormGroup(productId, quantity, unitPrice));
+    this.recalculateTotal();
   }
 
   removeItemRow(index: number) {
     if (this.items.length > 1) {
       this.items.removeAt(index);
+      this.recalculateTotal();
     }
   }
 
@@ -127,21 +151,20 @@ export class PurchaseFormComponent implements OnInit {
         if (res.data && res.data.length > 0) {
           this.availableProducts.set(res.data);
         } else {
-          // Fallback to all products if none linked
           this.availableProducts.set(
-            this.productService.products().map(p => ({ productId: p.productId, productName: p.productName, unitPrice: p.costPrice }))
+            this.allProducts().map(p => ({ productId: p.productId, productName: p.productName, unitPrice: p.costPrice }))
           );
         }
       },
       error: () => {
         this.isLoadingProducts.set(false);
-        // Fallback to all products
         this.availableProducts.set(
-          this.productService.products().map(p => ({ productId: p.productId, productName: p.productName, unitPrice: p.costPrice }))
+          this.allProducts().map(p => ({ productId: p.productId, productName: p.productName, unitPrice: p.costPrice }))
         );
       }
     });
   }
+
 
   private setupEditForm(p: Purchase) {
     this.items.clear();
@@ -161,6 +184,7 @@ export class PurchaseFormComponent implements OnInit {
     } else {
       this.addItemRow();
     }
+    this.recalculateTotal();
   }
 
   private resetForm() {
@@ -171,6 +195,7 @@ export class PurchaseFormComponent implements OnInit {
     });
     this.availableProducts.set([]);
     this.addItemRow();
+    this.recalculateTotal();
   }
 
   getItemSubtotal(index: number): number {
@@ -180,18 +205,19 @@ export class PurchaseFormComponent implements OnInit {
     return qty * price;
   }
 
-  get grandTotal(): number {
+  private recalculateTotal(): void {
     let total = 0;
     for (let i = 0; i < this.items.length; i++) {
       total += this.getItemSubtotal(i);
     }
-    return total;
+    this.totalAmount.set(total);
   }
 
   closeModal(force = false) {
     if (!force && this.purchaseService.isSubmitting()) return;
     this.close.emit();
   }
+
 
   onSubmit() {
     if (this.purchaseForm.invalid || this.items.length === 0) {

@@ -102,7 +102,7 @@ export class UnitService {
       });
   }
 
-  createUnit(data: CreateUnitRequest) {
+  createUnit(data: CreateUnitRequest): Observable<ApiResponse<Unit>> {
     this.isSubmitting.set(true);
 
     return this.http.post<ApiResponse<Unit>>(UNIT_API.CREATE, data)
@@ -120,7 +120,7 @@ export class UnitService {
       );
   }
 
-  updateUnit(id: number, data: UpdateUnitRequest) {
+  updateUnit(id: number, data: UpdateUnitRequest): Observable<ApiResponse<Unit>> {
     this.isSubmitting.set(true);
 
     return this.http.put<ApiResponse<Unit>>(UNIT_API.UPDATE(id), data).pipe(
@@ -137,7 +137,7 @@ export class UnitService {
     );
   }
 
-  deleteUnit(id: number) {
+  deleteUnit(id: number): Observable<ApiResponse<void>> {
     this.isSubmitting.set(true);
 
     return this.http.delete<ApiResponse<void>>(UNIT_API.DELETE(id))
@@ -155,3 +155,4 @@ export class UnitService {
       );
   }
 }
+

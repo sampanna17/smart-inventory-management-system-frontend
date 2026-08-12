@@ -1,51 +1,33 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
-    <div class="welcome-card">
-      <div class="role-badge" *ngIf="currentUser()?.role">
-        {{ currentUser()?.role }}
+    <div class="space-y-6">
+      <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm max-w-2xl">
+        @if (currentUser()?.role) {
+          <span class="inline-block bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+            {{ currentUser()?.role }}
+          </span>
+        }
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">
+          Welcome, {{ currentUser()?.fullName || 'User' }}!
+        </h1>
+        <p class="text-slate-500 text-base leading-relaxed">
+          Welcome to the Smart Inventory Management System (SIMS). Use the navigation sidebar to manage products, sales, purchases, and track stock movements.
+        </p>
       </div>
-      <h1 class="text-3xl font-bold text-heading mb-4">Welcome, {{ currentUser()?.fullName || 'User' }}!</h1>
-      <p class="text-muted text-lg">This is your dashboard. You have successfully logged in to SIMS.</p>
     </div>
-  `,
-  styles: [`
-    .welcome-card {
-      background: var(--color-surface);
-      padding: 3rem;
-      border-radius: 1rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      border: 1px solid var(--color-border);
-      max-width: 600px;
-    }
-
-    .role-badge {
-      display: inline-block;
-      background-color: var(--color-primary);
-      color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-  `]
-
+  `
 })
 export class DashboardComponent {
   private authService = inject(AuthService);
 
   currentUser = this.authService.currentUser;
-
-  logout(): void {
-    this.authService.logout();
-  }
 }
+
