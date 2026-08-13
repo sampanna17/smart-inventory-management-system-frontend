@@ -5,7 +5,7 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
  * Returns `{ mismatch: true }` on mismatch for seamless template error binding.
  *
  * @param passwordControlName The name of the primary password control (e.g. 'newPassword' or 'password')
- * @param confirmPasswordControlName The name of the confirm password control (e.g. 'confirmPassword')
+ * @param confirmPasswordControlName The name of the confirmation password control (e.g. 'confirmPassword')
  */
 export function confirmPasswordValidator(
   passwordControlName: string = 'newPassword',
