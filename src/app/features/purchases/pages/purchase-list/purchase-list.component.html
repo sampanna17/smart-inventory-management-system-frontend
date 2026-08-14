@@ -17,8 +17,8 @@
         <ng-icon name="heroShoppingCart" class="text-2xl"></ng-icon>
       </div>
       <div>
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Purchases</p>
-        <h3 class="text-xl font-semibold text-slate-900 mt-0.5">{{ totalPurchasesCount() }}</h3>
+        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Purchases</p>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ totalPurchasesCount() }}</h3>
       </div>
     </div>
 
@@ -28,8 +28,8 @@
         <ng-icon name="heroCurrencyDollar" class="text-2xl"></ng-icon>
       </div>
       <div>
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Amount Spent</p>
-        <h3 class="text-xl font-semibold text-slate-900 mt-0.5">{{ totalSpentAmount() | nprCurrency }}</h3>
+        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Amount Spent</p>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ totalSpentAmount() | nprCurrency }}</h3>
       </div>
     </div>
 
@@ -39,8 +39,8 @@
         <ng-icon name="heroCheckCircle" class="text-2xl"></ng-icon>
       </div>
       <div>
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Received Orders</p>
-        <h3 class="text-xl font-semibold text-slate-900 mt-0.5">{{ receivedPurchasesCount() }}</h3>
+        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Received Orders</p>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ receivedPurchasesCount() }}</h3>
       </div>
     </div>
 
@@ -50,8 +50,8 @@
         <ng-icon name="heroClock" class="text-2xl"></ng-icon>
       </div>
       <div>
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Orders</p>
-        <h3 class="text-xl font-semibold text-slate-900 mt-0.5">{{ pendingPurchasesCount() }}</h3>
+        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Pending Orders</p>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ pendingPurchasesCount() }}</h3>
       </div>
     </div>
   </div>
@@ -69,7 +69,7 @@
           [ngModel]="searchQuery()"
           (ngModelChange)="onSearchInput($event)"
           placeholder="Search by PO #, supplier..."
-          class="w-full pl-9 pr-10 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-[38px]"
+          class="w-full pl-9 pr-10 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-9.5"
         />
         @if (searchQuery()) {
           <button
@@ -129,7 +129,7 @@
         <button
           type="button"
           (click)="toggleSortOrder()"
-          class="p-2 bg-white border border-slate-300 rounded-lg hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-colors shadow-sm cursor-pointer min-h-[38px] flex items-center justify-center shrink-0"
+          class="p-2 bg-white border border-slate-300 rounded-lg hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-colors shadow-sm cursor-pointer min-h-9.5 flex items-center justify-center shrink-0"
           [title]="sortOrder() === 'asc' ? 'Sort Ascending' : 'Sort Descending'"
         >
           @if (sortOrder() === 'asc') {
@@ -169,13 +169,13 @@
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">PO Number</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Supplier</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Date</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Created By</th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Amount</th>
-              <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">PO Number</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Supplier</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden sm:table-cell">Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden md:table-cell">Created By</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Total Amount</th>
+              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-slate-200">
@@ -187,7 +187,7 @@
                 </td>
 
                 <!-- Supplier Name -->
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
                   {{ p.supplierName }}
                 </td>
 

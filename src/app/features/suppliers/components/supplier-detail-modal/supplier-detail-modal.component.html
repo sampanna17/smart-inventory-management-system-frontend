@@ -13,7 +13,7 @@
             <ng-icon name="heroBuildingStorefront" class="text-xl"></ng-icon>
           </span>
           <div>
-            <h3 class="text-lg font-bold text-slate-900">{{ supplier()?.supplierName }}</h3>
+            <h3 class="text-lg font-medium text-slate-900">{{ supplier()?.supplierName }}</h3>
             <p class="text-xs text-slate-500">Supplier ID: {{ supplier()?.supplierID }}</p>
           </div>
         </div>
@@ -39,7 +39,7 @@
             </div>
             <div>
               <span class="text-xs text-slate-400 font-medium block uppercase tracking-wider">Phone Number</span>
-              <span class="text-sm font-semibold text-slate-900">{{ supplier()?.phone || '-' }}</span>
+              <span class="text-sm font-medium text-slate-900">{{ supplier()?.phone || '-' }}</span>
             </div>
           </div>
 
@@ -50,7 +50,7 @@
             </div>
             <div>
               <span class="text-xs text-slate-400 font-medium block uppercase tracking-wider">Email Address</span>
-              <span class="text-sm font-semibold text-slate-900">{{ supplier()?.email || 'N/A' }}</span>
+              <span class="text-sm font-medium text-slate-900">{{ supplier()?.email || 'N/A' }}</span>
             </div>
           </div>
 
@@ -61,7 +61,7 @@
             </div>
             <div>
               <span class="text-xs text-slate-400 font-medium block uppercase tracking-wider">Physical Address</span>
-              <span class="text-sm font-semibold text-slate-900">{{ supplier()?.address || 'No address specified' }}</span>
+              <span class="text-sm font-medium text-slate-900">{{ supplier()?.address || 'No address specified' }}</span>
             </div>
           </div>
         </div>
@@ -69,11 +69,11 @@
         <!-- Supplied Products Section -->
         <div class="space-y-3">
           <div class="flex items-center justify-between">
-            <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <h4 class="text-sm font-medium text-slate-900 flex items-center gap-2">
               <ng-icon name="heroArchiveBox" class="text-primary text-base"></ng-icon>
               <span>Products Supplied by {{ supplier()?.supplierName }}</span>
             </h4>
-            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-semibold">
+            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-medium">
               {{ supplierService.supplierProducts().length }} items
             </span>
           </div>
@@ -94,7 +94,7 @@
               type="button"
               (click)="assignProduct()"
               [disabled]="!selectedProductToAssign()"
-              class="inline-flex items-center gap-1 px-3 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0 cursor-pointer"
+              class="inline-flex items-center gap-1 px-3 py-2 bg-primary text-white text-xs font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0 cursor-pointer"
             >
               <ng-icon name="heroPlus" class="text-sm"></ng-icon>
               <span>Assign</span>
@@ -116,7 +116,7 @@
               @for (prod of supplierService.supplierProducts(); track prod.productId) {
                 <div class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
                   <div class="flex items-center gap-2 min-w-0">
-                    <span class="text-xs font-semibold text-slate-900 truncate">{{ prod.productName }}</span>
+                    <span class="text-xs font-medium text-slate-900 truncate">{{ prod.productName }}</span>
                     <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">ID: {{ prod.productId }}</span>
                   </div>
                   <button
@@ -146,7 +146,7 @@
           <button
             type="button"
             (click)="close.emit()"
-            class="inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 transition-colors"
+            class="inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 transition-colors"
           >
             Close
           </button>
@@ -154,7 +154,7 @@
           <button
             *appHasRole="Role.ADMIN"
             (click)="onEdit()"
-            class="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-colors"
+            class="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 transition-colors"
           >
             <ng-icon name="heroPencilSquare" class="text-lg"></ng-icon>
             Edit Supplier
