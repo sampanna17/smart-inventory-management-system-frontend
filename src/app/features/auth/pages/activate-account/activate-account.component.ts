@@ -41,25 +41,29 @@ export class ActivateAccountComponent implements OnInit {
   private toastr = inject(ToastrService);
   private authService = inject(AuthService);
 
-  token = signal<string | null>(null);
+  isValidatingToken = signal(true);
   isLoading = signal(false);
   isResending = signal(false);
   isActivated = signal(false);
+  isTokenExpiredOrInvalid = signal(false);
 
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
-  resendSuccessMessage = signal<string | null>(null);
-  resendErrorMessage = signal<string | null>(null);
-
-  showResendForm = signal(false);
+  token = signal<string | null>(null);
 
   hidePassword = signal(true);
   hideConfirmPassword = signal(true);
 
-  activateForm = this.fb.nonNullable.group({
-    newPassword: ['', [Validators.required, passwordStrengthValidator({ minLength: 6 })]],
-    confirmPassword: ['', [Validators.required]]
-  }, { validators: confirmPasswordValidator('newPassword', 'confirmPassword') });
+  resendSuccessMessage = signal<string | null>(null);
+  resendErrorMessage = signal<string | null>(null);
+
+  activateForm = this.fb.nonNullable.group(
+    {
+      newPassword: ['', [Validators.required, passwordStrengthValidator({ minLength: 6 })]],
+      confirmPassword: ['', [Validators.required]]
+    },
+    { validators: confirmPasswordValidator('newPassword', 'confirmPassword') }
+  );
 
   resendForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]]
@@ -68,11 +72,32 @@ export class ActivateAccountComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const t = params['token'];
-      if (t) {
-        this.token.set(t);
+      if (t && typeof t === 'string' && t.trim().length > 0) {
+        const cleanToken = t.trim();
+        this.token.set(cleanToken);
+        this.isValidatingToken.set(true);
         this.errorMessage.set(null);
+
+        // Directly verify token validity with backend on landing
+        this.authService.verifyToken(cleanToken).subscribe({
+          next: () => {
+            this.isValidatingToken.set(false);
+            this.isTokenExpiredOrInvalid.set(false);
+          },
+          error: (err) => {
+            this.isValidatingToken.set(false);
+            this.isTokenExpiredOrInvalid.set(true);
+            const msg =
+              err.error?.message ||
+              'This activation link has expired or is invalid.';
+            this.errorMessage.set(msg);
+          }
+        });
       } else {
-        this.errorMessage.set('No activation token provided. Please check your email link or request a new one.');
+        this.token.set(null);
+        this.isValidatingToken.set(false);
+        this.isTokenExpiredOrInvalid.set(true);
+        this.errorMessage.set('The activation token is missing, expired, or invalid.');
       }
     });
   }
@@ -97,20 +122,15 @@ export class ActivateAccountComponent implements OnInit {
     this.hideConfirmPassword.update(v => !v);
   }
 
-  toggleResendForm(): void {
-
-    this.showResendForm.update(v => !v);
-    this.resendSuccessMessage.set(null);
-    this.resendErrorMessage.set(null);
-  }
-
   onSubmit(): void {
     if (this.activateForm.invalid) {
       this.activateForm.markAllAsTouched();
       return;
     }
 
-    if (!this.token()) {
+    const currentToken = this.token();
+    if (!currentToken) {
+      this.isTokenExpiredOrInvalid.set(true);
       this.errorMessage.set('Invalid or missing activation token.');
       return;
     }
@@ -118,10 +138,9 @@ export class ActivateAccountComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const tokenVal = this.token()!;
     const passwordVal = this.newPassword.value;
 
-    this.authService.activateAccount(tokenVal, passwordVal).subscribe({
+    this.authService.activateAccount(currentToken, passwordVal).subscribe({
       next: (res) => {
         this.isLoading.set(false);
         this.isActivated.set(true);
@@ -138,6 +157,16 @@ export class ActivateAccountComponent implements OnInit {
         this.isLoading.set(false);
         const msg = err.error?.message || 'Failed to activate account. The link may be expired or invalid.';
         this.errorMessage.set(msg);
+
+        // If backend returned invalid or expired token error, toggle expired view
+        if (
+          err.status === 400 ||
+          msg.toLowerCase().includes('expired') ||
+          msg.toLowerCase().includes('invalid') ||
+          msg.toLowerCase().includes('token')
+        ) {
+          this.isTokenExpiredOrInvalid.set(true);
+        }
       }
     });
   }
@@ -152,14 +181,14 @@ export class ActivateAccountComponent implements OnInit {
     this.resendSuccessMessage.set(null);
     this.resendErrorMessage.set(null);
 
-    const emailVal = this.resendEmail.value;
+    const emailVal = this.resendEmail.value.trim();
 
     this.authService.resendActivationLink(emailVal).subscribe({
       next: (res) => {
         this.isResending.set(false);
         const msg = res.message || 'A new activation link has been sent to your email.';
         this.resendSuccessMessage.set(msg);
-        this.toastr.success(msg, 'Email Sent');
+        this.toastr.success(msg, 'Activation Link Sent');
         this.resendForm.reset();
       },
       error: (err) => {
