@@ -78,7 +78,31 @@
             </span>
           </div>
 
-          @if (supplierService.isLoadingProducts()) {
+          <!-- Product Assignment Input for Admin -->
+          <div *appHasRole="Role.ADMIN" class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+            <div class="flex-1">
+              <app-select
+                [options]="availableProductOptions()"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Assign a product..."
+                [ngModel]="selectedProductToAssign()"
+                (ngModelChange)="selectedProductToAssign.set($event)"
+              ></app-select>
+            </div>
+            <button
+              type="button"
+              (click)="assignProduct()"
+              [disabled]="!selectedProductToAssign()"
+              class="inline-flex items-center gap-1 px-3 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0 cursor-pointer"
+            >
+              <ng-icon name="heroPlus" class="text-sm"></ng-icon>
+              <span>Assign</span>
+            </button>
+          </div>
+
+          <!-- Products List -->
+          @if (supplierService.isLoadingProducts() || isLoadingAllProducts()) {
             <div class="flex items-center justify-center gap-2 py-6 text-xs text-slate-500">
               <ng-icon name="heroArrowPath" class="animate-spin text-lg text-primary"></ng-icon>
               <span>Loading products...</span>
@@ -91,8 +115,19 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">
               @for (prod of supplierService.supplierProducts(); track prod.productId) {
                 <div class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
-                  <span class="text-xs font-semibold text-slate-900 truncate">{{ prod.productName }}</span>
-                  <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">ID: {{ prod.productId }}</span>
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="text-xs font-semibold text-slate-900 truncate">{{ prod.productName }}</span>
+                    <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">ID: {{ prod.productId }}</span>
+                  </div>
+                  <button
+                    *appHasRole="Role.ADMIN"
+                    type="button"
+                    (click)="removeProduct(prod)"
+                    class="text-slate-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50 ml-2 shrink-0 cursor-pointer"
+                    title="Remove product"
+                  >
+                    <ng-icon name="heroXMark" class="text-sm"></ng-icon>
+                  </button>
                 </div>
               }
             </div>

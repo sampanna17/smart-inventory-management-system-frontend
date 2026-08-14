@@ -187,5 +187,36 @@ export class SupplierService {
         })
       );
   }
+
+  assignProductToSupplier(supplierId: number, productId: number): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(PRODUCT_SUPPLIER_API.ADD(productId, supplierId), {}).pipe(
+      tap(res => {
+        if (res.success) {
+          this.toastr.success(res.message || 'Product assigned to supplier successfully');
+          this.loadSupplierProducts(supplierId);
+        }
+      }),
+      catchError(err => {
+        this.toastr.error(err.error?.message || 'Failed to assign product');
+        return throwError(() => err);
+      })
+    );
+  }
+
+  removeProductFromSupplier(supplierId: number, productId: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(PRODUCT_SUPPLIER_API.REMOVE(productId, supplierId)).pipe(
+      tap(res => {
+        if (res.success) {
+          this.toastr.success(res.message || 'Product removed from supplier successfully');
+          this.supplierProducts.update(prods => prods.filter(p => p.productId !== productId));
+          this.loadSupplierProducts(supplierId);
+        }
+      }),
+      catchError(err => {
+        this.toastr.error(err.error?.message || 'Failed to remove product');
+        return throwError(() => err);
+      })
+    );
+  }
 }
 
