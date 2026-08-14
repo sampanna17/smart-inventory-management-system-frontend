@@ -8,7 +8,7 @@
 
       <!-- Header -->
       <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4 shrink-0">
-        <h3 class="text-lg font-semibold text-slate-900">
+        <h3 class="text-lg font-medium text-slate-900">
           Sale Invoice Details
         </h3>
         <button
@@ -34,23 +34,23 @@
             <!-- Header Info Banner -->
             <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Invoice Number</span>
-                <span class="text-sm font-bold text-slate-900 font-mono">{{ sale.invoiceNumber }}</span>
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Invoice Number</span>
+                <span class="text-sm font-medium text-slate-900 font-mono">{{ sale.invoiceNumber }}</span>
               </div>
 
               <div>
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Customer</span>
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Customer</span>
                 <span class="text-sm font-medium text-slate-800">{{ sale.customerName || 'Walk-in Customer' }}</span>
               </div>
 
               <div>
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Sale Date</span>
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Sale Date</span>
                 <app-date-time [date]="sale.saleDate" mode="date-time" layout="stacked"></app-date-time>
               </div>
 
               <div>
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Status</span>
-                <span class="inline-flex items-center px-2 py-0.5 mt-0.5 rounded-full text-xs font-bold"
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Status</span>
+                <span class="inline-flex items-center px-2 py-0.5 mt-0.5 rounded-full text-xs font-medium"
                       [ngClass]="{
                         'bg-emerald-100 text-emerald-800': sale.status === SaleStatus.COMPLETED,
                         'bg-amber-100 text-amber-800': sale.status === SaleStatus.REFUNDED,
@@ -63,10 +63,10 @@
 
             <!-- Line Items Table -->
             <div>
-              <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Purchased Products</h4>
+              <h4 class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Purchased Products</h4>
               <div class="overflow-x-auto border border-slate-200 rounded-xl">
                 <table class="min-w-full divide-y divide-slate-200">
-                  <thead class="bg-slate-50 text-xs font-semibold text-slate-500 uppercase">
+                  <thead class="bg-slate-50 text-xs font-medium text-slate-500 uppercase">
                     <tr>
                       <th class="px-4 py-2.5 text-left">Product</th>
                       <th class="px-4 py-2.5 text-center">Quantity</th>
@@ -81,7 +81,7 @@
                           <td class="px-4 py-3 font-medium text-slate-900">{{ item.productName }}</td>
                           <td class="px-4 py-3 text-center text-slate-700">{{ item.quantity }}</td>
                           <td class="px-4 py-3 text-right text-slate-600">{{ item.unitPrice | nprCurrency }}</td>
-                          <td class="px-4 py-3 text-right font-bold text-slate-900">{{ item.subTotal | nprCurrency }}</td>
+                          <td class="px-4 py-3 text-right font-medium text-slate-900">{{ item.subTotal | nprCurrency }}</td>
                         </tr>
                       }
                     } @else {
@@ -105,7 +105,7 @@
         @let sale = saleDetail() || saleSummary()!;
         <div class="border-t border-slate-200 px-6 py-4 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
           <div>
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Grand Total</span>
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Grand Total</span>
             <span class="text-2xl font-black text-primary">{{ sale.totalAmount | nprCurrency }}</span>
           </div>
 

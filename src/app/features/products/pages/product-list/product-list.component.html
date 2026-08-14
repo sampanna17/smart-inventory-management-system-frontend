@@ -18,7 +18,7 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Total Products</span>
-        <span class="text-xl font-bold text-slate-900">{{ totalProductsCount() }}</span>
+        <span class="text-xl font-medium text-slate-900">{{ totalProductsCount() }}</span>
       </div>
     </div>
 
@@ -29,7 +29,7 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Current Page Inventory Value</span>
-        <span class="text-xl font-bold text-slate-900">{{ totalInventoryValue() | nprCurrency:true:'NPR':0 }}</span>
+        <span class="text-xl font-medium text-slate-900">{{ totalInventoryValue() | nprCurrency:true:'NPR':0 }}</span>
       </div>
     </div>
 
@@ -40,7 +40,7 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Low Stock Alerts</span>
-        <span class="text-xl font-bold" [ngClass]="lowStockAlertsCount() > 0 ? 'text-amber-600' : 'text-slate-900'">
+        <span class="text-xl font-medium" [ngClass]="lowStockAlertsCount() > 0 ? 'text-amber-600' : 'text-slate-900'">
           {{ lowStockAlertsCount() }}
         </span>
       </div>
@@ -53,7 +53,7 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Categories</span>
-        <span class="text-xl font-bold text-slate-900">{{ categoriesCount() }}</span>
+        <span class="text-xl font-medium text-slate-900">{{ categoriesCount() }}</span>
       </div>
     </div>
   </div>
@@ -67,19 +67,19 @@
       <!-- Search Input & Filters -->
       <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3 flex-1">
         <!-- Search Input -->
-        <div class="relative min-w-[220px] flex-1 w-full sm:w-auto">
+        <div class="relative min-w-55 flex-1 w-full sm:w-auto">
           <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base z-10 pointer-events-none"></ng-icon>
           <input
             type="text"
             [ngModel]="searchQuery()"
             (ngModelChange)="onSearchInput($event)"
             placeholder="Search by name, category, or unit..."
-            class="w-full pl-9 pr-4 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-[38px]"
+            class="w-full pl-9 pr-4 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-9.5"
           />
         </div>
 
         <!-- Category Dropdown Filter -->
-        <div class="shrink-0 min-w-[170px] w-full sm:w-auto">
+        <div class="shrink-0 min-w-42.5 w-full sm:w-auto">
           <app-select
             [options]="categoryOptions()"
             [ngModel]="selectedCategoryId()"
@@ -89,7 +89,7 @@
         </div>
 
         <!-- Stock Status Filter -->
-        <div class="shrink-0 min-w-[160px] w-full sm:w-auto">
+        <div class="shrink-0 min-w-40 w-full sm:w-auto">
           <app-select
             [options]="stockStatusOptions"
             [ngModel]="stockStatusFilter()"
@@ -99,7 +99,7 @@
         </div>
 
         <!-- Sort By Dropdown -->
-        <div class="shrink-0 min-w-[160px] w-full sm:w-auto flex items-center gap-1.5">
+        <div class="shrink-0 min-w-40 w-full sm:w-auto flex items-center gap-1.5">
           <div class="flex-1">
             <app-select
               [options]="sortOptions"
@@ -111,7 +111,7 @@
           <button
             type="button"
             (click)="toggleSortOrder()"
-            class="p-2 bg-white border border-slate-300 rounded-lg hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-colors shadow-sm cursor-pointer min-h-[38px] flex items-center justify-center shrink-0"
+            class="p-2 bg-white border border-slate-300 rounded-lg hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-colors shadow-sm cursor-pointer min-h-9.5 flex items-center justify-center shrink-0"
             [title]="sortOrder() === 'asc' ? 'Sort Ascending' : 'Sort Descending'"
           >
             @if (sortOrder() === 'asc') {
@@ -174,12 +174,12 @@
           <table class="min-w-full divide-y divide-slate-200">
             <thead class="bg-slate-50">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Product</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Category</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Price (Cost / Sell)</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Stock Level</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Unit</th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Product</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden sm:table-cell">Category</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Price (Cost / Sell)</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Stock Level</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden md:table-cell">Unit</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-slate-200">
@@ -204,7 +204,7 @@
 
                   <!-- Category -->
                   <td class="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-slate-100 text-slate-700">
                       {{ product.categoryName || '-' }}
                     </span>
                   </td>
@@ -218,7 +218,7 @@
                   <!-- Stock Status -->
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center gap-2">
-                      <span class="text-sm font-semibold" [ngClass]="{'text-red-600': product.stockQuantity <= product.reorderLevel, 'text-slate-900': product.stockQuantity > product.reorderLevel}">
+                      <span class="text-sm font-medium" [ngClass]="{'text-red-600': product.stockQuantity <= product.reorderLevel, 'text-slate-900': product.stockQuantity > product.reorderLevel}">
                         {{ product.stockQuantity }}
                       </span>
 
@@ -284,37 +284,37 @@
                   }
 
                   <!-- Category Overlay Badge -->
-                  <span class="absolute top-2 left-2 px-2 py-0.5 bg-slate-900/70 backdrop-blur-sm text-white text-[10px] font-semibold rounded-md">
+                  <span class="absolute top-2 left-2 px-2 py-0.5 bg-slate-900/70 backdrop-blur-sm text-white text-[10px] font-medium rounded-md">
                     {{ product.categoryName || 'General' }}
                   </span>
 
                   <!-- Stock Status Overlay -->
                   @if (product.stockQuantity <= 0) {
-                    <span class="absolute top-2 right-2 px-2 py-0.5 bg-red-600 text-white text-[10px] font-semibold rounded-md shadow">Out of stock</span>
+                    <span class="absolute top-2 right-2 px-2 py-0.5 bg-red-600 text-white text-[10px] font-medium rounded-md shadow">Out of stock</span>
                   } @else if (product.stockQuantity <= product.reorderLevel) {
-                    <span class="absolute top-2 right-2 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-semibold rounded-md shadow">Low Stock</span>
+                    <span class="absolute top-2 right-2 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-medium rounded-md shadow">Low Stock</span>
                   }
                 </div>
 
                 <!-- Product Body Info -->
                 <div class="p-4 space-y-2">
-                  <h4 class="text-base font-semibold text-slate-900 truncate" [title]="product.productName">
+                  <h4 class="text-base font-medium text-slate-900 truncate" [title]="product.productName">
                     {{ product.productName }}
                   </h4>
 
                   <div class="flex items-center justify-between text-xs">
                     <span class="text-slate-500">Unit: {{ product.unitName || '-' }}</span>
-                    <span class="font-semibold text-slate-700">Stock: {{ product.stockQuantity }}</span>
+                    <span class="font-medium text-slate-700">Stock: {{ product.stockQuantity }}</span>
                   </div>
 
                   <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
                     <div>
                       <span class="text-[10px] text-slate-400 block uppercase">Price</span>
-                      <span class="text-base font-semibold text-primary">{{ product.sellingPrice | nprCurrency }}</span>
+                      <span class="text-base font-medium text-primary">{{ product.sellingPrice | nprCurrency }}</span>
                     </div>
                     <div class="text-right">
                       <span class="text-[10px] text-slate-400 block uppercase">Cost</span>
-                      <span class="text-xs font-semibold text-slate-600">{{ product.costPrice | nprCurrency }}</span>
+                      <span class="text-xs font-medium text-slate-600">{{ product.costPrice | nprCurrency }}</span>
                     </div>
                   </div>
                 </div>
@@ -324,7 +324,7 @@
               <div class="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
                 <button
                   (click)="openDetailModal(product)"
-                  class="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-primary transition-colors cursor-pointer"
+                  class="inline-flex items-center gap-1 text-xs font-medium text-slate-700 hover:text-primary transition-colors cursor-pointer"
                 >
                   <ng-icon name="heroEye" class="text-sm"></ng-icon>
                   Details
@@ -363,7 +363,7 @@
           [showFirstLastButtons]="true"
           (page)="onPageChange($event)"
           aria-label="Select page of products"
-          class="!bg-transparent"
+          class=""
         >
         </mat-paginator>
       </div>
