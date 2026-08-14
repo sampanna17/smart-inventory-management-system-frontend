@@ -124,6 +124,12 @@ export class AuthService {
     return this.http.post<ApiResponse<void>>(AUTH_API.RESEND_ACTIVATE, { email });
   }
 
+  verifyToken(token: string): Observable<ApiResponse<void>> {
+    return this.http.get<ApiResponse<void>>(AUTH_API.VERIFY_TOKEN, {
+      params: { token }
+    });
+  }
+
   private decodeToken(token: string | undefined): any {
     if (!token) return null;
     try {

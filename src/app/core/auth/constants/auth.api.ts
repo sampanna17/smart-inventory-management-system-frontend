@@ -10,4 +10,5 @@ export const AUTH_API = {
   RESET_PASSWORD: `${BASE}/reset-password`,
   ACTIVATE: `${BASE}/activate`,
   RESEND_ACTIVATE: `${BASE}/resend-activation`,
+  VERIFY_TOKEN: `${BASE}/verify-token`,
 } as const;

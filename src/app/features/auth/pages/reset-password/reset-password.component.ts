@@ -52,6 +52,7 @@ export class ResetPasswordComponent implements OnInit {
   private toastr = inject(ToastrService);
   private authService = inject(AuthService);
 
+  isValidatingToken = signal(true);
   isLoading = signal(false);
   isResending = signal(false);
   isResetSuccess = signal(false);
@@ -82,11 +83,29 @@ export class ResetPasswordComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       const t = params['token'];
       if (t && typeof t === 'string' && t.trim().length > 0) {
-        this.token.set(t.trim());
-        this.isTokenExpiredOrInvalid.set(false);
+        const cleanToken = t.trim();
+        this.token.set(cleanToken);
+        this.isValidatingToken.set(true);
         this.errorMessage.set(null);
+
+        // Directly verify token validity with backend on landing
+        this.authService.verifyToken(cleanToken).subscribe({
+          next: () => {
+            this.isValidatingToken.set(false);
+            this.isTokenExpiredOrInvalid.set(false);
+          },
+          error: (err) => {
+            this.isValidatingToken.set(false);
+            this.isTokenExpiredOrInvalid.set(true);
+            const msg =
+              err.error?.message ||
+              'This password reset link has expired or is invalid.';
+            this.errorMessage.set(msg);
+          }
+        });
       } else {
         this.token.set(null);
+        this.isValidatingToken.set(false);
         this.isTokenExpiredOrInvalid.set(true);
         this.errorMessage.set('The password reset token is missing, expired, or invalid.');
       }
@@ -149,7 +168,7 @@ export class ResetPasswordComponent implements OnInit {
         const msg = err.error?.message || 'Failed to reset password. The link may be expired or invalid.';
         this.errorMessage.set(msg);
 
-        // If backend returned invalid or expired token error, toggle expired view
+        // If backend returned invalid or expired token error, immediately switch to expired view
         if (
           err.status === 400 ||
           msg.toLowerCase().includes('expired') ||
