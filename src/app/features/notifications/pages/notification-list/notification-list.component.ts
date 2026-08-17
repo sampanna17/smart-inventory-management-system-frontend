@@ -17,11 +17,13 @@ import {
 import { NotificationService } from '../../services/notification.service';
 import { WebSocketService } from '../../../../core/websocket/websocket.service';
 import { NotificationItem, NotificationType } from '../../../../core/models/notification.model';
+import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
 import { RelativeTimePipe } from '../../../../shared/pipes/relative-time.pipe';
 
 @Component({
@@ -29,12 +31,14 @@ import { RelativeTimePipe } from '../../../../shared/pipes/relative-time.pipe';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     NgIconComponent,
     PageHeaderComponent,
     SkeletonLoaderComponent,
     EmptyStateComponent,
     ErrorStateComponent,
     ConfirmDialogComponent,
+    CustomSelectComponent,
     RelativeTimePipe,
   ],
   viewProviders: [
@@ -115,8 +119,7 @@ export class NotificationListComponent implements OnInit {
     this.statusFilter.set(status);
   }
 
-  onTypeFilterChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value as NotificationType | 'all';
+  onTypeFilterChange(value: NotificationType | 'all'): void {
     this.typeFilter.set(value);
   }
 
