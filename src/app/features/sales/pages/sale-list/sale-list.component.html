@@ -18,7 +18,7 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Sales</p>
-        <h3 class="text-xl font-semibold text-slate-900 mt-0.5">{{ totalSalesCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ totalSalesCount() }}</h3>
       </div>
     </div>
 
@@ -29,7 +29,7 @@
       </div>
       <div>
         <p class="text-xs font-mdeium text-slate-500 uppercase tracking-wider">Completed Revenue</p>
-        <h3 class="text-xl font-semibold text-slate-900 mt-0.5">{{ totalRevenue() | nprCurrency }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ totalRevenue() | nprCurrency }}</h3>
       </div>
     </div>
 
@@ -40,7 +40,7 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Completed Invoices</p>
-        <h3 class="text-xl font-semibold text-slate-900 mt-0.5">{{ completedSalesCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ completedSalesCount() }}</h3>
       </div>
     </div>
 
@@ -51,7 +51,7 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Refunded Orders</p>
-        <h3 class="text-xl font-semibold text-slate-900 mt-0.5">{{ refundedSalesCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ refundedSalesCount() }}</h3>
       </div>
     </div>
   </div>
@@ -69,7 +69,7 @@
           [ngModel]="searchQuery()"
           (ngModelChange)="onSearchInput($event)"
           placeholder="Search by invoice #, customer..."
-          class="w-full pl-9 pr-10 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-[38px]"
+          class="w-full pl-9 pr-10 py-2 text-sm text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm min-h-9.5"
         />
         @if (searchQuery()) {
           <button
@@ -129,7 +129,7 @@
         <button
           type="button"
           (click)="toggleSortOrder()"
-          class="p-2 bg-white border border-slate-300 rounded-lg hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-colors shadow-sm cursor-pointer min-h-[38px] flex items-center justify-center shrink-0"
+          class="p-2 bg-white border border-slate-300 rounded-lg hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-colors shadow-sm cursor-pointer min-h-9.5 flex items-center justify-center shrink-0"
           [title]="sortOrder() === 'asc' ? 'Sort Ascending' : 'Sort Descending'"
         >
           @if (sortOrder() === 'asc') {
@@ -169,20 +169,20 @@
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Invoice #</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Sale Date</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Served By</th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Amount</th>
-              <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Invoice #</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Customer</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden sm:table-cell">Sale Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden md:table-cell">Served By</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Total Amount</th>
+              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-slate-200">
             @for (s of sales(); track s.saleId) {
               <tr class="hover:bg-slate-50 transition-colors">
                 <!-- Invoice Number -->
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 font-mono">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 font-mono">
                   {{ s.invoiceNumber }}
                 </td>
 
@@ -237,7 +237,7 @@
                         class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-wait"
                         title="Edit Sale">
                         @if (isFetchingDetail() && selectedSale()?.saleId === s.saleId) {
-                          <div class="w-[18px] h-[18px] border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                          <div class="w-4.5 h-4.5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
                         } @else {
                           <ng-icon name="heroPencilSquare" class="text-lg"></ng-icon>
                         }

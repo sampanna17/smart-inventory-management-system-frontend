@@ -34,11 +34,15 @@
     <div class="flex items-center gap-x-4 lg:gap-x-6">
 
       <!-- Notifications -->
-      <button type="button" class="-m-2.5 p-2.5 text-muted hover:text-primary transition-colors relative">
+      <button type="button" class="-m-2.5 p-2.5 text-muted hover:text-primary transition-colors relative" title="Notifications">
         <span class="sr-only">View notifications</span>
         <ng-icon name="heroBell" class="text-2xl"></ng-icon>
-        <!-- Badge -->
-        <span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-danger ring-2 ring-surface"></span>
+        <!-- Dynamic Unread Badge -->
+        @if (unreadCount() > 0) {
+          <span class="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white ring-2 ring-surface animate-pulse">
+            {{ unreadCount() > 99 ? '99+' : unreadCount() }}
+          </span>
+        }
       </button>
 
       <!-- Separator -->
