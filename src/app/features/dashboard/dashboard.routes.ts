@@ -94,6 +94,15 @@ export const DASHBOARD_ROUTES: Routes = [
       ),
   },
   {
+    path: 'notifications',
+    canActivate: [roleGuard],
+    data: { roles: [Role.ADMIN, Role.STAFF] },
+    loadChildren: () =>
+      import('../notifications/notifications.routes').then(
+        (m) => m.NOTIFICATIONS_ROUTES
+      ),
+  },
+  {
     path: 'users',
     canActivate: [roleGuard],
     data: { roles: [Role.ADMIN] },

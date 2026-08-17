@@ -173,6 +173,14 @@ export class WebSocketService implements OnDestroy {
   }
 
   /**
+   * Clears all in-memory notification state.
+   */
+  clearNotifications(): void {
+    this.notifications.set([]);
+    this.unreadCount.set(0);
+  }
+
+  /**
    * Disconnects and deactivates the STOMP client.
    */
   disconnect(): void {
