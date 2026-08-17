@@ -10,6 +10,7 @@ import {
   heroUser
 } from '@ng-icons/heroicons/outline';
 import { AuthService } from '../../auth/services/auth.service';
+import { WebSocketService } from '../../websocket/websocket.service';
 
 @Component({
   selector: 'app-navbar',
@@ -24,7 +25,11 @@ import { AuthService } from '../../auth/services/auth.service';
 export class NavbarComponent {
   toggleSidebar = output<void>();
   private authService = inject(AuthService);
+  private webSocketService = inject(WebSocketService);
+
   currentUser = this.authService.currentUser;
+  unreadCount = this.webSocketService.unreadCount;
+  isSocketConnected = this.webSocketService.isConnected;
 
   onToggle(): void {
     this.toggleSidebar.emit();
