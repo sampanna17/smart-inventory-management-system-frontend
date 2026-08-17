@@ -89,19 +89,13 @@
       <!-- Right: Type Filter + Mark All Read -->
       <div class="flex items-center gap-3">
         <!-- Type Filter -->
-        <div class="relative">
-          <select
-            [value]="typeFilter()"
-            (change)="onTypeFilterChange($event)"
-            class="appearance-none pl-3 pr-8 py-2 text-sm text-slate-700 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm cursor-pointer"
-          >
-            @for (option of typeOptions; track option.value) {
-              <option [value]="option.value">{{ option.label }}</option>
-            }
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-            <ng-icon name="heroFunnel" class="text-sm text-slate-400"></ng-icon>
-          </div>
+        <div class="w-48 shrink-0">
+          <app-select
+            [options]="typeOptions"
+            [ngModel]="typeFilter()"
+            (ngModelChange)="onTypeFilterChange($event)"
+            placeholder="Filter by type"
+          ></app-select>
         </div>
 
         <!-- Mark All Read Button -->

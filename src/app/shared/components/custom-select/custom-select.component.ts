@@ -7,6 +7,9 @@ import { heroChevronDown, heroMagnifyingGlass, heroCheck } from '@ng-icons/heroi
 @Component({
   selector: 'app-select',
   standalone: true,
+  host: {
+    class: 'block w-full'
+  },
   imports: [CommonModule, FormsModule, NgIconComponent],
   viewProviders: [provideIcons({ heroChevronDown, heroMagnifyingGlass, heroCheck })],
   providers: [
