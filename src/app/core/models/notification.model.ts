@@ -3,10 +3,11 @@ export type NotificationType =
   | 'OUT_OF_STOCK'
   | 'STAFF_ACCOUNT_CREATED'
   | 'ORDER_PLACED'
+  | 'REPORT'
   | 'GENERAL';
 
 export interface NotificationItem {
-  notificationId: number;
+  notificationID: number;
   userID: number;
   title: string;
   message: string;
