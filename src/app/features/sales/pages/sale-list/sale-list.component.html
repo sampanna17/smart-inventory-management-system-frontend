@@ -18,7 +18,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Sales</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ totalSalesCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (saleService.isLoading() && totalSalesCount() === 0) {
+            <span class="inline-block w-10 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ totalSalesCount() }}
+          }
+        </h3>
       </div>
     </div>
 
@@ -28,8 +34,14 @@
         <ng-icon name="heroBanknotes" class="text-2xl"></ng-icon>
       </div>
       <div>
-        <p class="text-xs font-mdeium text-slate-500 uppercase tracking-wider">Completed Revenue</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ totalRevenue() | nprCurrency }}</h3>
+        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Completed Revenue</p>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (saleService.isLoading() && totalRevenue() === 0) {
+            <span class="inline-block w-24 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ totalRevenue() | nprCurrency }}
+          }
+        </h3>
       </div>
     </div>
 
@@ -40,7 +52,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Completed Invoices</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ completedSalesCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (saleService.isLoading() && completedSalesCount() === 0) {
+            <span class="inline-block w-10 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ completedSalesCount() }}
+          }
+        </h3>
       </div>
     </div>
 
@@ -51,7 +69,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Refunded Orders</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ refundedSalesCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (saleService.isLoading() && refundedSalesCount() === 0) {
+            <span class="inline-block w-8 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ refundedSalesCount() }}
+          }
+        </h3>
       </div>
     </div>
   </div>
@@ -144,17 +168,17 @@
     <!-- Data Table / Loading / Error / Empty States -->
     @if (saleService.isLoading()) {
       <div class="p-6">
-        <app-skeleton-loader type="table"></app-skeleton-loader>
+        <app-skeleton-loader type="table" [rows]="6"></app-skeleton-loader>
       </div>
     } @else if (saleService.error()) {
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-error-state
           [message]="saleService.error()!"
           (retry)="loadSales()"
         ></app-error-state>
       </div>
     } @else if (sales().length === 0) {
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-empty-state
           title="No sales orders found"
           message="No sales match your search criteria. Create your first sales transaction."
@@ -165,7 +189,7 @@
       </div>
     } @else {
       <!-- Table -->
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto animate-fade-in">
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
             <tr>

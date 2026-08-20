@@ -55,11 +55,11 @@
     <!-- Loading State -->
     @if (customerService.isLoading()) {
       <div class="p-6">
-        <app-skeleton-loader type="table"></app-skeleton-loader>
+        <app-skeleton-loader type="table" [rows]="5"></app-skeleton-loader>
       </div>
     } @else if (customerService.error()) {
       <!-- Error State -->
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-error-state
           [message]="customerService.error()!"
           (retry)="loadCustomers()"
@@ -67,7 +67,7 @@
       </div>
     } @else if (customers().length === 0) {
       <!-- Empty State -->
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-empty-state
           title="No customers found"
           message="No customers match your search. Get started by adding a new customer."
@@ -77,7 +77,7 @@
       </div>
     } @else {
       <!-- Data Table -->
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto animate-fade-in">
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
             <tr>

@@ -85,11 +85,11 @@
     <!-- Loading State -->
     @if (userService.isLoading()) {
       <div class="p-6">
-        <app-skeleton-loader type="table"></app-skeleton-loader>
+        <app-skeleton-loader type="table" [rows]="5"></app-skeleton-loader>
       </div>
     } @else if (userService.error()) {
       <!-- Error State -->
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-error-state
           [message]="userService.error()!"
           (retry)="loadUsers()"
@@ -97,7 +97,7 @@
       </div>
     } @else if (users().length === 0) {
       <!-- Empty State -->
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-empty-state
           title="No users found"
           message="No users match your filter criteria. Try resetting your search or filters."
@@ -108,7 +108,7 @@
       </div>
     } @else {
       <!-- Data Table -->
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto animate-fade-in">
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
             <tr>

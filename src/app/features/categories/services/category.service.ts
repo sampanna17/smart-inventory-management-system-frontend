@@ -32,7 +32,10 @@ export class CategoryService {
   isSubmitting = signal<boolean>(false);
   error = signal<string | null>(null);
 
-  loadCategories(params?: CategoryFilterParams): void {
+  loadCategories(params?: CategoryFilterParams, force: boolean = false): void {
+    if (!force && !params && this.categories().length > 0) {
+      return;
+    }
     this.isLoading.set(true);
     this.error.set(null);
 

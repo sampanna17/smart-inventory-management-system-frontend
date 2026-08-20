@@ -55,11 +55,11 @@
     <!-- Loading State -->
     @if (categoryService.isLoading()) {
       <div class="p-6">
-        <app-skeleton-loader type="table"></app-skeleton-loader>
+        <app-skeleton-loader type="table" [rows]="5"></app-skeleton-loader>
       </div>
     } @else if (categoryService.error()) {
       <!-- Error State -->
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-error-state
           [message]="categoryService.error()!"
           (retry)="loadCategories()"
@@ -67,7 +67,7 @@
       </div>
     } @else if (categories().length === 0) {
       <!-- Empty State -->
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-empty-state
           title="No categories found"
           message="No categories match your search. Get started by creating a new category."
@@ -77,7 +77,7 @@
       </div>
     } @else {
       <!-- Data Table -->
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto animate-fade-in">
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
             <tr>

@@ -32,7 +32,10 @@ export class UnitService {
   isSubmitting = signal<boolean>(false);
   error = signal<string | null>(null);
 
-  loadUnits(params?: UnitFilterParams): void {
+  loadUnits(params?: UnitFilterParams, force: boolean = false): void {
+    if (!force && !params && this.units().length > 0) {
+      return;
+    }
     this.isLoading.set(true);
     this.error.set(null);
 

@@ -18,7 +18,9 @@
 
     <!-- Page Content Area -->
     <main class="flex-1 overflow-y-auto bg-background p-4 sm:p-6 lg:p-8 custom-scrollbar">
-      <router-outlet></router-outlet>
+      <div class="animate-page-enter min-h-full">
+        <router-outlet></router-outlet>
+      </div>
     </main>
 
   </div>

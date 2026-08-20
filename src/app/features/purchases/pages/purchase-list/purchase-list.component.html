@@ -18,7 +18,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Purchases</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ totalPurchasesCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (purchaseService.isLoading() && totalPurchasesCount() === 0) {
+            <span class="inline-block w-10 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ totalPurchasesCount() }}
+          }
+        </h3>
       </div>
     </div>
 
@@ -29,7 +35,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Amount Spent</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ totalSpentAmount() | nprCurrency }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (purchaseService.isLoading() && totalSpentAmount() === 0) {
+            <span class="inline-block w-24 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ totalSpentAmount() | nprCurrency }}
+          }
+        </h3>
       </div>
     </div>
 
@@ -40,7 +52,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Received Orders</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ receivedPurchasesCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (purchaseService.isLoading() && receivedPurchasesCount() === 0) {
+            <span class="inline-block w-10 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ receivedPurchasesCount() }}
+          }
+        </h3>
       </div>
     </div>
 
@@ -51,7 +69,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Pending Orders</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ pendingPurchasesCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (purchaseService.isLoading() && pendingPurchasesCount() === 0) {
+            <span class="inline-block w-8 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ pendingPurchasesCount() }}
+          }
+        </h3>
       </div>
     </div>
   </div>
@@ -144,17 +168,17 @@
     <!-- Data Table / Loading / Error / Empty States -->
     @if (purchaseService.isLoading()) {
       <div class="p-6">
-        <app-skeleton-loader type="table"></app-skeleton-loader>
+        <app-skeleton-loader type="table" [rows]="6"></app-skeleton-loader>
       </div>
     } @else if (purchaseService.error()) {
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-error-state
           [message]="purchaseService.error()!"
           (retry)="loadPurchases()"
         ></app-error-state>
       </div>
     } @else if (purchases().length === 0) {
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-empty-state
           title="No purchase orders found"
           message="No purchase orders match your criteria. Get started by creating your first purchase order."
@@ -165,7 +189,7 @@
       </div>
     } @else {
       <!-- Table -->
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto animate-fade-in">
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
             <tr>

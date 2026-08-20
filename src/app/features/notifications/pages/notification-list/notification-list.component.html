@@ -19,7 +19,13 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Total</span>
-        <span class="text-xl font-medium text-slate-900">{{ totalCount() }}</span>
+        <span class="text-xl font-medium text-slate-900">
+          @if (notificationService.isLoading() && totalCount() === 0) {
+            <span class="inline-block w-10 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ totalCount() }}
+          }
+        </span>
       </div>
     </div>
 
@@ -31,7 +37,11 @@
       <div>
         <span class="text-xs font-medium text-slate-500 block">Unread</span>
         <span class="text-xl font-medium" [ngClass]="unreadCount() > 0 ? 'text-primary' : 'text-slate-900'">
-          {{ unreadCount() }}
+          @if (notificationService.isLoading() && unreadCount() === 0) {
+            <span class="inline-block w-8 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ unreadCount() }}
+          }
         </span>
       </div>
     </div>
@@ -44,7 +54,11 @@
       <div>
         <span class="text-xs font-medium text-slate-500 block">Stock Alerts</span>
         <span class="text-xl font-medium" [ngClass]="stockAlertCount() > 0 ? 'text-amber-600' : 'text-slate-900'">
-          {{ stockAlertCount() }}
+          @if (notificationService.isLoading() && stockAlertCount() === 0) {
+            <span class="inline-block w-8 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ stockAlertCount() }}
+          }
         </span>
       </div>
     </div>
@@ -71,11 +85,6 @@
           class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
         >
           Unread
-          @if (unreadCount() > 0) {
-            <span class="ml-1 inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-primary/10 text-primary text-[10px] font-semibold">
-              {{ unreadCount() }}
-            </span>
-          }
         </button>
         <button
           (click)="onStatusFilterChange('read')"
@@ -114,28 +123,26 @@
     <!-- Content Area -->
     @if (notificationService.isLoading()) {
       <div class="p-6">
-        <app-skeleton-loader type="table"></app-skeleton-loader>
+        <app-skeleton-loader type="table" [rows]="5"></app-skeleton-loader>
       </div>
     } @else if (notificationService.error()) {
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-error-state
           [message]="notificationService.error()!"
           (retry)="notificationService.loadNotifications()"
         ></app-error-state>
       </div>
     } @else if (filteredNotifications().length === 0) {
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-empty-state
           title="No notifications"
-          [message]="statusFilter() !== 'all' || typeFilter() !== 'all'
-            ? 'No notifications match your current filters. Try adjusting them.'
-            : 'You have no notifications yet. Notifications will appear here when there are stock alerts, account updates, or system events.'"
+          message="You're all caught up! No notifications match your filter."
           icon="heroBell"
         ></app-empty-state>
       </div>
     } @else {
       <!-- Notification List -->
-      <div class="divide-y divide-slate-100">
+      <div class="divide-y divide-slate-100 animate-fade-in">
         @for (notification of filteredNotifications(); track notification.notificationID) {
           <div
             class="flex items-start gap-4 px-4 sm:px-6 py-4 transition-all group border-l-[3px]"

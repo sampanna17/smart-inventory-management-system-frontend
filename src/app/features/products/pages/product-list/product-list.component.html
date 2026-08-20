@@ -18,7 +18,13 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Total Products</span>
-        <span class="text-xl font-medium text-slate-900">{{ totalProductsCount() }}</span>
+        <span class="text-xl font-medium text-slate-900">
+          @if (productService.isLoading() && totalProductsCount() === 0) {
+            <span class="inline-block w-10 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ totalProductsCount() }}
+          }
+        </span>
       </div>
     </div>
 
@@ -29,7 +35,13 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Current Page Inventory Value</span>
-        <span class="text-xl font-medium text-slate-900">{{ totalInventoryValue() | nprCurrency:true:'NPR':0 }}</span>
+        <span class="text-xl font-medium text-slate-900">
+          @if (productService.isLoading() && totalInventoryValue() === 0) {
+            <span class="inline-block w-20 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ totalInventoryValue() | nprCurrency:true:'NPR':0 }}
+          }
+        </span>
       </div>
     </div>
 
@@ -41,7 +53,11 @@
       <div>
         <span class="text-xs font-medium text-slate-500 block">Low Stock Alerts</span>
         <span class="text-xl font-medium" [ngClass]="lowStockAlertsCount() > 0 ? 'text-amber-600' : 'text-slate-900'">
-          {{ lowStockAlertsCount() }}
+          @if (productService.isLoading() && lowStockAlertsCount() === 0) {
+            <span class="inline-block w-8 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ lowStockAlertsCount() }}
+          }
         </span>
       </div>
     </div>
@@ -53,7 +69,13 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Categories</span>
-        <span class="text-xl font-medium text-slate-900">{{ categoriesCount() }}</span>
+        <span class="text-xl font-medium text-slate-900">
+          @if (categoryService.isLoading() && categoriesCount() === 0) {
+            <span class="inline-block w-8 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ categoriesCount() }}
+          }
+        </span>
       </div>
     </div>
   </div>
@@ -148,17 +170,17 @@
     <!-- Content Area: Loading / Error / Empty / Data -->
     @if (productService.isLoading()) {
       <div class="p-6">
-        <app-skeleton-loader type="table"></app-skeleton-loader>
+        <app-skeleton-loader type="table" [rows]="6"></app-skeleton-loader>
       </div>
     } @else if (productService.error()) {
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-error-state
           [message]="productService.error()!"
           (retry)="loadData()"
         ></app-error-state>
       </div>
     } @else if (products().length === 0) {
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-empty-state
           title="No products found"
           message="No products match your criteria. Try adjusting your search query or filters."
@@ -170,7 +192,7 @@
 
       <!-- VIEW MODE 1: Table View -->
       @if (viewMode() === 'table') {
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto animate-fade-in">
           <table class="min-w-full divide-y divide-slate-200">
             <thead class="bg-slate-50">
               <tr>
@@ -271,7 +293,7 @@
 
       <!-- VIEW MODE 2: Grid View -->
       @if (viewMode() === 'grid') {
-        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in">
           @for (product of products(); track product.productId) {
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between group">
               <!-- Thumbnail & Badges Header -->
