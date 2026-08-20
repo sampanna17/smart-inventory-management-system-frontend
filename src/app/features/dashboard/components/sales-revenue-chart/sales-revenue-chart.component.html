@@ -7,7 +7,7 @@
         <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
           <ng-icon name="heroArrowTrendingUp" class="text-lg"></ng-icon>
         </div>
-        <h2 class="text-lg font-bold text-heading">7-Day Sales & Revenue Trend</h2>
+        <h2 class="text-lg font-semibold text-heading">7-Day Sales & Revenue Trend</h2>
       </div>
       <p class="text-xs text-muted mt-1">Daily revenue and order volume for the past week</p>
     </div>
@@ -44,21 +44,21 @@
   <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 my-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
     <div>
       <p class="text-2xs uppercase tracking-wider font-semibold text-slate-400">7-Day Total Revenue</p>
-      <p class="text-sm sm:text-base font-bold text-heading mt-0.5">
+      <p class="text-sm sm:text-base font-semibold text-heading mt-0.5">
         {{ total7DayRevenue() | nprCurrency:true:'NPR':2 }}
       </p>
     </div>
 
     <div>
-      <p class="text-2xs uppercase tracking-wider font-semibold text-slate-400">7-Day Total Orders</p>
-      <p class="text-sm sm:text-base font-bold text-heading mt-0.5">
+      <p class="text-2xs uppercase tracking-wider font-semisemibold text-slate-400">7-Day Total Orders</p>
+      <p class="text-sm sm:text-base font-semibold text-heading mt-0.5">
         {{ total7DayOrders() | number }} Orders
       </p>
     </div>
 
     <div class="col-span-2 sm:col-span-1">
       <p class="text-2xs uppercase tracking-wider font-semibold text-slate-400">Daily Average</p>
-      <p class="text-sm sm:text-base font-bold text-heading mt-0.5">
+      <p class="text-sm sm:text-base font-semibold text-heading mt-0.5">
         {{ dailyAverage() | nprCurrency:true:'NPR':0 }} / day
       </p>
     </div>
@@ -87,7 +87,7 @@
             @if (hoveredIndex() === idx) {
               <div class="absolute -top-14 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs py-1.5 px-3 rounded-lg shadow-xl whitespace-nowrap z-20 pointer-events-none animate-fadeIn">
                 <p class="font-semibold text-slate-200">{{ formatFullDate(point.period) }}</p>
-                <p class="font-bold text-amber-300">
+                <p class="font-semibold text-amber-300">
                   {{ point.amount | nprCurrency:true:'NPR':2 }}
                 </p>
                 <p class="text-2xs text-slate-300">{{ point.count }} completed sale(s)</p>

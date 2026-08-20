@@ -7,7 +7,7 @@
         <ng-icon name="heroTrophy" class="text-lg"></ng-icon>
       </div>
       <div>
-        <h2 class="text-lg font-bold text-heading">Top Performing Products</h2>
+        <h2 class="text-lg font-semibold text-heading">Top Performing Products</h2>
         <p class="text-xs text-muted">Best sellers ranked by sales volume</p>
       </div>
     </div>
@@ -50,7 +50,7 @@
 
             <!-- Total Revenue -->
             <div class="text-right shrink-0">
-              <span class="text-sm font-bold text-heading">
+              <span class="text-sm font-semibold text-heading">
                 {{ product.totalRevenue | nprCurrency:true:'NPR':2 }}
               </span>
             </div>
@@ -93,7 +93,7 @@
         <ng-icon name="heroSparkles" class="text-amber-500 text-sm"></ng-icon>
         Top Leader: {{ products()[0]?.productName }}
       </span>
-      <span class="font-bold text-emerald-600">
+      <span class="font-semibold text-emerald-600">
         {{ totalTopRevenue() | nprCurrency:true:'NPR':0 }} total
       </span>
     </div>
