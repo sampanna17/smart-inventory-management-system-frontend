@@ -17,8 +17,8 @@
   }"
 >
   <!-- Logo Section -->
-  <div class="flex h-16 shrink-0 items-center justify-center border-b border-white/10 px-4 overflow-hidden">
-    <div class="flex items-center gap-3 w-full overflow-hidden" [ngClass]="{'justify-center': isCollapsed()}">
+  <div class="flex h-16 shrink-0 items-center border-b border-white/10 px-6 overflow-hidden">
+    <div class="flex items-center gap-3 overflow-hidden">
       <img
         ngSrc="/SIMS_LOGO.png"
         width="1024"
@@ -27,7 +27,7 @@
         class="h-8 w-auto shrink-0 object-contain"
       />
       <span class="text-xl font-bold tracking-tight text-white transition-opacity duration-300 truncate"
-            [ngClass]="{'hidden opacity-0': isCollapsed(), 'block opacity-100': !isCollapsed()}">
+            [ngClass]="{'opacity-0 pointer-events-none': isCollapsed(), 'opacity-100': !isCollapsed()}">
         SIMS
       </span>
     </div>
@@ -42,21 +42,23 @@
           routerLinkActive="bg-primary text-white font-medium"
           [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
           class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-white overflow-hidden"
-          [ngClass]="{ 'justify-center px-0': isCollapsed() }"
+          [title]="isCollapsed() ? item.label : ''"
         >
-          <ng-icon
-            [name]="item.icon"
-            class="shrink-0 text-xl">
-          </ng-icon>
+          <div class="w-6 h-6 flex items-center justify-center shrink-0">
+            <ng-icon
+              [name]="item.icon"
+              class="text-xl">
+            </ng-icon>
+          </div>
 
           <span
             class="whitespace-nowrap transition-opacity duration-300 truncate"
             [ngClass]="{
-        'hidden opacity-0': isCollapsed(),
-        'block opacity-100': !isCollapsed()
-      }">
-      {{ item.label }}
-    </span>
+              'opacity-0 pointer-events-none': isCollapsed(),
+              'opacity-100': !isCollapsed()
+            }">
+            {{ item.label }}
+          </span>
         </a>
       }
     </nav>
@@ -69,23 +71,27 @@
         routerLink="/dashboard/profile"
         routerLinkActive="bg-primary text-white font-medium"
         class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-white overflow-hidden"
-        [ngClass]="{'justify-center px-0': isCollapsed()}"
+        [title]="isCollapsed() ? 'Settings' : ''"
       >
-        <ng-icon name="heroCog6Tooth" class="text-xl shrink-0"></ng-icon>
+        <div class="w-6 h-6 flex items-center justify-center shrink-0">
+          <ng-icon name="heroCog6Tooth" class="text-xl"></ng-icon>
+        </div>
         <span class="transition-opacity duration-300 whitespace-nowrap truncate"
-              [ngClass]="{'hidden opacity-0': isCollapsed(), 'block opacity-100': !isCollapsed()}">
+              [ngClass]="{'opacity-0 pointer-events-none': isCollapsed(), 'opacity-100': !isCollapsed()}">
           Settings
         </span>
       </a>
 
       <button
         (click)="logout()"
-        class="w-full group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-red-500/10 hover:text-red-400 overflow-hidden"
-        [ngClass]="{'justify-center px-0': isCollapsed()}"
+        class="w-full group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-red-500/10 hover:text-red-400 overflow-hidden cursor-pointer"
+        [title]="isCollapsed() ? 'Logout' : ''"
       >
-        <ng-icon name="heroArrowLeftOnRectangle" class="text-xl shrink-0"></ng-icon>
+        <div class="w-6 h-6 flex items-center justify-center shrink-0">
+          <ng-icon name="heroArrowLeftOnRectangle" class="text-xl"></ng-icon>
+        </div>
         <span class="transition-opacity duration-300 whitespace-nowrap truncate"
-              [ngClass]="{'hidden opacity-0': isCollapsed(), 'block opacity-100': !isCollapsed()}">
+              [ngClass]="{'opacity-0 pointer-events-none': isCollapsed(), 'opacity-100': !isCollapsed()}">
           Logout
         </span>
       </button>
