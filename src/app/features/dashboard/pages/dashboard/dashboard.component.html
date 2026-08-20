@@ -1,0 +1,83 @@
+<div class="space-y-6">
+  
+  <!-- 1. Loading State: Skeleton Shimmer -->
+  @if (dashboardService.isLoading()) {
+    <div class="space-y-6">
+      <!-- Header Skeleton -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs animate-pulse">
+        <div class="h-6 bg-slate-200 rounded-md w-48 mb-3"></div>
+        <div class="h-8 bg-slate-200 rounded-md w-72 mb-2"></div>
+        <div class="h-4 bg-slate-200 rounded-md w-96"></div>
+      </div>
+
+      <!-- KPI Cards Grid Skeleton (3x2 Grid) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs animate-pulse">
+            <div class="w-12 h-12 rounded-xl bg-slate-200 mb-4"></div>
+            <div class="h-3 bg-slate-200 rounded w-20 mb-2"></div>
+            <div class="h-7 bg-slate-200 rounded w-28"></div>
+          </div>
+        }
+      </div>
+
+      <!-- Visual / Charts & Tables Skeleton -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs animate-pulse h-80">
+          <div class="h-6 bg-slate-200 rounded w-48 mb-4"></div>
+          <div class="h-48 bg-slate-100 rounded-xl"></div>
+        </div>
+        <div class="lg:col-span-1 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs animate-pulse h-80">
+          <div class="h-6 bg-slate-200 rounded w-48 mb-4"></div>
+          <div class="space-y-3">
+            <div class="h-10 bg-slate-100 rounded-lg"></div>
+            <div class="h-10 bg-slate-100 rounded-lg"></div>
+            <div class="h-10 bg-slate-100 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 2. Error State with Retry Button -->
+  @else if (dashboardService.hasError()) {
+    <app-error-state
+      title="Unable to Load Dashboard"
+      [message]="dashboardService.errorMessage() || 'Could not retrieve dashboard metrics from the server.'"
+      retryLabel="Reload Dashboard"
+      (retry)="loadData()"
+    ></app-error-state>
+  }
+
+  <!-- 3. Admin Dashboard View -->
+  @else if (isAdmin() && dashboardService.adminData()) {
+    <app-admin-dashboard
+      [data]="dashboardService.adminData()!"
+      [isRefreshing]="dashboardService.isRefreshing()"
+      [lastUpdated]="dashboardService.lastUpdated()"
+      (refresh)="refreshData()"
+    ></app-admin-dashboard>
+  }
+
+  <!-- 4. Staff Dashboard View -->
+  @else if (isStaff() && dashboardService.staffData()) {
+    <app-staff-dashboard
+      [data]="dashboardService.staffData()!"
+      [isRefreshing]="dashboardService.isRefreshing()"
+      [lastUpdated]="dashboardService.lastUpdated()"
+      (refresh)="refreshData()"
+    ></app-staff-dashboard>
+  }
+
+  <!-- 5. Fallback Empty / Unauthorized State -->
+  @else {
+    <app-empty-state
+      title="No Dashboard Data Available"
+      message="Please ensure your account has active permissions or try refreshing."
+      actionLabel="Refresh Page"
+      [showAction]="true"
+      (action)="loadData()"
+    ></app-empty-state>
+  }
+
+</div>

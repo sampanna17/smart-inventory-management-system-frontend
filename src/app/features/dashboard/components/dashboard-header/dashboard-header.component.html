@@ -1,0 +1,96 @@
+<div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs mb-6">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+    
+    <!-- Left: User Greeting & Meta -->
+    <div class="space-y-2">
+      <div class="flex flex-wrap items-center gap-2.5">
+        <span
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+          [ngClass]="{
+            'bg-primary/10 text-primary border border-primary/20': currentUser()?.role === Role.ADMIN,
+            'bg-blue-50 text-blue-700 border border-blue-200': currentUser()?.role === Role.STAFF
+          }"
+        >
+          <ng-icon
+            [name]="currentUser()?.role === Role.ADMIN ? 'heroShieldCheck' : 'heroIdentification'"
+            class="text-sm"
+          ></ng-icon>
+          {{ currentUser()?.role || 'User' }} Portal
+        </span>
+
+        <span class="inline-flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200/60">
+          <ng-icon name="heroCalendarDays" class="text-slate-400"></ng-icon>
+          {{ todayDateFormatted() }}
+        </span>
+
+        @if (lastUpdated()) {
+          <span class="inline-flex items-center gap-1 text-xs text-slate-400">
+            <ng-icon name="heroClock" class="text-xs"></ng-icon>
+            Updated {{ lastUpdated() | date:'shortTime' }}
+          </span>
+        }
+      </div>
+
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-heading tracking-tight">
+          {{ greeting() }}, {{ currentUser()?.fullName || 'User' }}!
+        </h1>
+        <p class="text-sm text-muted mt-0.5">
+          @if (currentUser()?.role === Role.ADMIN) {
+            Here is your live inventory, sales, and supply chain performance overview.
+          } @else {
+            Here is your daily sales, product metrics, and notification center.
+          }
+        </p>
+      </div>
+    </div>
+
+    <!-- Right: Actions & Refresh -->
+    <div class="flex flex-wrap items-center gap-2.5 sm:self-auto">
+      <!-- Refresh Button -->
+      <button
+        type="button"
+        (click)="refresh.emit()"
+        [disabled]="isRefreshing()"
+        class="inline-flex items-center justify-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 border border-slate-200 rounded-xl transition-all disabled:opacity-60 cursor-pointer shadow-2xs"
+        title="Refresh dashboard data"
+      >
+        <ng-icon
+          name="heroArrowPath"
+          class="text-base transition-transform"
+          [class.animate-spin]="isRefreshing()"
+        ></ng-icon>
+        <span class="hidden sm:inline">Refresh</span>
+      </button>
+
+      <!-- Role-based Quick Action: New Sale -->
+      <a
+        routerLink="/dashboard/sales"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark active:bg-primary-dark/90 rounded-xl transition-all shadow-xs cursor-pointer"
+      >
+        <ng-icon name="heroPlus" class="text-base font-bold"></ng-icon>
+        <span>New Sale</span>
+      </a>
+
+      <!-- Admin Quick Action: New Purchase -->
+      @if (currentUser()?.role === Role.ADMIN) {
+        <a
+          routerLink="/dashboard/purchases"
+          class="inline-flex items-center justify-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl transition-all cursor-pointer shadow-2xs"
+        >
+          <ng-icon name="heroTruck" class="text-base text-slate-500"></ng-icon>
+          <span class="hidden md:inline">Purchases</span>
+        </a>
+
+        <a
+          routerLink="/dashboard/products"
+          class="inline-flex items-center justify-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl transition-all cursor-pointer shadow-2xs"
+        >
+          <ng-icon name="heroArchiveBox" class="text-base text-slate-500"></ng-icon>
+          <span class="hidden md:inline">Products</span>
+        </a>
+      }
+    </div>
+
+  </div>
+</div>

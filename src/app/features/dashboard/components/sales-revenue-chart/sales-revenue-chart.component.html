@@ -1,0 +1,131 @@
+<div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs h-full flex flex-col justify-between">
+  
+  <!-- Top Header & Mode Toggle -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+    <div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+          <ng-icon name="heroArrowTrendingUp" class="text-lg"></ng-icon>
+        </div>
+        <h2 class="text-lg font-bold text-heading">7-Day Sales & Revenue Trend</h2>
+      </div>
+      <p class="text-xs text-muted mt-1">Daily revenue and order volume for the past week</p>
+    </div>
+
+    <!-- Mode Toggle Tabs -->
+    <div class="flex items-center bg-slate-100 p-1 rounded-xl self-start sm:self-auto border border-slate-200/60">
+      <button
+        type="button"
+        (click)="activeMode.set('revenue')"
+        class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer"
+        [ngClass]="{
+          'bg-white text-heading shadow-xs': activeMode() === 'revenue',
+          'text-slate-500 hover:text-slate-900': activeMode() !== 'revenue'
+        }"
+      >
+        Revenue (NPR)
+      </button>
+
+      <button
+        type="button"
+        (click)="activeMode.set('orders')"
+        class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer"
+        [ngClass]="{
+          'bg-white text-heading shadow-xs': activeMode() === 'orders',
+          'text-slate-500 hover:text-slate-900': activeMode() !== 'orders'
+        }"
+      >
+        Order Volume
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Metrics Summary Bar -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 my-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
+    <div>
+      <p class="text-2xs uppercase tracking-wider font-semibold text-slate-400">7-Day Total Revenue</p>
+      <p class="text-sm sm:text-base font-bold text-heading mt-0.5">
+        {{ total7DayRevenue() | nprCurrency:true:'NPR':2 }}
+      </p>
+    </div>
+
+    <div>
+      <p class="text-2xs uppercase tracking-wider font-semibold text-slate-400">7-Day Total Orders</p>
+      <p class="text-sm sm:text-base font-bold text-heading mt-0.5">
+        {{ total7DayOrders() | number }} Orders
+      </p>
+    </div>
+
+    <div class="col-span-2 sm:col-span-1">
+      <p class="text-2xs uppercase tracking-wider font-semibold text-slate-400">Daily Average</p>
+      <p class="text-sm sm:text-base font-bold text-heading mt-0.5">
+        {{ dailyAverage() | nprCurrency:true:'NPR':0 }} / day
+      </p>
+    </div>
+  </div>
+
+  <!-- Chart Display Area -->
+  @if (chartPoints().length > 0) {
+    <div class="relative pt-6 pb-2">
+      
+      <!-- Y-Axis Reference Guide Lines -->
+      <div class="absolute inset-x-0 top-6 bottom-10 flex flex-col justify-between pointer-events-none opacity-30">
+        <div class="border-b border-dashed border-slate-300 w-full"></div>
+        <div class="border-b border-dashed border-slate-300 w-full"></div>
+        <div class="border-b border-slate-200 w-full"></div>
+      </div>
+
+      <!-- Interactive Bar Columns -->
+      <div class="grid grid-cols-7 gap-2 sm:gap-4 items-end h-48 relative z-10">
+        @for (point of chartPoints(); track point.period; let idx = $index) {
+          <div
+            class="group relative flex flex-col items-center h-full justify-end"
+            (mouseenter)="hoveredIndex.set(idx)"
+            (mouseleave)="hoveredIndex.set(null)"
+          >
+            <!-- Floating Tooltip on Hover -->
+            @if (hoveredIndex() === idx) {
+              <div class="absolute -top-14 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs py-1.5 px-3 rounded-lg shadow-xl whitespace-nowrap z-20 pointer-events-none animate-fadeIn">
+                <p class="font-semibold text-slate-200">{{ formatFullDate(point.period) }}</p>
+                <p class="font-bold text-amber-300">
+                  {{ point.amount | nprCurrency:true:'NPR':2 }}
+                </p>
+                <p class="text-2xs text-slate-300">{{ point.count }} completed sale(s)</p>
+                <!-- Tooltip Arrow -->
+                <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 border-solid border-t-slate-900 border-t-4 border-x-transparent border-x-4 border-b-0"></div>
+              </div>
+            }
+
+            <!-- Bar Column Fill -->
+            <div class="w-full max-w-[42px] bg-slate-100 rounded-t-xl overflow-hidden flex flex-col justify-end h-full">
+              <div
+                class="w-full rounded-t-xl transition-all duration-300 group-hover:brightness-110"
+                [ngClass]="{
+                  'bg-primary': activeMode() === 'revenue',
+                  'bg-emerald-600': activeMode() === 'orders'
+                }"
+                [style.height.%]="getBarHeightPercent(point)"
+              ></div>
+            </div>
+
+            <!-- X-Axis Label -->
+            <div class="mt-3 text-center">
+              <span class="block text-xs font-semibold text-slate-700">
+                {{ formatDayName(point.period) }}
+              </span>
+              <span class="block text-2xs text-slate-400">
+                {{ formatShortDate(point.period) }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400">
+      <ng-icon name="heroChartBar" class="text-4xl mb-2 text-slate-300"></ng-icon>
+      <p class="text-sm font-medium">No sales trend recorded for the past 7 days</p>
+    </div>
+  }
+
+</div>

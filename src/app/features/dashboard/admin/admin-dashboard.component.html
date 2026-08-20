@@ -1,0 +1,109 @@
+<div class="space-y-6">
+  
+  <!-- 1. Header with Greetings, Date, Actions & Refresh -->
+  <app-dashboard-header
+    [isRefreshing]="isRefreshing()"
+    [lastUpdated]="lastUpdated()"
+    (refresh)="refresh.emit()"
+  ></app-dashboard-header>
+
+  <!-- 2. Primary KPI Metric Cards (3x2 Grid Layout) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    
+    <!-- 1. Total Revenue -->
+    <app-kpi-card
+      title="Total Revenue"
+      [value]="data().summary.totalRevenue"
+      [isCurrency]="true"
+      icon="heroCurrencyDollar"
+      variant="primary"
+      subtitle="Lifetime completed sales revenue"
+      route="/dashboard/sales"
+    ></app-kpi-card>
+
+    <!-- 2. Total Sales Orders -->
+    <app-kpi-card
+      title="Sales Orders"
+      [value]="data().summary.totalSales"
+      icon="heroShoppingCart"
+      variant="success"
+      subtitle="Completed customer orders"
+      route="/dashboard/sales"
+    ></app-kpi-card>
+
+    <!-- 3. Total Purchase Orders -->
+    <app-kpi-card
+      title="Purchase Orders"
+      [value]="data().summary.totalPurchases"
+      icon="heroTruck"
+      variant="info"
+      subtitle="Supplier inventory procurements"
+      route="/dashboard/purchases"
+    ></app-kpi-card>
+
+    <!-- 4. Total Catalog Products -->
+    <app-kpi-card
+      title="Total Products"
+      [value]="data().summary.totalProducts"
+      icon="heroArchiveBox"
+      variant="slate"
+      subtitle="Active items in inventory catalog"
+      route="/dashboard/products"
+    ></app-kpi-card>
+
+    <!-- 5. Low Stock Alert -->
+    <app-kpi-card
+      title="Low Stock Alert"
+      [value]="data().summary.lowStockProducts"
+      icon="heroExclamationTriangle"
+      variant="warning"
+      [alert]="data().summary.lowStockProducts > 0"
+      [badge]="data().summary.lowStockProducts > 0 ? (data().summary.lowStockProducts + ' items') : 'Optimal'"
+      [badgeType]="data().summary.lowStockProducts > 0 ? 'warning' : 'success'"
+      subtitle="Inventory below reorder threshold"
+      route="/dashboard/products"
+    ></app-kpi-card>
+
+    <!-- 6. Out of Stock Alert -->
+    <app-kpi-card
+      title="Out of Stock Alert"
+      [value]="data().summary.outOfStockProducts"
+      icon="heroExclamationCircle"
+      variant="danger"
+      [alert]="data().summary.outOfStockProducts > 0"
+      [badge]="data().summary.outOfStockProducts > 0 ? (data().summary.outOfStockProducts + ' items') : 'None'"
+      [badgeType]="data().summary.outOfStockProducts > 0 ? 'danger' : 'success'"
+      subtitle="Zero available units in stock"
+      route="/dashboard/products"
+    ></app-kpi-card>
+
+  </div>
+
+  <!-- 3. Visual Analytics & Leaderboard Section (2-column layout on lg+) -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- 7-Day Trend Chart (Takes 2 cols on lg) -->
+    <div class="lg:col-span-2">
+      <app-sales-revenue-chart
+        [salesTrend]="data().charts.salesTrend"
+        [revenueTrend]="data().charts.revenueTrend"
+      ></app-sales-revenue-chart>
+    </div>
+
+    <!-- Top Selling Products Leaderboard (Takes 1 col on lg) -->
+    <div class="lg:col-span-1">
+      <app-top-products
+        [products]="data().topSellingProducts"
+      ></app-top-products>
+    </div>
+
+  </div>
+
+  <!-- 4. Recent Business Activity Tabs (Sales, Purchases, Stock Movements) -->
+  <app-recent-activities
+    [recentSales]="data().recentActivities.recentSales"
+    [recentPurchases]="data().recentActivities.recentPurchases"
+    [recentStockMovements]="data().recentActivities.recentStockMovements"
+  ></app-recent-activities>
+
+</div>

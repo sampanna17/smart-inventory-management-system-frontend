@@ -1,0 +1,274 @@
+<div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+  
+  <!-- Card Header & Navigation Tabs -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 mb-5">
+    <div>
+      <h2 class="text-lg font-bold text-heading">Recent Business Activity</h2>
+      <p class="text-xs text-muted">Latest sales transactions, supplier purchases, and warehouse movements</p>
+    </div>
+
+    <!-- Activity Tabs -->
+    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/60 self-start sm:self-auto">
+      <button
+        type="button"
+        (click)="activeTab.set('sales')"
+        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer"
+        [ngClass]="{
+          'bg-white text-heading shadow-xs': activeTab() === 'sales',
+          'text-slate-500 hover:text-slate-900': activeTab() !== 'sales'
+        }"
+      >
+        <ng-icon name="heroShoppingCart" class="text-sm"></ng-icon>
+        Sales ({{ recentSales().length }})
+      </button>
+
+      <button
+        type="button"
+        (click)="activeTab.set('purchases')"
+        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer"
+        [ngClass]="{
+          'bg-white text-heading shadow-xs': activeTab() === 'purchases',
+          'text-slate-500 hover:text-slate-900': activeTab() !== 'purchases'
+        }"
+      >
+        <ng-icon name="heroTruck" class="text-sm"></ng-icon>
+        Purchases ({{ recentPurchases().length }})
+      </button>
+
+      <button
+        type="button"
+        (click)="activeTab.set('movements')"
+        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer"
+        [ngClass]="{
+          'bg-white text-heading shadow-xs': activeTab() === 'movements',
+          'text-slate-500 hover:text-slate-900': activeTab() !== 'movements'
+        }"
+      >
+        <ng-icon name="heroArrowsRightLeft" class="text-sm"></ng-icon>
+        Stock Movements ({{ recentStockMovements().length }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Content Area -->
+  
+  <!-- 1. Recent Sales Tab -->
+  @if (activeTab() === 'sales') {
+    @if (recentSales().length > 0) {
+      <div class="overflow-x-auto -mx-6 px-6">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-100 text-2xs font-bold uppercase tracking-wider text-slate-400">
+              <th class="pb-3 pr-4">Invoice #</th>
+              <th class="pb-3 px-4">Customer</th>
+              <th class="pb-3 px-4">Date</th>
+              <th class="pb-3 px-4">Recorded By</th>
+              <th class="pb-3 px-4 text-right">Amount</th>
+              <th class="pb-3 pl-4 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-sm">
+            @for (sale of recentSales(); track sale.saleId) {
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="py-3 pr-4 font-semibold text-slate-900">
+                  {{ sale.invoiceNumber || ('#' + sale.saleId) }}
+                </td>
+                <td class="py-3 px-4 text-slate-700">
+                  {{ sale.customerName || 'Walk-in Customer' }}
+                </td>
+                <td class="py-3 px-4 text-slate-500 text-xs">
+                  {{ (sale.saleDate || sale.createdAt) | date:'mediumDate' }}
+                </td>
+                <td class="py-3 px-4 text-slate-500 text-xs">
+                  <span class="inline-flex items-center gap-1">
+                    <ng-icon name="heroUser" class="text-slate-400 text-xs"></ng-icon>
+                    {{ sale.userName || 'System' }}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right font-bold text-heading">
+                  {{ sale.totalAmount | nprCurrency:true:'NPR':2 }}
+                </td>
+                <td class="py-3 pl-4 text-center">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    [ngClass]="{
+                      'bg-emerald-100 text-emerald-800': sale.status === SaleStatus.COMPLETED,
+                      'bg-rose-100 text-rose-800': sale.status === SaleStatus.CANCELLED,
+                      'bg-amber-100 text-amber-800': sale.status === SaleStatus.REFUNDED
+                    }"
+                  >
+                    {{ sale.status }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+        <a
+          routerLink="/dashboard/sales"
+          class="text-xs font-semibold text-primary hover:text-primary-dark flex items-center gap-1 transition-colors"
+        >
+          View Full Sales Register
+          <ng-icon name="heroArrowRight" class="text-xs"></ng-icon>
+        </a>
+      </div>
+    } @else {
+      <div class="py-10 text-center text-slate-400">
+        <ng-icon name="heroShoppingCart" class="text-3xl mb-1 text-slate-300"></ng-icon>
+        <p class="text-sm font-medium">No sales recorded yet</p>
+      </div>
+    }
+  }
+
+  <!-- 2. Recent Purchases Tab -->
+  @if (activeTab() === 'purchases') {
+    @if (recentPurchases().length > 0) {
+      <div class="overflow-x-auto -mx-6 px-6">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-100 text-2xs font-bold uppercase tracking-wider text-slate-400">
+              <th class="pb-3 pr-4">Purchase #</th>
+              <th class="pb-3 px-4">Supplier</th>
+              <th class="pb-3 px-4">Date</th>
+              <th class="pb-3 px-4">Created By</th>
+              <th class="pb-3 px-4 text-right">Total Amount</th>
+              <th class="pb-3 pl-4 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-sm">
+            @for (purchase of recentPurchases(); track purchase.purchaseId) {
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="py-3 pr-4 font-semibold text-slate-900">
+                  {{ purchase.purchaseNumber || ('#' + purchase.purchaseId) }}
+                </td>
+                <td class="py-3 px-4 text-slate-700">
+                  {{ purchase.supplierName || 'General Supplier' }}
+                </td>
+                <td class="py-3 px-4 text-slate-500 text-xs">
+                  {{ purchase.purchaseDate | date:'mediumDate' }}
+                </td>
+                <td class="py-3 px-4 text-slate-500 text-xs">
+                  <span class="inline-flex items-center gap-1">
+                    <ng-icon name="heroUser" class="text-slate-400 text-xs"></ng-icon>
+                    {{ purchase.userName || 'Admin' }}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right font-bold text-heading">
+                  {{ purchase.totalAmount | nprCurrency:true:'NPR':2 }}
+                </td>
+                <td class="py-3 pl-4 text-center">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    [ngClass]="{
+                      'bg-emerald-100 text-emerald-800': purchase.status === PurchaseStatus.RECEIVED,
+                      'bg-blue-100 text-blue-800': purchase.status === PurchaseStatus.PENDING,
+                      'bg-rose-100 text-rose-800': purchase.status === PurchaseStatus.CANCELLED
+                    }"
+                  >
+                    {{ purchase.status }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+        <a
+          routerLink="/dashboard/purchases"
+          class="text-xs font-semibold text-primary hover:text-primary-dark flex items-center gap-1 transition-colors"
+        >
+          View Full Purchases Register
+          <ng-icon name="heroArrowRight" class="text-xs"></ng-icon>
+        </a>
+      </div>
+    } @else {
+      <div class="py-10 text-center text-slate-400">
+        <ng-icon name="heroTruck" class="text-3xl mb-1 text-slate-300"></ng-icon>
+        <p class="text-sm font-medium">No purchase orders recorded yet</p>
+      </div>
+    }
+  }
+
+  <!-- 3. Recent Stock Movements Tab -->
+  @if (activeTab() === 'movements') {
+    @if (recentStockMovements().length > 0) {
+      <div class="overflow-x-auto -mx-6 px-6">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-100 text-2xs font-bold uppercase tracking-wider text-slate-400">
+              <th class="pb-3 pr-4">Product Name</th>
+              <th class="pb-3 px-4">Type</th>
+              <th class="pb-3 px-4">Quantity</th>
+              <th class="pb-3 px-4">Date</th>
+              <th class="pb-3 px-4">Logged By</th>
+              <th class="pb-3 pl-4">Remarks</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-sm">
+            @for (movement of recentStockMovements(); track movement.movementId) {
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="py-3 pr-4 font-semibold text-slate-900">
+                  {{ movement.productName }}
+                </td>
+                <td class="py-3 px-4">
+                  <span
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    [ngClass]="{
+                      'bg-emerald-100 text-emerald-800': movement.movementType === MovementType.PURCHASE,
+                      'bg-amber-100 text-amber-800': movement.movementType === MovementType.SALE,
+                      'bg-blue-100 text-blue-800': movement.movementType === MovementType.ADJUSTMENT,
+                      'bg-purple-100 text-purple-800': movement.movementType === MovementType.RETURN
+                    }"
+                  >
+                    @if (movement.movementType === MovementType.PURCHASE || movement.movementType === MovementType.RETURN) {
+                      <ng-icon name="heroArrowTrendingUp" class="text-xs"></ng-icon>
+                    } @else {
+                      <ng-icon name="heroArrowTrendingDown" class="text-xs"></ng-icon>
+                    }
+                    {{ movement.movementType }}
+                  </span>
+                </td>
+                <td class="py-3 px-4 font-bold" [ngClass]="{
+                  'text-emerald-600': movement.movementType === MovementType.PURCHASE || movement.movementType === MovementType.RETURN,
+                  'text-amber-600': movement.movementType === MovementType.SALE
+                }">
+                  {{ (movement.movementType === MovementType.PURCHASE || movement.movementType === MovementType.RETURN) ? '+' : '-' }}{{ movement.quantity | number }}
+                </td>
+                <td class="py-3 px-4 text-slate-500 text-xs">
+                  {{ movement.movementDate | date:'mediumDate' }}
+                </td>
+                <td class="py-3 px-4 text-slate-500 text-xs">
+                  {{ movement.userName || 'System' }}
+                </td>
+                <td class="py-3 pl-4 text-slate-500 text-xs truncate max-w-xs">
+                  {{ movement.remarks || '-' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+        <a
+          routerLink="/dashboard/stock-movement"
+          class="text-xs font-semibold text-primary hover:text-primary-dark flex items-center gap-1 transition-colors"
+        >
+          View Full Stock Log
+          <ng-icon name="heroArrowRight" class="text-xs"></ng-icon>
+        </a>
+      </div>
+    } @else {
+      <div class="py-10 text-center text-slate-400">
+        <ng-icon name="heroArrowsRightLeft" class="text-3xl mb-1 text-slate-300"></ng-icon>
+        <p class="text-sm font-medium">No stock movements recorded yet</p>
+      </div>
+    }
+  }
+
+</div>

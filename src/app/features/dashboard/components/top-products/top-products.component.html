@@ -1,0 +1,102 @@
+<div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs h-full flex flex-col justify-between">
+  
+  <!-- Top Header -->
+  <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+        <ng-icon name="heroTrophy" class="text-lg"></ng-icon>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold text-heading">Top Performing Products</h2>
+        <p class="text-xs text-muted">Best sellers ranked by sales volume</p>
+      </div>
+    </div>
+
+    <a
+      routerLink="/dashboard/products"
+      class="text-xs font-semibold text-primary hover:text-primary-dark flex items-center gap-1 transition-colors"
+    >
+      View All
+      <ng-icon name="heroArrowRight" class="text-xs"></ng-icon>
+    </a>
+  </div>
+
+  <!-- Ranked List -->
+  @if (products().length > 0) {
+    <div class="space-y-4 flex-1">
+      @for (product of products(); track product.productId; let idx = $index) {
+        <div class="group p-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all">
+          
+          <div class="flex items-center justify-between gap-3 mb-1.5">
+            
+            <!-- Rank Medal & Product Name -->
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span
+                class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0"
+                [ngClass]="{
+                  'bg-amber-100 text-amber-800 border border-amber-300': idx === 0,
+                  'bg-slate-200 text-slate-700 border border-slate-300': idx === 1,
+                  'bg-amber-700/15 text-amber-900 border border-amber-700/30': idx === 2,
+                  'bg-slate-100 text-slate-500': idx > 2
+                }"
+              >
+                {{ idx + 1 }}
+              </span>
+
+              <span class="text-sm font-semibold text-slate-900 truncate group-hover:text-primary transition-colors">
+                {{ product.productName }}
+              </span>
+            </div>
+
+            <!-- Total Revenue -->
+            <div class="text-right shrink-0">
+              <span class="text-sm font-bold text-heading">
+                {{ product.totalRevenue | nprCurrency:true:'NPR':2 }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Progress Bar & Quantity -->
+          <div class="flex items-center gap-3">
+            <div class="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div
+                class="h-full rounded-full transition-all duration-500"
+                [ngClass]="{
+                  'bg-primary': idx === 0,
+                  'bg-amber-500': idx === 1,
+                  'bg-slate-500': idx > 1
+                }"
+                [style.width.%]="getProgressPercent(product.totalQuantitySold)"
+              ></div>
+            </div>
+
+            <span class="text-xs font-medium text-slate-500 whitespace-nowrap">
+              {{ product.totalQuantitySold | number }} units
+            </span>
+          </div>
+
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400">
+      <ng-icon name="heroArchiveBox" class="text-4xl mb-2 text-slate-300"></ng-icon>
+      <p class="text-sm font-medium">No sales recorded yet</p>
+      <p class="text-xs text-slate-400 mt-0.5">Top-selling items will appear once sales are completed</p>
+    </div>
+  }
+
+  <!-- Bottom Card Insight -->
+  @if (products().length > 0) {
+    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+      <span class="flex items-center gap-1 text-slate-600 font-medium">
+        <ng-icon name="heroSparkles" class="text-amber-500 text-sm"></ng-icon>
+        Top Leader: {{ products()[0]?.productName }}
+      </span>
+      <span class="font-bold text-emerald-600">
+        {{ totalTopRevenue() | nprCurrency:true:'NPR':0 }} total
+      </span>
+    </div>
+  }
+
+</div>

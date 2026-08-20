@@ -1,33 +1,49 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { Role } from '../../../../core/auth/enums/role.enum';
+import { DashboardService } from '../../services/dashboard.service';
+import { AdminDashboardComponent } from '../../admin/admin-dashboard.component';
+import { StaffDashboardComponent } from '../../staff/staff-dashboard.component';
+import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader.component';
+import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
-  template: `
-    <div class="space-y-6">
-      <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm max-w-2xl">
-        @if (currentUser()?.role) {
-          <span class="inline-block bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4">
-            {{ currentUser()?.role }}
-          </span>
-        }
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">
-          Welcome, {{ currentUser()?.fullName || 'User' }}!
-        </h1>
-        <p class="text-slate-500 text-base leading-relaxed">
-          Welcome to the Smart Inventory Management System (SIMS). Use the navigation sidebar to manage products, sales, purchases, and track stock movements.
-        </p>
-      </div>
-    </div>
-  `
+  imports: [
+    CommonModule,
+    AdminDashboardComponent,
+    StaffDashboardComponent,
+    ErrorStateComponent,
+    EmptyStateComponent
+  ],
+  templateUrl: './dashboard.component.html'
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
+  dashboardService = inject(DashboardService);
 
   currentUser = this.authService.currentUser;
-}
+  isAdmin = computed(() => this.currentUser()?.role === Role.ADMIN);
+  isStaff = computed(() => this.currentUser()?.role === Role.STAFF);
 
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
+    const role = this.currentUser()?.role;
+    if (role === Role.ADMIN) {
+      this.dashboardService.loadAdminDashboard();
+    } else if (role === Role.STAFF) {
+      this.dashboardService.loadStaffDashboard();
+    }
+  }
+
+  refreshData(): void {
+    const role = this.currentUser()?.role || null;
+    this.dashboardService.refreshDashboard(role);
+  }
+}
