@@ -18,7 +18,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Records</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ totalMovementsCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (stockMovementService.isLoading() && totalMovementsCount() === 0) {
+            <span class="inline-block w-10 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ totalMovementsCount() }}
+          }
+        </h3>
       </div>
     </div>
 
@@ -29,7 +35,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Page Inflow (Units)</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">+{{ inflowTotal() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (stockMovementService.isLoading() && inflowTotal() === 0) {
+            <span class="inline-block w-12 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            +{{ inflowTotal() }}
+          }
+        </h3>
       </div>
     </div>
 
@@ -40,7 +52,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Page Outflow (Units)</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">-{{ outflowTotal() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (stockMovementService.isLoading() && outflowTotal() === 0) {
+            <span class="inline-block w-12 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            -{{ outflowTotal() }}
+          }
+        </h3>
       </div>
     </div>
 
@@ -51,7 +69,13 @@
       </div>
       <div>
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Adjustments</p>
-        <h3 class="text-xl font-medium text-slate-900 mt-0.5">{{ adjustmentsCount() }}</h3>
+        <h3 class="text-xl font-medium text-slate-900 mt-0.5">
+          @if (stockMovementService.isLoading() && adjustmentsCount() === 0) {
+            <span class="inline-block w-8 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ adjustmentsCount() }}
+          }
+        </h3>
       </div>
     </div>
   </div>
@@ -122,17 +146,17 @@
     <!-- Data Table / Loading / Error / Empty States -->
     @if (stockMovementService.isLoading()) {
       <div class="p-6">
-        <app-skeleton-loader type="table"></app-skeleton-loader>
+        <app-skeleton-loader type="table" [rows]="6"></app-skeleton-loader>
       </div>
     } @else if (stockMovementService.error()) {
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-error-state
           [message]="stockMovementService.error()!"
           (retry)="loadMovements()"
         ></app-error-state>
       </div>
     } @else if (movements().length === 0) {
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-empty-state
           title="No stock movements found"
           message="No stock audit or movement records match your search criteria. Record your first movement."
@@ -143,7 +167,7 @@
       </div>
     } @else {
       <!-- Table -->
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto animate-fade-in">
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
             <tr>

@@ -18,7 +18,13 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Total Suppliers</span>
-        <span class="text-xl font-medium text-slate-900">{{ totalSuppliersCount() }}</span>
+        <span class="text-xl font-medium text-slate-900">
+          @if (supplierService.isLoading() && totalSuppliersCount() === 0) {
+            <span class="inline-block w-10 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ totalSuppliersCount() }}
+          }
+        </span>
       </div>
     </div>
 
@@ -29,7 +35,13 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Email On File</span>
-        <span class="text-xl font-medium text-slate-900">{{ suppliersWithEmailCount() }}</span>
+        <span class="text-xl font-medium text-slate-900">
+          @if (supplierService.isLoading() && suppliersWithEmailCount() === 0) {
+            <span class="inline-block w-10 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ suppliersWithEmailCount() }}
+          }
+        </span>
       </div>
     </div>
 
@@ -40,7 +52,13 @@
       </div>
       <div>
         <span class="text-xs font-medium text-slate-500 block">Address Recorded</span>
-        <span class="text-xl font-medium text-slate-900">{{ suppliersWithAddressCount() }}</span>
+        <span class="text-xl font-medium text-slate-900">
+          @if (supplierService.isLoading() && suppliersWithAddressCount() === 0) {
+            <span class="inline-block w-10 h-5 bg-slate-200/80 rounded animate-pulse align-middle"></span>
+          } @else {
+            {{ suppliersWithAddressCount() }}
+          }
+        </span>
       </div>
     </div>
   </div>
@@ -91,11 +109,11 @@
     <!-- Loading State -->
     @if (supplierService.isLoading()) {
       <div class="p-6">
-        <app-skeleton-loader type="table"></app-skeleton-loader>
+        <app-skeleton-loader type="table" [rows]="5"></app-skeleton-loader>
       </div>
     } @else if (supplierService.error()) {
       <!-- Error State -->
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-error-state
           [message]="supplierService.error()!"
           (retry)="loadSuppliers()"
@@ -103,7 +121,7 @@
       </div>
     } @else if (suppliers().length === 0) {
       <!-- Empty State -->
-      <div class="p-6">
+      <div class="p-6 animate-fade-in">
         <app-empty-state
           title="No suppliers found"
           message="No suppliers match your current filter. Get started by adding a new supplier."
@@ -113,7 +131,7 @@
       </div>
     } @else {
       <!-- Data Table -->
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto animate-fade-in">
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
             <tr>

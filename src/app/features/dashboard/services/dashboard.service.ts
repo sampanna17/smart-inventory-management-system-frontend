@@ -41,7 +41,11 @@ export class DashboardService {
    * Load Admin Dashboard and update signal state
    */
   loadAdminDashboard(isSilentRefresh: boolean = false): void {
-    if (isSilentRefresh) {
+    // If data already exists in memory from a previous route visit, refresh silently
+    // to prevent full-page skeleton flashing during route changes.
+    const shouldSilent = isSilentRefresh || this.adminData() !== null;
+
+    if (shouldSilent) {
       this.isRefreshing.set(true);
     } else {
       this.isLoading.set(true);
@@ -79,7 +83,9 @@ export class DashboardService {
    * Load Staff Dashboard and update signal state
    */
   loadStaffDashboard(isSilentRefresh: boolean = false): void {
-    if (isSilentRefresh) {
+    const shouldSilent = isSilentRefresh || this.staffData() !== null;
+
+    if (shouldSilent) {
       this.isRefreshing.set(true);
     } else {
       this.isLoading.set(true);
