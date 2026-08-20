@@ -5,7 +5,7 @@
     <div class="space-y-2">
       <div class="flex flex-wrap items-center gap-2.5">
         <span
-          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium uppercase tracking-wider"
           [ngClass]="{
             'bg-primary/10 text-primary border border-primary/20': currentUser()?.role === Role.ADMIN,
             'bg-blue-50 text-blue-700 border border-blue-200': currentUser()?.role === Role.STAFF
@@ -32,7 +32,7 @@
       </div>
 
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-heading tracking-tight">
+        <h1 class="text-2xl sm:text-3xl font-medium text-heading tracking-tight">
           {{ greeting() }}, {{ currentUser()?.fullName || 'User' }}!
         </h1>
         <p class="text-sm text-muted mt-0.5">
@@ -68,7 +68,7 @@
         routerLink="/dashboard/sales"
         class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark active:bg-primary-dark/90 rounded-xl transition-all shadow-xs cursor-pointer"
       >
-        <ng-icon name="heroPlus" class="text-base font-bold"></ng-icon>
+        <ng-icon name="heroPlus" class="text-base font-medium"></ng-icon>
         <span>New Sale</span>
       </a>
 
