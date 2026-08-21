@@ -14,9 +14,9 @@
 
         <!-- Desktop Navigation Links -->
         <div class="hidden md:flex items-center gap-8 lg:gap-10">
-          <a href="#features" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Features</a>
-          <a href="#benefits" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Why SIMS</a>
-          <a href="#cta" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Get Started</a>
+          <a href="#features" (click)="scrollToSection('features', $event)" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors cursor-pointer">Features</a>
+          <a href="#benefits" (click)="scrollToSection('benefits', $event)" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors cursor-pointer">Why SIMS</a>
+          <a href="#cta" (click)="scrollToSection('cta', $event)" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors cursor-pointer">Get Started</a>
         </div>
 
         <!-- Right Actions (Login Button & Mobile Menu Toggle) -->
@@ -53,18 +53,18 @@
     @if (isMobileMenuOpen()) {
       <div class="md:hidden bg-white/95 backdrop-blur-lg border-b border-gray-100 px-4 pt-3 pb-5 space-y-2 shadow-xl animate-fade-in">
         <a href="#features"
-           (click)="closeMobileMenu()"
-           class="flex items-center px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:text-primary hover:bg-primary/5 transition-colors">
+           (click)="scrollToSection('features', $event)"
+           class="flex items-center px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:text-primary hover:bg-primary/5 transition-colors cursor-pointer">
           Features
         </a>
         <a href="#benefits"
-           (click)="closeMobileMenu()"
-           class="flex items-center px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:text-primary hover:bg-primary/5 transition-colors">
+           (click)="scrollToSection('benefits', $event)"
+           class="flex items-center px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:text-primary hover:bg-primary/5 transition-colors cursor-pointer">
           Why SIMS
         </a>
         <a href="#cta"
-           (click)="closeMobileMenu()"
-           class="flex items-center px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:text-primary hover:bg-primary/5 transition-colors">
+           (click)="scrollToSection('cta', $event)"
+           class="flex items-center px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:text-primary hover:bg-primary/5 transition-colors cursor-pointer">
           Get Started
         </a>
         <div class="pt-2 border-t border-gray-100">
@@ -82,7 +82,7 @@
   </nav>
 
   <!-- Hero Section -->
-  <section class="relative overflow-hidden bg-linear-to-br from-indigo-50/70 via-white to-purple-50/60 pt-24 pb-12 sm:pt-32 sm:pb-16 lg:pt-36 lg:pb-24 flex items-center min-h-[calc(100vh-4rem)] lg:min-h-screen">
+  <section class="relative overflow-hidden bg-linear-to-br from-indigo-50/70 via-white to-purple-50/60 pt-24 pb-10 sm:pt-28 sm:pb-12 lg:pt-32 lg:pb-14 flex items-center">
     <!-- Background decoration -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-5">
       <div class="absolute -top-24 -right-24 w-72 sm:w-96 h-72 sm:h-96 bg-indigo-500 rounded-full blur-3xl"></div>
@@ -112,7 +112,8 @@
               </svg>
             </a>
             <a href="#features"
-               class="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-white border-2 border-gray-200 hover:border-primary hover:text-primary text-gray-700 text-sm sm:text-base font-semibold rounded-xl transition-all duration-200">
+               (click)="scrollToSection('features', $event)"
+               class="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-white border-2 border-gray-200 hover:border-primary hover:text-primary text-gray-700 text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 cursor-pointer">
               Learn More
             </a>
           </div>
@@ -186,9 +187,9 @@
   </section>
 
   <!-- Features Section -->
-  <section id="features" class="py-14 sm:py-20 lg:py-24 bg-white">
+  <section id="features" class="scroll-mt-20 py-10 sm:py-12 lg:py-14 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
         <span class="inline-block px-3.5 py-1.5 sm:px-4 sm:py-2 bg-indigo-50 text-primary font-semibold text-xs sm:text-sm rounded-full mb-3 sm:mb-4">
           Features
         </span>
@@ -240,9 +241,9 @@
   </section>
 
   <!-- Benefits Section -->
-  <section id="benefits" class="py-14 sm:py-20 lg:py-24 bg-gray-50/80">
+  <section id="benefits" class="scroll-mt-20 py-10 sm:py-12 lg:py-14 bg-gray-50/80">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
         <span class="inline-block px-3.5 py-1.5 sm:px-4 sm:py-2 bg-indigo-50 text-primary font-semibold text-xs sm:text-sm rounded-full mb-3 sm:mb-4">
           Why SIMS
         </span>
@@ -276,7 +277,7 @@
   </section>
 
   <!-- CTA Section -->
-  <section id="cta" class="py-12 sm:py-16 md:py-20 bg-sidebar text-white">
+  <section id="cta" class="scroll-mt-20 py-10 sm:py-12 lg:py-14 bg-sidebar text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="max-w-3xl mx-auto text-center">
         <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3 sm:mb-4 leading-tight">
@@ -317,9 +318,9 @@
           <p class="text-xs sm:text-sm text-gray-400">Smart Inventory Management System</p>
         </div>
         <div class="flex items-center gap-6 text-xs sm:text-sm">
-          <a href="#features" class="hover:text-white transition-colors">Features</a>
-          <a href="#benefits" class="hover:text-white transition-colors">Why SIMS</a>
-          <a href="#cta" class="hover:text-white transition-colors">Get Started</a>
+          <a href="#features" (click)="scrollToSection('features', $event)" class="hover:text-white transition-colors cursor-pointer">Features</a>
+          <a href="#benefits" (click)="scrollToSection('benefits', $event)" class="hover:text-white transition-colors cursor-pointer">Why SIMS</a>
+          <a href="#cta" (click)="scrollToSection('cta', $event)" class="hover:text-white transition-colors cursor-pointer">Get Started</a>
         </div>
         <div class="text-xs sm:text-sm text-gray-500">
           &copy; 2026 SIMS. All rights reserved.

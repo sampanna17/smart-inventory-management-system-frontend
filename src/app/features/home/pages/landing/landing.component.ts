@@ -22,6 +22,19 @@ export class LandingComponent {
     this.isMobileMenuOpen.set(false);
   }
 
+  scrollToSection(sectionId: string, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+    }
+    this.closeMobileMenu();
+    if (typeof document !== 'undefined') {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }
+
   @HostListener('window:resize')
   onResize(): void {
     if (typeof window !== 'undefined' && window.innerWidth >= 768 && this.isMobileMenuOpen()) {
