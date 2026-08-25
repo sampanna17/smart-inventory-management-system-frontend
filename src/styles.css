@@ -123,16 +123,14 @@ select:-webkit-autofill {
 @keyframes pageFadeIn {
   0% {
     opacity: 0;
-    transform: translateY(1.5px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 .animate-page-enter {
-  animation: pageFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: pageFadeIn 0.15s ease-out forwards;
 }
 
 @keyframes fadeIn {
