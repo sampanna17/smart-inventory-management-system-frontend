@@ -36,7 +36,7 @@ import { heroChevronDown, heroMagnifyingGlass, heroCheck } from '@ng-icons/heroi
 
       <!-- Overlay Panel -->
       @if (isOpen()) {
-        <div class="absolute z-100 mt-1.5 w-full bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden py-1 max-h-60 flex flex-col transition-all animate-in fade-in duration-100">
+        <div class="absolute z-[100] mt-1.5 w-full bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden py-1 max-h-60 flex flex-col transition-all animate-in fade-in duration-100">
 
           <!-- Search Filter Header -->
           @if (filter() && options().length > 5) {
