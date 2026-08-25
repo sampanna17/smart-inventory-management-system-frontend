@@ -61,7 +61,7 @@ describe('WebSocketService', () => {
 
   it('should update unreadCount and display warning toast for LOW_STOCK notification', () => {
     const notification: NotificationItem = {
-      notificationId: 1,
+      notificationID: 1,
       userID: 42,
       title: 'Low Stock Alert',
       message: 'Product "Laptop Pro" is running low on stock (Quantity: 2)',
@@ -85,7 +85,7 @@ describe('WebSocketService', () => {
 
   it('should update unreadCount and display info toast for STAFF_ACCOUNT_CREATED notification', () => {
     const notification: NotificationItem = {
-      notificationId: 2,
+      notificationID: 2,
       userID: 42,
       title: 'Staff Created',
       message: 'A new staff account has been created for John Doe',

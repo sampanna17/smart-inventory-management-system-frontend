@@ -1,12 +1,14 @@
-import { Component, inject, signal, AfterViewInit, OnDestroy, PLATFORM_ID, NgZone } from '@angular/core';
+import { Component, inject, signal, OnInit, AfterViewInit, OnDestroy, PLATFORM_ID, NgZone } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroEye, heroEyeSlash, heroArrowLeft, heroUserPlus } from '@ng-icons/heroicons/outline';
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { RememberMeService } from '../../../../core/auth/services/remember-me.service';
 import { environment } from '../../../../../environments/environment';
 
 declare var google: any;
@@ -19,13 +21,15 @@ declare var google: any;
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements AfterViewInit, OnDestroy {
+export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private rememberMeService = inject(RememberMeService);
   private platformId = inject(PLATFORM_ID);
   private ngZone = inject(NgZone);
   private googleCheckInterval: ReturnType<typeof setInterval> | null = null;
+  private rememberMeSub: Subscription | null = null;
 
   isLoading = signal(false);
   hidePassword = signal(true);
@@ -45,6 +49,27 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     return this.loginForm.controls.password;
   }
 
+  ngOnInit(): void {
+    this.initRememberMe();
+  }
+
+  private initRememberMe(): void {
+    const rememberedEmail = this.rememberMeService.getRememberedEmail();
+    if (rememberedEmail) {
+      this.loginForm.patchValue({
+        email: rememberedEmail,
+        rememberMe: true,
+      });
+    }
+
+    // Immediately clear stored email whenever user unchecks Remember Me
+    this.rememberMeSub = this.loginForm.controls.rememberMe.valueChanges.subscribe((isChecked) => {
+      if (!isChecked) {
+        this.rememberMeService.clearRememberedEmail();
+      }
+    });
+  }
+
   togglePassword(): void {
     this.hidePassword.update((value) => !value);
   }
@@ -58,11 +83,19 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const { email, password } = this.loginForm.getRawValue();
+    const { email, password, rememberMe } = this.loginForm.getRawValue();
 
     this.authService.login({ email, password }).subscribe({
       next: () => {
         this.isLoading.set(false);
+
+        // Manage Remember Me ONLY after successful authentication
+        if (rememberMe) {
+          this.rememberMeService.saveRememberedEmail(email);
+        } else {
+          this.rememberMeService.clearRememberedEmail();
+        }
+
         void this.router.navigate(['/dashboard']);
       },
       error: (err) => {
@@ -87,6 +120,10 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.rememberMeSub) {
+      this.rememberMeSub.unsubscribe();
+      this.rememberMeSub = null;
+    }
     if (this.googleCheckInterval) {
       clearInterval(this.googleCheckInterval);
       this.googleCheckInterval = null;
