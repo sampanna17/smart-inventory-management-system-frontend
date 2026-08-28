@@ -1,0 +1,203 @@
+<div class="space-y-6">
+
+  <!-- 1. Controls Bar -->
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+    
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 sm:pb-0">
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-2 flex items-center gap-1">
+        <ng-icon name="heroCalendarDays" class="text-base"></ng-icon>
+        Period:
+      </span>
+      <button
+        type="button"
+        (click)="applyPreset('MONTH')"
+        [ngClass]="selectedPreset() === 'MONTH' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        This Month
+      </button>
+      <button
+        type="button"
+        (click)="applyPreset('YEAR')"
+        [ngClass]="selectedPreset() === 'YEAR' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        This Year
+      </button>
+      <button
+        type="button"
+        (click)="applyPreset('ALL')"
+        [ngClass]="selectedPreset() === 'ALL' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        All Time
+      </button>
+    </div>
+
+    <button
+      type="button"
+      (click)="printReport()"
+      class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+    >
+      <ng-icon name="heroPrinter" class="text-sm"></ng-icon>
+      Print Analytics
+    </button>
+
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="h-80 bg-slate-100 rounded-2xl animate-pulse"></div>
+      <div class="h-80 bg-slate-100 rounded-2xl animate-pulse"></div>
+    </div>
+  } @else {
+
+    <!-- 2. Product Performance: Top Sellers & Category Share -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- Top Selling Products by Revenue -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Top Revenue-Generating Products</h3>
+            <p class="text-xs text-slate-500">Products with highest gross revenue</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <ng-icon name="heroCurrencyDollar" class="text-lg"></ng-icon>
+          </div>
+        </div>
+
+        @if (productAnalytics()?.topSellingByRevenue && productAnalytics()!.topSellingByRevenue.length > 0) {
+          <div class="space-y-4">
+            @for (p of productAnalytics()!.topSellingByRevenue; track p.productId; let idx = $index) {
+              <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                <div class="flex items-center gap-3">
+                  <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">
+                    {{ idx + 1 }}
+                  </span>
+                  <div>
+                    <h4 class="text-xs font-bold text-slate-900">{{ p.productName }}</h4>
+                    <span class="text-2xs text-slate-500">{{ p.categoryName }} • {{ p.totalQuantitySold }} units sold</span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-black text-slate-900 font-mono">{{ p.totalRevenue | nprCurrency }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="py-12 text-center text-slate-400 text-xs">No sales data for products in this period</div>
+        }
+      </div>
+
+      <!-- Category Revenue Contribution -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Category Revenue Contribution</h3>
+            <p class="text-xs text-slate-500">Share of sales per product category</p>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <ng-icon name="heroTag" class="text-lg"></ng-icon>
+          </div>
+        </div>
+
+        @if (productAnalytics()?.categoryPerformance && productAnalytics()!.categoryPerformance.length > 0) {
+          <div class="space-y-4">
+            @for (cat of productAnalytics()!.categoryPerformance; track cat.categoryName) {
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between text-xs font-semibold">
+                  <span class="text-slate-800">{{ cat.categoryName }} ({{ cat.totalItemsSold }} units)</span>
+                  <span class="text-slate-900 font-mono">{{ cat.totalRevenue | nprCurrency }} ({{ cat.revenuePercentage }}%)</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-indigo-600 rounded-full transition-all duration-500"
+                    [style.width.%]="cat.revenuePercentage"
+                  ></div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="py-12 text-center text-slate-400 text-xs">No category sales in this period</div>
+        }
+      </div>
+
+    </div>
+
+    <!-- 3. Customer Purchasing Analytics Table -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Customer Purchasing Analytics</h3>
+          <p class="text-xs text-slate-500">Top spending customers and purchase frequency</p>
+        </div>
+        @if (customerAnalytics()?.summary) {
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+              Active: <strong>{{ customerAnalytics()!.summary.activeCustomers }}</strong> / {{ customerAnalytics()!.summary.totalCustomers }}
+            </span>
+            <span class="text-xs text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 font-semibold">
+              Avg Spend: {{ customerAnalytics()!.summary.averageCustomerSpend | nprCurrency }}
+            </span>
+          </div>
+        }
+      </div>
+
+      @if (customerAnalytics()?.topCustomers && customerAnalytics()!.topCustomers.length > 0) {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 bg-slate-50/50 text-2xs font-bold uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-6">Customer Name</th>
+                <th class="py-3 px-6">Email / Phone</th>
+                <th class="py-3 px-6 text-center">Total Orders</th>
+                <th class="py-3 px-6 text-right">Avg Order Value</th>
+                <th class="py-3 px-6 text-right">Total Lifetime Spend</th>
+                <th class="py-3 px-6 text-right">Last Purchase</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+              @for (cust of customerAnalytics()!.topCustomers; track cust.customerId) {
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-6 font-semibold text-slate-900">
+                    {{ cust.customerName }}
+                  </td>
+                  <td class="py-3 px-6 text-slate-500 text-xs">
+                    {{ cust.email || cust.phone || 'N/A' }}
+                  </td>
+                  <td class="py-3 px-6 text-center font-bold text-slate-700">
+                    {{ cust.totalOrders }}
+                  </td>
+                  <td class="py-3 px-6 text-right font-medium text-slate-600 text-xs">
+                    {{ cust.averageOrderValue | nprCurrency:true:'NPR':2 }}
+                  </td>
+                  <td class="py-3 px-6 text-right font-black text-slate-900">
+                    {{ cust.totalSpend | nprCurrency:true:'NPR':2 }}
+                  </td>
+                  <td class="py-3 px-6 text-right text-slate-500 text-xs">
+                    @if (cust.lastOrderDate) {
+                      <app-date-time [date]="cust.lastOrderDate" mode="date-only" layout="inline"></app-date-time>
+                    } @else {
+                      <span>-</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="py-16 text-center text-slate-400">
+          <ng-icon name="heroUserGroup" class="text-4xl mb-2 text-slate-300"></ng-icon>
+          <p class="text-sm font-medium">No customer sales data available</p>
+        </div>
+      }
+    </div>
+
+  }
+
+</div>

@@ -109,6 +109,12 @@ export class SidebarComponent {
       route: '/dashboard/notifications',
       roles: [Role.ADMIN, Role.STAFF],
     },
+    {
+      label: 'Reports',
+      icon: 'heroChartBar',
+      route: '/dashboard/reports',
+      roles: [Role.ADMIN, Role.STAFF],
+    },
     { label: 'Users', icon: 'heroUsers', route: '/dashboard/users', roles: [Role.ADMIN] },
   ];
 

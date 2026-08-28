@@ -1,0 +1,144 @@
+<div class="space-y-6">
+
+  <!-- 1. Controls Bar -->
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+    
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 sm:pb-0">
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-2 flex items-center gap-1">
+        <ng-icon name="heroCalendarDays" class="text-base"></ng-icon>
+        Period:
+      </span>
+      <button
+        type="button"
+        (click)="applyPreset('MONTH')"
+        [ngClass]="selectedPreset() === 'MONTH' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        This Month
+      </button>
+      <button
+        type="button"
+        (click)="applyPreset('YEAR')"
+        [ngClass]="selectedPreset() === 'YEAR' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        This Year
+      </button>
+      <button
+        type="button"
+        (click)="applyPreset('ALL')"
+        [ngClass]="selectedPreset() === 'ALL' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        All Time
+      </button>
+    </div>
+
+    <button
+      type="button"
+      (click)="printReport()"
+      class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+    >
+      <ng-icon name="heroPrinter" class="text-sm"></ng-icon>
+      Print Leaderboard
+    </button>
+
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="h-80 bg-slate-100 rounded-2xl animate-pulse"></div>
+  } @else if (report()?.staffMembers) {
+
+    <!-- 2. Staff Activity & Sales Performance Table -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Staff Sales Performance Leaderboard</h3>
+          <p class="text-xs text-slate-500">Sales volume, revenue generated, and units dispatched per staff account</p>
+        </div>
+        <span class="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+          {{ report()!.staffMembers.length }} Members
+        </span>
+      </div>
+
+      @if (report()!.staffMembers.length > 0) {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 bg-slate-50/50 text-2xs font-bold uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-6">Rank & Staff</th>
+                <th class="py-3 px-6">Role</th>
+                <th class="py-3 px-6 text-center">Completed Sales</th>
+                <th class="py-3 px-6 text-center">Units Sold</th>
+                <th class="py-3 px-6 text-right">Avg Sale Value</th>
+                <th class="py-3 px-6 text-right">Total Revenue</th>
+                <th class="py-3 px-6 text-right">Last Recorded Sale</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+              @for (member of report()!.staffMembers; track member.staffId; let idx = $index) {
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-6">
+                    <div class="flex items-center gap-3">
+                      <span class="w-6 h-6 rounded-full text-xs font-black flex items-center justify-center"
+                            [ngClass]="{
+                              'bg-amber-100 text-amber-800 border border-amber-300': idx === 0,
+                              'bg-slate-200 text-slate-700': idx === 1,
+                              'bg-orange-100 text-orange-800': idx === 2,
+                              'bg-slate-100 text-slate-500': idx > 2
+                            }">
+                        {{ idx + 1 }}
+                      </span>
+                      <div>
+                        <p class="font-bold text-slate-900">{{ member.fullName }}</p>
+                        <p class="text-2xs text-slate-400">{{ member.email }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-6">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold"
+                          [ngClass]="member.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'">
+                      {{ member.role }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-6 text-center font-bold text-slate-800">
+                    {{ member.totalSalesCount }}
+                  </td>
+                  <td class="py-3 px-6 text-center font-semibold text-slate-600">
+                    {{ member.totalUnitsSold }}
+                  </td>
+                  <td class="py-3 px-6 text-right text-slate-600 font-medium text-xs">
+                    {{ member.averageSaleValue | nprCurrency:true:'NPR':2 }}
+                  </td>
+                  <td class="py-3 px-6 text-right font-black text-slate-900">
+                    {{ member.totalRevenue | nprCurrency:true:'NPR':2 }}
+                  </td>
+                  <td class="py-3 px-6 text-right text-slate-500 text-xs">
+                    @if (member.lastSaleDate) {
+                      <app-date-time [date]="member.lastSaleDate" mode="date-only" layout="inline"></app-date-time>
+                    } @else {
+                      <span class="text-slate-400 italic">No sales recorded</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="py-16 text-center text-slate-400">
+          <ng-icon name="heroUsers" class="text-4xl mb-2 text-slate-300"></ng-icon>
+          <p class="text-sm font-medium">No staff activity data available</p>
+        </div>
+      }
+    </div>
+
+  } @else {
+    <app-empty-state
+      title="No Staff Activity Data Available"
+      description="Select filters to generate the staff sales performance report."
+    ></app-empty-state>
+  }
+
+</div>
