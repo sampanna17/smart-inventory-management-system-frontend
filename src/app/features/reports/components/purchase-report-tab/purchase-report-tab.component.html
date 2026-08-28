@@ -1,0 +1,280 @@
+<div class="space-y-6">
+
+  <!-- 1. Controls Bar -->
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    
+    <!-- Presets -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 lg:pb-0">
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-2 flex items-center gap-1">
+        <ng-icon name="heroCalendarDays" class="text-base"></ng-icon>
+        Period:
+      </span>
+      <button
+        type="button"
+        (click)="applyPreset('TODAY')"
+        [ngClass]="selectedPreset() === 'TODAY' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        Today
+      </button>
+      <button
+        type="button"
+        (click)="applyPreset('WEEK')"
+        [ngClass]="selectedPreset() === 'WEEK' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        Last 7 Days
+      </button>
+      <button
+        type="button"
+        (click)="applyPreset('MONTH')"
+        [ngClass]="selectedPreset() === 'MONTH' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        This Month
+      </button>
+      <button
+        type="button"
+        (click)="applyPreset('YEAR')"
+        [ngClass]="selectedPreset() === 'YEAR' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        This Year
+      </button>
+      <button
+        type="button"
+        (click)="applyPreset('ALL')"
+        [ngClass]="selectedPreset() === 'ALL' ? 'bg-primary text-white font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+      >
+        All Time
+      </button>
+    </div>
+
+    <!-- Filters & Export -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <select
+        [(ngModel)]="selectedSupplierId"
+        (ngModelChange)="onFilterChange()"
+        class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+      >
+        <option [ngValue]="null">All Suppliers</option>
+        @for (sup of suppliers(); track sup.supplierID) {
+          <option [ngValue]="sup.supplierID">{{ sup.supplierName }}</option>
+        }
+      </select>
+
+      <select
+        [(ngModel)]="selectedStatus"
+        (ngModelChange)="onFilterChange()"
+        class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+      >
+        <option value="ALL">All Statuses</option>
+        <option [value]="PurchaseStatus.RECEIVED">Received</option>
+        <option [value]="PurchaseStatus.PENDING">Pending</option>
+        <option [value]="PurchaseStatus.CANCELLED">Cancelled</option>
+      </select>
+
+      <button
+        type="button"
+        (click)="exportCsv()"
+        [disabled]="isExporting()"
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+      >
+        <ng-icon name="heroArrowDownTray" class="text-sm"></ng-icon>
+        {{ isExporting() ? 'Exporting...' : 'Export CSV' }}
+      </button>
+
+      <button
+        type="button"
+        (click)="printReport()"
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+      >
+        <ng-icon name="heroPrinter" class="text-sm"></ng-icon>
+        Print
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="h-28 bg-slate-100 rounded-2xl animate-pulse"></div>
+      <div class="h-28 bg-slate-100 rounded-2xl animate-pulse"></div>
+      <div class="h-28 bg-slate-100 rounded-2xl animate-pulse"></div>
+      <div class="h-28 bg-slate-100 rounded-2xl animate-pulse"></div>
+    </div>
+    <div class="h-64 bg-slate-100 rounded-2xl animate-pulse"></div>
+  } @else if (report()) {
+    @let summary = report()!.summary;
+
+    <!-- 2. Purchase Summary KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Total Expenditure -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Purchase Spend</p>
+          <p class="text-2xl font-black text-slate-900 mt-1">{{ summary.totalExpenditure | nprCurrency:true:'NPR':2 }}</p>
+          <p class="text-2xs text-slate-500 mt-1">Across {{ summary.totalPurchasesCount }} purchase orders</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+          <ng-icon name="heroCurrencyDollar" class="text-2xl"></ng-icon>
+        </div>
+      </div>
+
+      <!-- Received Orders -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Orders Received</p>
+          <p class="text-2xl font-black text-emerald-600 mt-1">{{ summary.receivedCount }}</p>
+          <p class="text-2xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+            <ng-icon name="heroCheckCircle" class="text-xs"></ng-icon>
+            Stock credited to inventory
+          </p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <ng-icon name="heroCheckCircle" class="text-2xl"></ng-icon>
+        </div>
+      </div>
+
+      <!-- Pending Orders -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Pending Orders</p>
+          <p class="text-2xl font-black text-amber-600 mt-1">{{ summary.pendingCount }}</p>
+          <p class="text-2xs text-slate-500 mt-1">Awaiting delivery/acceptance</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+          <ng-icon name="heroClock" class="text-2xl"></ng-icon>
+        </div>
+      </div>
+
+      <!-- Cancelled Orders -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Cancelled Orders</p>
+          <p class="text-2xl font-black text-rose-600 mt-1">{{ summary.cancelledCount }}</p>
+          <p class="text-2xs text-slate-500 mt-1">Orders voided</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+          <ng-icon name="heroXCircle" class="text-2xl"></ng-icon>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3. Supplier Spend Breakdown Cards -->
+    @if (report()!.supplierBreakdown.length > 0) {
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Supplier Order Volumes & Expenditure</h3>
+            <p class="text-xs text-slate-500">Breakdown by vendor transactions</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (sup of report()!.supplierBreakdown; track sup.supplierName) {
+            <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/60 hover:bg-slate-50 transition-colors">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900">{{ sup.supplierName }}</h4>
+                  <p class="text-2xs text-slate-500 mt-0.5">{{ sup.contactPerson }}</p>
+                </div>
+                <span class="text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
+                  {{ sup.purchaseCount }} POs
+                </span>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between">
+                <span class="text-2xs text-slate-500 uppercase font-semibold">Total PO Spend</span>
+                <span class="text-sm font-bold text-slate-900 font-mono">{{ sup.totalAmount | nprCurrency }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- 4. Detailed Purchases Table -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Purchase Orders</h3>
+          <p class="text-xs text-slate-500">All purchase order records in selected scope</p>
+        </div>
+        <span class="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+          {{ report()!.purchases.length }} Orders
+        </span>
+      </div>
+
+      @if (report()!.purchases.length > 0) {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 bg-slate-50/50 text-2xs font-bold uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-6">PO #</th>
+                <th class="py-3 px-6">Supplier</th>
+                <th class="py-3 px-6">Created By</th>
+                <th class="py-3 px-6">Order Date</th>
+                <th class="py-3 px-6 text-center">Items</th>
+                <th class="py-3 px-6 text-center">Status</th>
+                <th class="py-3 px-6 text-right">Total Amount</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+              @for (po of report()!.purchases; track po.purchaseId) {
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-6 font-mono font-semibold text-slate-900">
+                    {{ po.purchaseNumber }}
+                  </td>
+                  <td class="py-3 px-6 font-medium text-slate-800">
+                    {{ po.supplierName }}
+                  </td>
+                  <td class="py-3 px-6 text-slate-600 text-xs">
+                    {{ po.userName }}
+                  </td>
+                  <td class="py-3 px-6 text-slate-500 text-xs">
+                    <app-date-time [date]="po.purchaseDate" mode="date-only" layout="inline"></app-date-time>
+                  </td>
+                  <td class="py-3 px-6 text-center text-slate-600 font-semibold text-xs">
+                    {{ po.totalItems }}
+                  </td>
+                  <td class="py-3 px-6 text-center">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                      [ngClass]="{
+                        'bg-emerald-100 text-emerald-800': po.status === PurchaseStatus.RECEIVED,
+                        'bg-amber-100 text-amber-800': po.status === PurchaseStatus.PENDING,
+                        'bg-rose-100 text-rose-800': po.status === PurchaseStatus.CANCELLED
+                      }"
+                    >
+                      {{ po.status }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-6 text-right font-black text-slate-900">
+                    {{ po.totalAmount | nprCurrency:true:'NPR':2 }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="py-16 text-center text-slate-400">
+          <ng-icon name="heroTruck" class="text-4xl mb-2 text-slate-300"></ng-icon>
+          <p class="text-sm font-medium">No purchase records found</p>
+          <p class="text-xs text-slate-400 mt-1">Try adjusting your date range or supplier filters</p>
+        </div>
+      }
+    </div>
+
+  } @else {
+    <app-empty-state
+      title="No Purchase Report Available"
+      description="Select filters to generate purchase order transaction reports."
+    ></app-empty-state>
+  }
+
+</div>

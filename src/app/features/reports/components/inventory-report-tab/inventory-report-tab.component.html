@@ -1,0 +1,261 @@
+<div class="space-y-6">
+
+  <!-- 1. Controls Bar: Search, Category, Stock Status, Export -->
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    
+    <!-- Left Filters -->
+    <div class="flex items-center gap-3 flex-1 flex-wrap">
+      <!-- Search Input -->
+      <div class="relative flex-1 min-w-[200px] max-w-xs">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onFilterChange()"
+          placeholder="Search products..."
+          class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-slate-800"
+        />
+        <ng-icon name="heroMagnifyingGlass" class="absolute left-3 top-2.5 text-slate-400 text-sm"></ng-icon>
+      </div>
+
+      <!-- Category Filter -->
+      <select
+        [(ngModel)]="selectedCategoryId"
+        (ngModelChange)="onFilterChange()"
+        class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+      >
+        <option [ngValue]="null">All Categories</option>
+        @for (cat of categories(); track cat.categoryID) {
+          <option [ngValue]="cat.categoryID">{{ cat.categoryName }}</option>
+        }
+      </select>
+
+      <!-- Stock Status Filter -->
+      <select
+        [(ngModel)]="selectedStockStatus"
+        (ngModelChange)="onFilterChange()"
+        class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+      >
+        <option value="ALL">All Stock Levels</option>
+        <option value="IN_STOCK">Optimal Stock</option>
+        <option value="LOW_STOCK">Low Stock (≤ Threshold)</option>
+        <option value="OUT_OF_STOCK">Out of Stock (0)</option>
+      </select>
+    </div>
+
+    <!-- Right Controls: Export & Print -->
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        (click)="exportCsv()"
+        [disabled]="isExporting()"
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+      >
+        <ng-icon name="heroArrowDownTray" class="text-sm"></ng-icon>
+        {{ isExporting() ? 'Exporting...' : 'Export CSV' }}
+      </button>
+
+      <button
+        type="button"
+        (click)="printReport()"
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+      >
+        <ng-icon name="heroPrinter" class="text-sm"></ng-icon>
+        Print
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="h-28 bg-slate-100 rounded-2xl animate-pulse"></div>
+      <div class="h-28 bg-slate-100 rounded-2xl animate-pulse"></div>
+      <div class="h-28 bg-slate-100 rounded-2xl animate-pulse"></div>
+      <div class="h-28 bg-slate-100 rounded-2xl animate-pulse"></div>
+    </div>
+    <div class="h-64 bg-slate-100 rounded-2xl animate-pulse"></div>
+  } @else if (report()) {
+    @let summary = report()!.summary;
+
+    <!-- 2. Inventory Valuation KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Total Valuation (Cost) -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Asset Value (Cost)</p>
+          <p class="text-2xl font-black text-slate-900 mt-1">{{ summary.totalCostValue | nprCurrency:true:'NPR':2 }}</p>
+          <p class="text-2xs text-slate-500 mt-1">{{ summary.totalUnitsInStock }} units across {{ summary.totalProductsCount }} products</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+          <ng-icon name="heroBanknotes" class="text-2xl"></ng-icon>
+        </div>
+      </div>
+
+      <!-- Retail Value -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Potential Retail Value</p>
+          <p class="text-2xl font-black text-slate-900 mt-1">{{ summary.totalRetailValue | nprCurrency:true:'NPR':2 }}</p>
+          <p class="text-2xs text-emerald-600 font-semibold mt-1">
+            +{{ summary.totalPotentialProfit | nprCurrency:true:'NPR':0 }} margin potential
+          </p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <ng-icon name="heroCurrencyDollar" class="text-2xl"></ng-icon>
+        </div>
+      </div>
+
+      <!-- Low Stock Alerts -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Low Stock Alert</p>
+          <p class="text-2xl font-black text-amber-600 mt-1">{{ summary.lowStockCount }}</p>
+          <p class="text-2xs text-slate-500 mt-1">Below reorder threshold</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+          <ng-icon name="heroExclamationTriangle" class="text-2xl"></ng-icon>
+        </div>
+      </div>
+
+      <!-- Out of Stock Alerts -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Out of Stock</p>
+          <p class="text-2xl font-black text-rose-600 mt-1">{{ summary.outOfStockCount }}</p>
+          <p class="text-2xs text-slate-500 mt-1">Immediate restock required</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+          <ng-icon name="heroXCircle" class="text-2xl"></ng-icon>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3. Stock Movement Overview Banner -->
+    @if (report()!.movementSummary) {
+      @let mov = report()!.movementSummary;
+      <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-lg bg-white/10 text-primary-light flex items-center justify-center">
+            <ng-icon name="heroArrowsRightLeft" class="text-lg"></ng-icon>
+          </div>
+          <div>
+            <h4 class="text-sm font-bold text-white">Stock Movement Lifecycle Summary</h4>
+            <p class="text-2xs text-slate-400">Overall cumulative inventory flow</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2 border-t border-white/10">
+          <div>
+            <span class="text-2xs text-slate-400 uppercase font-semibold block">Total Purchased (Inflow)</span>
+            <span class="text-xl font-bold text-emerald-400 font-mono">+{{ mov.totalPurchasedQty }} units</span>
+          </div>
+          <div>
+            <span class="text-2xs text-slate-400 uppercase font-semibold block">Total Sold (Outflow)</span>
+            <span class="text-xl font-bold text-blue-400 font-mono">-{{ mov.totalSoldQty }} units</span>
+          </div>
+          <div>
+            <span class="text-2xs text-slate-400 uppercase font-semibold block">Adjustments</span>
+            <span class="text-xl font-bold text-amber-400 font-mono">{{ mov.totalAdjustedQty }} units</span>
+          </div>
+          <div>
+            <span class="text-2xs text-slate-400 uppercase font-semibold block">Customer Returns</span>
+            <span class="text-xl font-bold text-purple-400 font-mono">{{ mov.totalReturnedQty }} units</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- 4. Detailed Product Inventory Valuation Table -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Product Inventory Breakdown</h3>
+          <p class="text-xs text-slate-500">Itemized stock levels, valuations, and profit margins</p>
+        </div>
+        <span class="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+          {{ report()!.items.length }} Products
+        </span>
+      </div>
+
+      @if (report()!.items.length > 0) {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 bg-slate-50/50 text-2xs font-bold uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-6">Product</th>
+                <th class="py-3 px-6">Category</th>
+                <th class="py-3 px-6 text-center">In Stock</th>
+                <th class="py-3 px-6 text-center">Reorder Lvl</th>
+                <th class="py-3 px-6 text-right">Cost Price</th>
+                <th class="py-3 px-6 text-right">Selling Price</th>
+                <th class="py-3 px-6 text-right">Cost Valuation</th>
+                <th class="py-3 px-6 text-right">Retail Valuation</th>
+                <th class="py-3 px-6 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+              @for (item of report()!.items; track item.productId) {
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-6 font-semibold text-slate-900">
+                    {{ item.productName }}
+                  </td>
+                  <td class="py-3 px-6 text-slate-600 text-xs">
+                    <span class="bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-md font-medium">
+                      {{ item.categoryName }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-6 text-center font-bold font-mono text-slate-900">
+                    {{ item.stockQuantity }} {{ item.unitName }}
+                  </td>
+                  <td class="py-3 px-6 text-center text-slate-500 text-xs">
+                    {{ item.reorderLevel }}
+                  </td>
+                  <td class="py-3 px-6 text-right text-slate-600 text-xs">
+                    {{ item.costPrice | nprCurrency:true:'NPR':2 }}
+                  </td>
+                  <td class="py-3 px-6 text-right text-slate-900 font-medium text-xs">
+                    {{ item.sellingPrice | nprCurrency:true:'NPR':2 }}
+                  </td>
+                  <td class="py-3 px-6 text-right font-semibold text-slate-700">
+                    {{ item.totalCostValue | nprCurrency:true:'NPR':2 }}
+                  </td>
+                  <td class="py-3 px-6 text-right font-black text-emerald-700">
+                    {{ item.totalRetailValue | nprCurrency:true:'NPR':2 }}
+                  </td>
+                  <td class="py-3 px-6 text-center">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                      [ngClass]="{
+                        'bg-emerald-100 text-emerald-800': item.stockStatus === 'IN_STOCK',
+                        'bg-amber-100 text-amber-800': item.stockStatus === 'LOW_STOCK',
+                        'bg-rose-100 text-rose-800': item.stockStatus === 'OUT_OF_STOCK'
+                      }"
+                    >
+                      {{ item.stockStatus === 'IN_STOCK' ? 'Optimal' : (item.stockStatus === 'LOW_STOCK' ? 'Low Stock' : 'Out of Stock') }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="py-16 text-center text-slate-400">
+          <ng-icon name="heroArchiveBox" class="text-4xl mb-2 text-slate-300"></ng-icon>
+          <p class="text-sm font-medium">No inventory items matched your criteria</p>
+          <p class="text-xs text-slate-400 mt-1">Try resetting your search query or filters</p>
+        </div>
+      }
+    </div>
+
+  } @else {
+    <app-empty-state
+      title="No Inventory Data Available"
+      description="Select filters to generate inventory valuation and stock report."
+    ></app-empty-state>
+  }
+
+</div>

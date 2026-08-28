@@ -1,0 +1,43 @@
+<div class="space-y-6">
+
+  <!-- Header -->
+  <app-page-header
+    title="Reports & Analytics"
+    subtitle="Comprehensive financial, inventory valuation, purchasing, and staff performance analytics"
+  ></app-page-header>
+
+  <!-- Navigation Tabs -->
+  <div class="border-b border-slate-200 bg-white px-4 rounded-2xl shadow-xs overflow-x-auto">
+    <nav class="flex space-x-4 min-w-max">
+      @for (tab of tabs(); track tab.id) {
+        <button
+          type="button"
+          (click)="setTab(tab.id)"
+          class="flex items-center gap-2 py-4 px-3 border-b-2 text-sm font-semibold transition-all cursor-pointer"
+          [ngClass]="activeTab() === tab.id
+            ? 'border-primary text-primary'
+            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+        >
+          <ng-icon [name]="tab.icon" class="text-lg"></ng-icon>
+          {{ tab.label }}
+        </button>
+      }
+    </nav>
+  </div>
+
+  <!-- Tab Content -->
+  <div>
+    @if (activeTab() === 'sales') {
+      <app-sales-report-tab></app-sales-report-tab>
+    } @else if (activeTab() === 'inventory') {
+      <app-inventory-report-tab></app-inventory-report-tab>
+    } @else if (activeTab() === 'purchases' && isAdmin()) {
+      <app-purchase-report-tab></app-purchase-report-tab>
+    } @else if (activeTab() === 'analytics' && isAdmin()) {
+      <app-analytics-report-tab></app-analytics-report-tab>
+    } @else if (activeTab() === 'staff' && isAdmin()) {
+      <app-staff-report-tab></app-staff-report-tab>
+    }
+  </div>
+
+</div>

@@ -103,6 +103,15 @@ export const DASHBOARD_ROUTES: Routes = [
       ),
   },
   {
+    path: 'reports',
+    canActivate: [roleGuard],
+    data: { roles: [Role.ADMIN, Role.STAFF] },
+    loadChildren: () =>
+      import('../reports/reports.routes').then(
+        (m) => m.REPORTS_ROUTES
+      ),
+  },
+  {
     path: 'users',
     canActivate: [roleGuard],
     data: { roles: [Role.ADMIN] },
